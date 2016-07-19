@@ -14,7 +14,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import org.foree.duker.R;
+import org.foree.duker.api.AbsApiFactory;
+import org.foree.duker.api.AbsApiHelper;
+import org.foree.duker.api.ApiFactory;
+import org.foree.duker.api.FeedlyApiHelper;
 import org.foree.duker.base.BaseActivity;
+import org.foree.duker.net.NetCallback;
+import org.foree.duker.rssinfo.RssCategory;
+
+import java.util.List;
 
 public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -26,14 +34,36 @@ public class MainActivity extends BaseActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
+        AbsApiFactory absApiFactory = new ApiFactory();
+        final AbsApiHelper apiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
+
+        apiHelper.getCategoriesList("", new NetCallback<RssCategory>() {
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+            public void onSuccess(final List<RssCategory> data) {
+                fab.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Snackbar.make(view, data.toString(), Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onFail(final String msg) {
+                fab.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Snackbar.make(view, msg.toString(), Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
+                    }
+                });
             }
         });
+
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
