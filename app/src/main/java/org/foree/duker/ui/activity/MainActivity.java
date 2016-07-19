@@ -39,31 +39,7 @@ public class MainActivity extends BaseActivity
         AbsApiFactory absApiFactory = new ApiFactory();
         final AbsApiHelper apiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
 
-        apiHelper.getCategoriesList("", new NetCallback<RssCategory>() {
-            @Override
-            public void onSuccess(final List<RssCategory> data) {
-                fab.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Snackbar.make(view, data.toString(), Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                    }
-                });
-            }
-
-            @Override
-            public void onFail(final String msg) {
-                fab.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Snackbar.make(view, msg.toString(), Snackbar.LENGTH_LONG)
-                                .setAction("Action", null).show();
-                    }
-                });
-            }
-        });
-
-
+        apiHelper.getCategoriesList("", null);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(

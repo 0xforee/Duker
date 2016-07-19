@@ -5,4 +5,12 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+
+    <!-- load string -->
+    <string name="copyright" translatable="false">Copyright(&#169;) 2014&#8211;2015 Foree Inc.</string>
+    <string name="speak_author" translatable="false">— C.Clarke</string>
+    <string name="load_speak3" translatable="false">beyond them into the impossible</string>
+    <string name="load_speak2" translatable="false">possible is by going</string>
+    <string name="load_tv_app_name">DUKER</string>
+    <string name="load_speak1" translatable="false">The only way of finding the limits of the</string>
 </resources>
