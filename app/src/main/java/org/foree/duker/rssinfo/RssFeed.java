@@ -17,6 +17,22 @@ public class RssFeed {
     // 分类ID
     private List<String> categoryIds;
 
+    public String getFeedId() {
+        return feedId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public List<String> getCategoryIds() {
+        return categoryIds;
+    }
+
     public void setFeedId(String feedId) {
         this.feedId = feedId;
     }

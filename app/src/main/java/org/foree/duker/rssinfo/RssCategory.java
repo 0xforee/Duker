@@ -10,6 +10,18 @@ public class RssCategory {
     private String label;
     private String description;
 
+    public String getCategoryId() {
+        return categoryId;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
     public void setCategoryId(String categoryId) {
         this.categoryId = categoryId;
     }
