@@ -1,8 +1,10 @@
 package org.foree.duker.ui.activity;
 
+import android.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -13,6 +15,7 @@ import com.mikepenz.materialdrawer.model.ExpandableDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
 import org.foree.duker.R;
@@ -24,6 +27,7 @@ import org.foree.duker.base.BaseActivity;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssCategory;
 import org.foree.duker.rssinfo.RssFeed;
+import org.foree.duker.ui.fragment.ItemListFragment;
 
 import java.util.List;
 
@@ -31,10 +35,14 @@ public class MainActivity extends BaseActivity{
     private static final int PROFILE_SETTING = 100000;
     private static final int CATEGORY_INDENTIFIER = 20000;
     private static final int FEED_INDENTIFIER = 30000;
+    private static final int OTHER_INDENTIFIER = 40000;
+
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private AccountHeader headerResult = null;
     private Drawer result = null;
+    List<RssCategory> categoryList;
+    List<RssFeed> feedList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +51,12 @@ public class MainActivity extends BaseActivity{
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        if (savedInstanceState == null) {
+            Fragment f = ItemListFragment.newInstance("Demo");
+            getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
+        }
+
         // Create a few sample profile
         // NOTE you have to define the loader logic too. See the CustomApplication for more details
         final IProfile profile = new ProfileDrawerItem().withName("Mike Penz").withEmail("mikepenz@gmail.com").withIcon("https://avatars3.githubusercontent.com/u/1476232?v=3&s=460").withIdentifier(100);
@@ -76,17 +90,18 @@ public class MainActivity extends BaseActivity{
         apiHelper.getCategoriesList("", new NetCallback<RssCategory>() {
             @Override
             public void onSuccess(List<RssCategory> data) {
-                final List<RssCategory> categoryList = data;
+                categoryList = data;
                 apiHelper.getSubscriptions("", new NetCallback<RssFeed>() {
                     @Override
                     public void onSuccess(List<RssFeed> data) {
+                        feedList = data;
                         for (int cate_i = 0; cate_i < categoryList.size(); cate_i++) {
                             ExpandableDrawerItem expandableDrawerItem = new ExpandableDrawerItem().withName(categoryList.get(cate_i).getLabel()).withIdentifier(CATEGORY_INDENTIFIER+cate_i).withSelectable(false);
                             result.addItem(expandableDrawerItem);
                             for (int feed_i = 0; feed_i < data.size(); feed_i++) {
-                                for (int feed_cate_id = 0; feed_cate_id < data.get(feed_i).getCategoryIds().size(); feed_cate_id++) {
-                                    if( data.get(feed_i).getCategoryIds().get(feed_cate_id).equals(categoryList.get(cate_i).getCategoryId()))
-                                    expandableDrawerItem.withSubItems(new SecondaryDrawerItem().withName(data.get(feed_i).getName()).withIdentifier(FEED_INDENTIFIER+feed_i));
+                                for (int feed_cate_id = 0; feed_cate_id < feedList.get(feed_i).getCategoryIds().size(); feed_cate_id++) {
+                                    if( feedList.get(feed_i).getCategoryIds().get(feed_cate_id).equals(categoryList.get(cate_i).getCategoryId()))
+                                    expandableDrawerItem.withSubItems(new SecondaryDrawerItem().withName(feedList.get(feed_i).getName()).withIdentifier(FEED_INDENTIFIER+feed_i));
                                 }
                             }
                         }
@@ -107,5 +122,20 @@ public class MainActivity extends BaseActivity{
             }
         });
 
+        result.setOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+            @Override
+            public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                if (drawerItem != null){
+                    if( FEED_INDENTIFIER <= drawerItem.getIdentifier() && drawerItem.getIdentifier() < OTHER_INDENTIFIER){
+                        Log.d(TAG, "Identifier = " + drawerItem.getIdentifier());
+                        Log.d(TAG, "feedId = " + feedList.get((int)drawerItem.getIdentifier()-FEED_INDENTIFIER).getFeedId());
+                        Fragment f = ItemListFragment.newInstance(feedList.get((int)drawerItem.getIdentifier()-FEED_INDENTIFIER).getFeedId());
+                        getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
+                    }
+                    Toast.makeText(getApplicationContext(),position + "", Toast.LENGTH_SHORT).show();
+                }
+                return false;
+            }
+        });
     }
 }
