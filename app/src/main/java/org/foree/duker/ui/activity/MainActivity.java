@@ -1,14 +1,10 @@
 package org.foree.duker.ui.activity;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
-import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -17,7 +13,6 @@ import com.mikepenz.materialdrawer.model.ExpandableDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
-import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
 import org.foree.duker.R;
@@ -30,11 +25,12 @@ import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssCategory;
 import org.foree.duker.rssinfo.RssFeed;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends BaseActivity{
     private static final int PROFILE_SETTING = 100000;
+    private static final int CATEGORY_INDENTIFIER = 20000;
+    private static final int FEED_INDENTIFIER = 30000;
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private AccountHeader headerResult = null;
@@ -85,12 +81,12 @@ public class MainActivity extends BaseActivity{
                     @Override
                     public void onSuccess(List<RssFeed> data) {
                         for (int cate_i = 0; cate_i < categoryList.size(); cate_i++) {
-                            ExpandableDrawerItem expandableDrawerItem = new ExpandableDrawerItem().withName(categoryList.get(cate_i).getLabel()).withIdentifier(cate_i).withSelectable(false);
+                            ExpandableDrawerItem expandableDrawerItem = new ExpandableDrawerItem().withName(categoryList.get(cate_i).getLabel()).withIdentifier(CATEGORY_INDENTIFIER+cate_i).withSelectable(false);
                             result.addItem(expandableDrawerItem);
                             for (int feed_i = 0; feed_i < data.size(); feed_i++) {
                                 for (int feed_cate_id = 0; feed_cate_id < data.get(feed_i).getCategoryIds().size(); feed_cate_id++) {
                                     if( data.get(feed_i).getCategoryIds().get(feed_cate_id).equals(categoryList.get(cate_i).getCategoryId()))
-                                    expandableDrawerItem.withSubItems(new SecondaryDrawerItem().withName(data.get(feed_i).getName()).withIdentifier(feed_i));
+                                    expandableDrawerItem.withSubItems(new SecondaryDrawerItem().withName(data.get(feed_i).getName()).withIdentifier(FEED_INDENTIFIER+feed_i));
                                 }
                             }
                         }
