@@ -101,7 +101,7 @@ public class MainActivity extends BaseActivity{
                             for (int feed_i = 0; feed_i < data.size(); feed_i++) {
                                 for (int feed_cate_id = 0; feed_cate_id < feedList.get(feed_i).getCategoryIds().size(); feed_cate_id++) {
                                     if( feedList.get(feed_i).getCategoryIds().get(feed_cate_id).equals(categoryList.get(cate_i).getCategoryId()))
-                                    expandableDrawerItem.withSubItems(new SecondaryDrawerItem().withName(feedList.get(feed_i).getName()).withIdentifier(FEED_INDENTIFIER+feed_i));
+                                    expandableDrawerItem.withSubItems(new SecondaryDrawerItem().withName(feedList.get(feed_i).getName()).withIdentifier(FEED_INDENTIFIER+feed_i).withLevel(2));
                                 }
                             }
                         }
