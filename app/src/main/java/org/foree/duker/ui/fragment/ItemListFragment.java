@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.mikepenz.materialdrawer.Drawer;
 
@@ -27,13 +28,14 @@ import org.foree.duker.api.ApiFactory;
 import org.foree.duker.api.FeedlyApiHelper;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssItem;
+import org.foree.duker.ui.fragment.ItemListAdapter.OnItemClickListener;
 
 import java.util.List;
 
 /**
  * Created by foree on 16-7-20.
  */
-public class ItemListFragment extends Fragment{
+public class ItemListFragment extends Fragment {
     private static final String KEY_FEEDID = "feedId";
     private static final String TAG = ItemListFragment.class.getSimpleName();
 
@@ -79,6 +81,17 @@ public class ItemListFragment extends Fragment{
                 itemList = data;
                 mAdapter = new ItemListAdapter(getActivity(),itemList);
                 mRecyclerView.setAdapter(mAdapter);
+                mAdapter.setOnItemClickListener(new OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        Toast.makeText(getActivity(),position+"",Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onItemLongClick(View view, int position) {
+
+                    }
+                });
             }
 
             @Override
@@ -86,53 +99,8 @@ public class ItemListFragment extends Fragment{
 
             }
         });
+
         return linearLayout;
-    }
-
-    class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.MyViewHolder>{
-        private LayoutInflater mLayoutInflater;
-        private List<RssItem> mItemList;
-
-        public ItemListAdapter(Context context, List<RssItem> itemList){
-            mLayoutInflater = LayoutInflater.from(context);
-            mItemList = itemList;
-        }
-
-        @Override
-        public ItemListAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            MyViewHolder holder = new MyViewHolder(mLayoutInflater.inflate(R.layout.item_list_holder, parent, false));
-
-            return holder;
-        }
-
-        @Override
-        public void onBindViewHolder(ItemListAdapter.MyViewHolder holder, int position) {
-            holder.tvTitle.setText(mItemList.get(position).getTitle());
-            if (mItemList.get(position).getSummary() != null) {
-                holder.tvSummary.setVisibility(View.VISIBLE);
-                holder.tvSummary.setText(mItemList.get(position).getSummary());
-            }
-            holder.tvPublished.setText(mItemList.get(position).getPubDate().toString());
-        }
-
-        @Override
-        public int getItemCount() {
-            return mItemList.size();
-        }
-
-
-        class MyViewHolder extends RecyclerView.ViewHolder{
-            TextView tvTitle;
-            TextView tvSummary;
-            TextView tvPublished;
-
-            public MyViewHolder(View view){
-                super(view);
-                tvTitle = (TextView)view.findViewById(R.id.tv_item_title);
-                tvSummary = (TextView)view.findViewById(R.id.tv_item_summary);
-                tvPublished = (TextView)view.findViewById(R.id.tv_item_published);
-            }
-        }
     }
 
     class DividerItemDecoration extends RecyclerView.ItemDecoration {
@@ -164,8 +132,6 @@ public class ItemListFragment extends Fragment{
 
         @Override
         public void onDraw(Canvas c, RecyclerView parent) {
-            Log.v("recyclerview", "onDraw()");
-
             if (mOrientation == VERTICAL_LIST) {
                 drawVertical(c, parent);
             } else {
