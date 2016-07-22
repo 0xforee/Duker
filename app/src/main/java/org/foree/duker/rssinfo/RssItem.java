@@ -18,6 +18,26 @@ public class RssItem {
     // Itme 链接
     private String url;
 
+    public String getTitle() {
+        return title;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public Date getPubDate() {
+        return pubDate;
+    }
+
+    public String getEntryId() {
+        return entryId;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }

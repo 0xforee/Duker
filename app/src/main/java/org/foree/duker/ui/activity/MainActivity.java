@@ -53,7 +53,7 @@ public class MainActivity extends BaseActivity{
         setSupportActionBar(toolbar);
 
         if (savedInstanceState == null) {
-            Fragment f = ItemListFragment.newInstance("Demo");
+            Fragment f = ItemListFragment.newInstance("All Stream List");
             getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
         }
 
