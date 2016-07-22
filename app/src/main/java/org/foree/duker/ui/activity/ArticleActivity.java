@@ -2,6 +2,7 @@ package org.foree.duker.ui.activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -21,7 +22,14 @@ public class ArticleActivity extends BaseActivity {
         setContentView(R.layout.activity_article);
 
         wb_article = (WebView)findViewById(R.id.wb_article);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
         String Url = getIntent().getStringExtra("entryUrl");
+        String Title = getIntent().getStringExtra("entryTitle");
+
+        toolbar.setTitle(Title);
+        setSupportActionBar(toolbar);
+
         Log.d(TAG, Url);
         wb_article.setWebViewClient(new WebViewClient(){
             @Override

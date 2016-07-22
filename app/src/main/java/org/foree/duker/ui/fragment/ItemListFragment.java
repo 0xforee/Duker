@@ -91,6 +91,7 @@ public class ItemListFragment extends Fragment {
                         Intent intent = new Intent(getActivity(), ArticleActivity.class);
                         Bundle bundle = new Bundle();
                         bundle.putString("entryUrl", itemList.get(position).getUrl());
+                        bundle.putString("entryTitle", itemList.get(position).getTitle());
                         intent.putExtras(bundle);
                         startActivity(intent);
                     }
