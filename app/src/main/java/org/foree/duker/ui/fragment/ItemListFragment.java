@@ -103,7 +103,12 @@ public class ItemListFragment extends Fragment{
 
         @Override
         public void onBindViewHolder(ItemListAdapter.MyViewHolder holder, int position) {
-            holder.tv.setText(mItemList.get(position).getTitle());
+            holder.tvTitle.setText(mItemList.get(position).getTitle());
+            if (mItemList.get(position).getSummary() != null) {
+                holder.tvSummary.setVisibility(View.VISIBLE);
+                holder.tvSummary.setText(mItemList.get(position).getSummary());
+            }
+            holder.tvPublished.setText(mItemList.get(position).getPubDate().toString());
         }
 
         @Override
@@ -113,10 +118,15 @@ public class ItemListFragment extends Fragment{
 
 
         class MyViewHolder extends RecyclerView.ViewHolder{
-            TextView tv;
+            TextView tvTitle;
+            TextView tvSummary;
+            TextView tvPublished;
+
             public MyViewHolder(View view){
                 super(view);
-                tv = (TextView)view.findViewById(R.id.tv_item);
+                tvTitle = (TextView)view.findViewById(R.id.tv_item_title);
+                tvSummary = (TextView)view.findViewById(R.id.tv_item_summary);
+                tvPublished = (TextView)view.findViewById(R.id.tv_item_published);
             }
         }
     }
