@@ -2,6 +2,7 @@ package org.foree.duker.ui.fragment;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -28,8 +29,10 @@ import org.foree.duker.api.ApiFactory;
 import org.foree.duker.api.FeedlyApiHelper;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssItem;
+import org.foree.duker.ui.activity.ArticleActivity;
 import org.foree.duker.ui.fragment.ItemListAdapter.OnItemClickListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -85,6 +88,11 @@ public class ItemListFragment extends Fragment {
                     @Override
                     public void onItemClick(View view, int position) {
                         Toast.makeText(getActivity(),position+"",Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(getActivity(), ArticleActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("entryUrl", itemList.get(position).getUrl());
+                        intent.putExtras(bundle);
+                        startActivity(intent);
                     }
 
                     @Override
