@@ -221,7 +221,8 @@ public class FeedlyApiHelper extends AbsApiHelper {
 
                 RssItem.setPubDate(new Date(itemObject.getLong("published")));
                 RssItem.setUrl(itemObject.getJSONArray("alternate").getJSONObject(0).getString("href"));
-                RssItem.setSummary(itemObject.getJSONObject("summary").getString("content").substring(0,32));
+                String summary = itemObject.getJSONObject("summary").getString("content");
+                RssItem.setSummary(summary.substring(0, Math.min(32, summary.length())));
                 RssItem.setEntryId(itemObject.getString("id"));
                 RssItem.setTitle(itemObject.getString("title"));
 
