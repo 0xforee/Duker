@@ -29,6 +29,7 @@ public class ArticleActivity extends BaseActivity {
 
         toolbar.setTitle(Title);
         setSupportActionBar(toolbar);
+        wb_article.getSettings().setJavaScriptEnabled(true);
 
         Log.d(TAG, Url);
         wb_article.setWebViewClient(new WebViewClient(){
@@ -39,6 +40,5 @@ public class ArticleActivity extends BaseActivity {
             }
         });
         wb_article.loadUrl(Url);
-
     }
 }
