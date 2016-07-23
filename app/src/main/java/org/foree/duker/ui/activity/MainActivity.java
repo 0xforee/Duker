@@ -42,8 +42,6 @@ public class MainActivity extends BaseActivity{
 
     private AccountHeader headerResult = null;
     private Drawer result = null;
-    List<RssCategory> categoryList;
-    List<RssFeed> feedList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,29 +83,17 @@ public class MainActivity extends BaseActivity{
                 .withShowDrawerOnFirstLaunch(true)
                 .build();
 
-        result.addItem(new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIdentifier(1));
 
         AbsApiFactory absApiFactory = new ApiFactory();
         final AbsApiHelper apiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
 
         apiHelper.getCategoriesList("", new NetCallback<RssCategory>() {
             @Override
-            public void onSuccess(List<RssCategory> data) {
-                categoryList = data;
+            public void onSuccess(final List<RssCategory> categoryList) {
                 apiHelper.getSubscriptions("", new NetCallback<RssFeed>() {
                     @Override
-                    public void onSuccess(List<RssFeed> data) {
-                        feedList = data;
-                        for (int cate_i = 0; cate_i < categoryList.size(); cate_i++) {
-                            ExpandableDrawerItem expandableDrawerItem = new ExpandableDrawerItem().withName(categoryList.get(cate_i).getLabel()).withIdentifier(CATEGORY_INDENTIFIER+cate_i).withSelectable(false);
-                            result.addItem(expandableDrawerItem);
-                            for (int feed_i = 0; feed_i < data.size(); feed_i++) {
-                                for (int feed_cate_id = 0; feed_cate_id < feedList.get(feed_i).getCategoryIds().size(); feed_cate_id++) {
-                                    if( feedList.get(feed_i).getCategoryIds().get(feed_cate_id).equals(categoryList.get(cate_i).getCategoryId()))
-                                    expandableDrawerItem.withSubItems(new SecondaryDrawerItem().withName(feedList.get(feed_i).getName()).withIdentifier(FEED_INDENTIFIER+feed_i).withLevel(2));
-                                }
-                            }
-                        }
+                    public void onSuccess(List<RssFeed> feedList) {
+                        initDrawer(categoryList, feedList);
                     }
                     @Override
                     public void onFail(String msg) {
@@ -124,6 +110,22 @@ public class MainActivity extends BaseActivity{
                 Log.e(TAG,"getSubscription " + msg);
             }
         });
+
+    }
+
+    private void initDrawer(final List<RssCategory> categoryList, final List<RssFeed> feedList) {
+        result.addItem(new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIdentifier(1));
+
+        for (int cate_i = 0; cate_i < categoryList.size(); cate_i++) {
+            ExpandableDrawerItem expandableDrawerItem = new ExpandableDrawerItem().withName(categoryList.get(cate_i).getLabel()).withIdentifier(CATEGORY_INDENTIFIER+cate_i).withSelectable(false);
+            result.addItem(expandableDrawerItem);
+            for (int feed_i = 0; feed_i < feedList.size(); feed_i++) {
+                for (int feed_cate_id = 0; feed_cate_id < feedList.get(feed_i).getCategoryIds().size(); feed_cate_id++) {
+                    if( feedList.get(feed_i).getCategoryIds().get(feed_cate_id).equals(categoryList.get(cate_i).getCategoryId()))
+                        expandableDrawerItem.withSubItems(new SecondaryDrawerItem().withName(feedList.get(feed_i).getName()).withIdentifier(FEED_INDENTIFIER+feed_i).withLevel(2));
+                }
+            }
+        }
 
         result.setOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
             @Override
