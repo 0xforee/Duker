@@ -78,7 +78,7 @@ public class ItemListFragment extends Fragment {
         AbsApiFactory absApiFactory = new ApiFactory();
         mApiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
 
-        mApiHelper.getStream("", getArguments().getString(KEY_FEEDID), new NetCallback<RssItem>() {
+        mApiHelper.getStream("", getArguments().getString(KEY_FEEDID), new NetCallback<List<RssItem>>() {
             @Override
             public void onSuccess(List<RssItem> data) {
                 itemList = data;

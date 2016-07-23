@@ -123,8 +123,45 @@ public class FeedlyApiHelper extends AbsApiHelper {
     }
 
     @Override
-    public void getProfile(String token, NetCallback<RssProfile> netCallback) {
+    public void getProfile(String token, final NetCallback<RssProfile> netCallback) {
+        token = API_TOKEN_TEST;
 
+        String url = API_HOST_URL + API_PROFILE_URL;
+
+        final Map<String,String> headers = new HashMap<>();
+        headers.put("Authorization","OAuth " + token);
+        NetWorkApiHelper.newInstance().getRequest(url, headers, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.i(TAG,"onResponse:getProfile " + response);
+                if (netCallback != null){
+                    netCallback.onSuccess(parseProfile(response));
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG,"onErrorResponse:getProfile " + error.getMessage());
+
+                if (netCallback != null){
+                    netCallback.onFail(error.getMessage());
+                }
+            }
+        });
+    }
+
+    private RssProfile parseProfile(String data) {
+        RssProfile rssProfile = new RssProfile();
+        try {
+            JSONObject jsObject = new JSONObject(data);
+            rssProfile.setId(jsObject.getString("id"));
+            rssProfile.setEmail(jsObject.getString("email"));
+            rssProfile.setFullName(jsObject.getString("fullName"));
+            rssProfile.setPicture(jsObject.getString("picture"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return rssProfile;
     }
 
     private List<RssCategory> parseCategories(String data){

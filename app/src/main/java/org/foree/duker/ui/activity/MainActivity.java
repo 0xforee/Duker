@@ -28,6 +28,7 @@ import org.foree.duker.base.BaseActivity;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssCategory;
 import org.foree.duker.rssinfo.RssFeed;
+import org.foree.duker.rssinfo.RssProfile;
 import org.foree.duker.ui.fragment.ItemListFragment;
 
 import java.util.List;
@@ -42,6 +43,7 @@ public class MainActivity extends BaseActivity{
 
     private AccountHeader headerResult = null;
     private Drawer result = null;
+    AbsApiHelper apiHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,28 +53,15 @@ public class MainActivity extends BaseActivity{
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        AbsApiFactory absApiFactory = new ApiFactory();
+        apiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
+
         if (savedInstanceState == null) {
             Fragment f = ItemListFragment.newInstance(FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID));
             getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
         }
 
-        // Create a few sample profile
-        // NOTE you have to define the loader logic too. See the CustomApplication for more details
-        final IProfile profile = new ProfileDrawerItem().withName("Mike Penz").withEmail("mikepenz@gmail.com").withIcon("https://avatars3.githubusercontent.com/u/1476232?v=3&s=460").withIdentifier(100);
-
-        // Create the AccountHeader
-        headerResult = new AccountHeaderBuilder()
-                .withActivity(this)
-                .withTranslucentStatusBar(true)
-                .withHeaderBackground(R.drawable.header)
-                .addProfiles(
-                        profile,
-                        //don't ask but google uses 14dp for the add account icon in gmail but 20dp for the normal icons (like manage account)
-                        new ProfileSettingDrawerItem().withName("Add Account").withDescription("Add new GitHub Account").withIdentifier(PROFILE_SETTING),
-                        new ProfileSettingDrawerItem().withName("Manage Account").withIdentifier(100001)
-                )
-                .withSavedInstance(savedInstanceState)
-                .build();
+        initProfile(savedInstanceState);
 
         result = new DrawerBuilder()
                 .withActivity(this)
@@ -83,14 +72,10 @@ public class MainActivity extends BaseActivity{
                 .withShowDrawerOnFirstLaunch(true)
                 .build();
 
-
-        AbsApiFactory absApiFactory = new ApiFactory();
-        final AbsApiHelper apiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
-
-        apiHelper.getCategoriesList("", new NetCallback<RssCategory>() {
+        apiHelper.getCategoriesList("", new NetCallback<List<RssCategory>>() {
             @Override
             public void onSuccess(final List<RssCategory> categoryList) {
-                apiHelper.getSubscriptions("", new NetCallback<RssFeed>() {
+                apiHelper.getSubscriptions("", new NetCallback<List<RssFeed>>() {
                     @Override
                     public void onSuccess(List<RssFeed> feedList) {
                         initDrawer(categoryList, feedList);
@@ -108,6 +93,40 @@ public class MainActivity extends BaseActivity{
             public void onFail(String msg) {
                 Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_LONG).show();
                 Log.e(TAG,"getSubscription " + msg);
+            }
+        });
+
+    }
+
+    private void initProfile(final Bundle savedInstanceState) {
+
+        // Create a few sample profile
+        // NOTE you have to define the loader logic too. See the CustomApplication for more details
+        final IProfile profile = new ProfileDrawerItem().withName("").withEmail("").withIcon("").withIdentifier(100);
+
+        // Create the AccountHeader
+        headerResult = new AccountHeaderBuilder()
+                .withActivity(MainActivity.this)
+                .withTranslucentStatusBar(true)
+                .withHeaderBackground(R.drawable.header)
+                .addProfiles(
+                        profile,
+                        //don't ask but google uses 14dp for the add account icon in gmail but 20dp for the normal icons (like manage account)
+                        new ProfileSettingDrawerItem().withName("Add Account").withDescription("Add new GitHub Account").withIdentifier(PROFILE_SETTING),
+                        new ProfileSettingDrawerItem().withName("Manage Account").withIdentifier(100001)
+                )
+                .withSavedInstance(savedInstanceState)
+                .build();
+        apiHelper.getProfile("", new NetCallback<RssProfile>() {
+            @Override
+            public void onSuccess(RssProfile data) {
+                final IProfile profile2 = new ProfileDrawerItem().withName(data.getFullName()).withEmail(data.getEmail()).withIcon(data.getPicture()).withIdentifier(100);
+                headerResult.updateProfile(profile2);
+            }
+
+            @Override
+            public void onFail(String msg) {
+
             }
         });
 
