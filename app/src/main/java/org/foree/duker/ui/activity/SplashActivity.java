@@ -5,36 +5,68 @@ import android.os.Bundle;
 import android.view.WindowManager;
 
 import org.foree.duker.R;
+import org.foree.duker.api.AbsApiFactory;
+import org.foree.duker.api.AbsApiHelper;
+import org.foree.duker.api.ApiFactory;
+import org.foree.duker.api.FeedlyApiHelper;
 import org.foree.duker.base.BaseActivity;
+import org.foree.duker.net.NetCallback;
+import org.foree.duker.rssinfo.RssItem;
 
-public class SplashActivity extends BaseActivity {
+import java.io.Serializable;
+import java.util.List;
+
+public class SplashActivity extends BaseActivity{
     private static final String TAG = SplashActivity.class.getSimpleName();
-    private long WAIT_TIME = 2000;
+    private long mStartTime;
+    private long WAIT_TIME = 3000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
+        mStartTime = System.currentTimeMillis();
         //获取窗口，设置全屏
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        Thread loadThread = new Thread() {
+        AbsApiFactory absApiFactory = new ApiFactory();
+        AbsApiHelper apiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
+        apiHelper.getStream("", FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID), new NetCallback<List<RssItem>>() {
             @Override
-            public void run() {
-                synchronized (this) {
-                    try {
-                        wait(WAIT_TIME);
-                        startActivity(new Intent(SplashActivity.this, MainActivity.class));
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } finally {
-                        finish();
+            public void onSuccess(final List<RssItem> data) {
+                final long mEndTime = System.currentTimeMillis()-mStartTime;
+                final long loadTime = Math.max(WAIT_TIME, mEndTime);
+                Thread loadThread = new Thread() {
+                    @Override
+                    public void run() {
+                        synchronized (this) {
+                            try {
+                                wait(loadTime-mEndTime);
+                                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                                intent.putExtra("rssItemList", (Serializable)data);
+                                startActivity(intent);
+                                finish();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            } finally {
+                                finish();
+                            }
+                        }
                     }
-                }
-            }
-        };
+                };
 
-        loadThread.start();
+                loadThread.start();
+
+            }
+
+            @Override
+            public void onFail(String msg) {
+
+            }
+        });
+
     }
+
+
 }

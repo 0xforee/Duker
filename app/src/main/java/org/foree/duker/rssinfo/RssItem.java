@@ -1,12 +1,13 @@
 package org.foree.duker.rssinfo;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by foree on 16-7-19.
  * Rss Stream中的entry
  */
-public class RssItem {
+public class RssItem implements Serializable{
     // Item 标题
     private String title;
     // Item 概览
