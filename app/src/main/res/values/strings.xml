@@ -6,6 +6,9 @@
 
     <string name="action_settings">Settings</string>
 
+    <!-- Drawer string -->
+    <string name="drawer_item_home">Home</string>
+
     <!-- load string -->
     <string name="copyright" translatable="false">Copyright(&#169;) 2014&#8211;2015 Foree Inc.</string>
     <string name="speak_author" translatable="false">— C.Clarke</string>

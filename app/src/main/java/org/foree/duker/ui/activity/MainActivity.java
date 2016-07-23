@@ -12,6 +12,7 @@ import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.ExpandableDrawerItem;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
@@ -53,7 +54,7 @@ public class MainActivity extends BaseActivity{
         setSupportActionBar(toolbar);
 
         if (savedInstanceState == null) {
-            Fragment f = ItemListFragment.newInstance("All Stream List");
+            Fragment f = ItemListFragment.newInstance(FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID));
             getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
         }
 
@@ -83,6 +84,8 @@ public class MainActivity extends BaseActivity{
                 .withSavedInstance(savedInstanceState)
                 .withShowDrawerOnFirstLaunch(true)
                 .build();
+
+        result.addItem(new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIdentifier(1));
 
         AbsApiFactory absApiFactory = new ApiFactory();
         final AbsApiHelper apiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
@@ -130,6 +133,9 @@ public class MainActivity extends BaseActivity{
                         Log.d(TAG, "Identifier = " + drawerItem.getIdentifier());
                         Log.d(TAG, "feedId = " + feedList.get((int)drawerItem.getIdentifier()-FEED_INDENTIFIER).getFeedId());
                         Fragment f = ItemListFragment.newInstance(feedList.get((int)drawerItem.getIdentifier()-FEED_INDENTIFIER).getFeedId());
+                        getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
+                    } else if (drawerItem.getIdentifier() == 1){
+                        Fragment f = ItemListFragment.newInstance(FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID));
                         getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
                     }
                     Toast.makeText(getApplicationContext(),position + "", Toast.LENGTH_SHORT).show();

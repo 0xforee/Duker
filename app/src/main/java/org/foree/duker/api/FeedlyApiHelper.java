@@ -33,6 +33,8 @@ public class FeedlyApiHelper extends AbsApiHelper {
     private static final String API_SUBSCRIPTIONS_URL = "/v3/subscriptions";
     private static final String API_STREAM_IDS_URL = "/v3/streams/ids?streamId=:streamId";
     private static final String API_STREAM_CONTENTS_URL = "/v3/streams/contents?streamId=:streamId";
+    public static final String USER_ID = "a5a12800-0cc3-4b9e-bc33-9d46f76cc162";
+    public static final String API_GLOBAL_ALL_URL = "user/:userId/category/global.all";
 
     @Override
     public void getCategoriesList(String token, final NetCallback<RssCategory> netCallback) {
