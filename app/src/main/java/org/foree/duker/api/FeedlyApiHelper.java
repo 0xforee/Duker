@@ -11,6 +11,7 @@ import org.foree.duker.rssinfo.RssFeed;
 import org.foree.duker.rssinfo.RssFeed;
 import org.foree.duker.rssinfo.RssItem;
 import org.foree.duker.rssinfo.RssItem;
+import org.foree.duker.rssinfo.RssProfile;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,13 +32,14 @@ public class FeedlyApiHelper extends AbsApiHelper {
     private static final String API_TOKEN_TEST = "A3wMXqyNgMOZwCqIoBC5OZoKdSyKemk1IYWp12rk86Kb7KIBHlUBER2Pe2PWaro4Ur_0Rq1h8MiqQBFE_uly7A6GNbjtT5wWbIF5rf6haQetytQcjZj6_FSDSTrkmF3y5CclNtH3q_6UlK1kPPY0i4_CXXIkhIrT7aTJRUTry3b-HGvq_rwWK7JFewguG4PvV7EMozQuosYKOcMrcd3cGwmYsToq8hc:feedlydev";
     private static final String API_CATEGORIES_URL = "/v3/categories";
     private static final String API_SUBSCRIPTIONS_URL = "/v3/subscriptions";
+    private static final String API_PROFILE_URL = "/v3/profile";
     private static final String API_STREAM_IDS_URL = "/v3/streams/ids?streamId=:streamId";
     private static final String API_STREAM_CONTENTS_URL = "/v3/streams/contents?streamId=:streamId";
     public static final String USER_ID = "a5a12800-0cc3-4b9e-bc33-9d46f76cc162";
     public static final String API_GLOBAL_ALL_URL = "user/:userId/category/global.all";
 
     @Override
-    public void getCategoriesList(String token, final NetCallback<RssCategory> netCallback) {
+    public void getCategoriesList(String token, final NetCallback<List<RssCategory>> netCallback) {
         token = API_TOKEN_TEST;
 
         String url = API_HOST_URL + API_CATEGORIES_URL;
@@ -65,7 +67,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
     }
 
     @Override
-    public void getSubscriptions(String token, final NetCallback<RssFeed> netCallback) {
+    public void getSubscriptions(String token, final NetCallback<List<RssFeed>> netCallback) {
         token = API_TOKEN_TEST;
 
         String url = API_HOST_URL + API_SUBSCRIPTIONS_URL;
@@ -93,7 +95,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
     }
 
     @Override
-    public void getStream(String token, String streamId, final NetCallback<RssItem> netCallback) {
+    public void getStream(String token, String streamId, final NetCallback<List<RssItem>> netCallback) {
         token = API_TOKEN_TEST;
 
         String url = API_HOST_URL + API_STREAM_CONTENTS_URL.replace(":streamId", streamId);
@@ -118,6 +120,11 @@ public class FeedlyApiHelper extends AbsApiHelper {
                 }
             }
         });
+    }
+
+    @Override
+    public void getProfile(String token, NetCallback<RssProfile> netCallback) {
+
     }
 
     private List<RssCategory> parseCategories(String data){
