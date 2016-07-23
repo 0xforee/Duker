@@ -45,7 +45,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
         NetWorkApiHelper.newInstance().getRequest(url, headers, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Log.i(TAG,"onResponse " + response);
+                Log.i(TAG,"onResponse:getCategoriesList " + response);
                 if (netCallback != null){
                     netCallback.onSuccess(parseCategories(response));
                 }
@@ -53,7 +53,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(TAG,"onErrorResponse " + error.getMessage());
+                Log.e(TAG,"onErrorResponse:getCategoriesList " + error.getMessage());
 
                 if (netCallback != null){
                     netCallback.onFail(error.getMessage());
@@ -73,7 +73,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
         NetWorkApiHelper.newInstance().getRequest(url, headers, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Log.i(TAG,"onResponse " + response);
+                Log.i(TAG,"onResponse:getSubscriptions " + response);
                 if (netCallback != null){
                     netCallback.onSuccess(parseSubscriptions(response));
                 }
@@ -81,7 +81,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(TAG,"onErrorResponse " + error.getMessage());
+                Log.e(TAG,"onErrorResponse:getSubscriptions " + error.getMessage());
 
                 if (netCallback != null){
                     netCallback.onFail(error.getMessage());
@@ -101,7 +101,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
         NetWorkApiHelper.newInstance().getRequest(url, headers, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Log.i(TAG,"onResponse " + response);
+                Log.i(TAG,"onResponse:getStream " + response);
                 if (netCallback != null){
                     netCallback.onSuccess(parseStream(response));
                 }
@@ -109,7 +109,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(TAG,"onErrorResponse " + error.getMessage());
+                Log.e(TAG,"onErrorResponse:getStream " + error.getMessage());
 
                 if (netCallback != null){
                     netCallback.onFail(error.getMessage());
@@ -175,6 +175,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
 
                 RssItem.setPubDate(new Date(itemObject.getLong("published")));
                 RssItem.setUrl(itemObject.getJSONArray("alternate").getJSONObject(0).getString("href"));
+                RssItem.setSummary(itemObject.getJSONObject("summary").getString("content"));
                 RssItem.setEntryId(itemObject.getString("id"));
                 RssItem.setTitle(itemObject.getString("title"));
 
