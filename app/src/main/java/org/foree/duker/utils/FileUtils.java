@@ -15,6 +15,7 @@ import java.io.IOException;
 public class FileUtils {
     private static final String TAG = FileUtils.class.getSimpleName();
     //读取文件
+    //TODO 添加文件为空的处理
     public static String readFile(File file) throws IOException {
         Log.d(TAG, "readFile: " + file.toString());
         FileReader in = null;

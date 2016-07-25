@@ -44,7 +44,7 @@ public class MainActivity extends BaseActivity{
 
     private AccountHeader headerResult = null;
     private Drawer result = null;
-    AbsApiHelper apiHelper;
+    AbsApiHelper apiHelper,localApiHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +56,7 @@ public class MainActivity extends BaseActivity{
 
         AbsApiFactory absApiFactory = new ApiFactory();
         apiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
+        localApiHelper = absApiFactory.createApiHelper(LocalApiHelper.class);
 
         if (savedInstanceState == null) {
             Fragment f = ItemListFragment.newInstance(FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID));
@@ -73,7 +74,7 @@ public class MainActivity extends BaseActivity{
                 .withShowDrawerOnFirstLaunch(true)
                 .build();
 
-        apiHelper.getCategoriesList("", new NetCallback<List<RssCategory>>() {
+        localApiHelper.getCategoriesList("", new NetCallback<List<RssCategory>>() {
             @Override
             public void onSuccess(final List<RssCategory> categoryList) {
                 apiHelper.getSubscriptions("", new NetCallback<List<RssFeed>>() {
@@ -119,10 +120,8 @@ public class MainActivity extends BaseActivity{
                 .withSavedInstance(savedInstanceState)
                 .build();
 
-        AbsApiFactory absApiFactory = new ApiFactory();
-        AbsApiHelper apiHelper1 = absApiFactory.createApiHelper(LocalApiHelper.class);
         // getProfile from Network
-        apiHelper1.getProfile("", new NetCallback<RssProfile>() {
+        localApiHelper.getProfile("", new NetCallback<RssProfile>() {
             @Override
             public void onSuccess(RssProfile data) {
                 final IProfile profile2 = new ProfileDrawerItem().withName(data.getFullName()).withEmail(data.getEmail()).withIcon(data.getPicture()).withIdentifier(100);
