@@ -12,6 +12,7 @@ import org.foree.duker.api.AbsApiHelper;
 import org.foree.duker.api.ApiFactory;
 import org.foree.duker.api.FeedlyApiHelper;
 import org.foree.duker.base.BaseActivity;
+import org.foree.duker.base.MyApplication;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssItem;
 
@@ -27,6 +28,10 @@ public class SplashActivity extends BaseActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+
+        //init ApplicationDir
+        MyApplication myApplication = new MyApplication();
+        myApplication.initApplicationDir();
 
         mStartTime = System.currentTimeMillis();
         //获取窗口，设置全屏

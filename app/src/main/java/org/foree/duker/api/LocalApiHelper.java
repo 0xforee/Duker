@@ -5,6 +5,7 @@ import android.util.Log;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
+import org.foree.duker.base.MyApplication;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssCategory;
 import org.foree.duker.rssinfo.RssFeed;
@@ -16,7 +17,6 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,21 +60,15 @@ public class LocalApiHelper extends AbsApiHelper{
 
         String url = API_HOST_URL + API_PROFILE_URL;
 
-        String path = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
-        File myDateDir = new File(path + "/" + "Duker" + "/");
-        if (!myDateDir.exists())
-            if (!myDateDir.mkdir()) {
-                Log.e(TAG, "创建应用程序目录失败");
-            }
-        Log.i(TAG, "path" + myDateDir);
 
-        final File json = new File(myDateDir + "/" + "data.json");
+        final File profile_json = new File(MyApplication.myApplicationDirPath + File.separator + MyApplication.myApplicationDataName + File.separator + "profile.json");
 
         try {
-            localProfile = FileUtils.readFile(json);
+            localProfile = FileUtils.readFile(profile_json);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         if (localProfile.isEmpty()){
             final Map<String,String> headers = new HashMap<>();
             headers.put("Authorization","OAuth " + token);
@@ -85,7 +79,7 @@ public class LocalApiHelper extends AbsApiHelper{
                     Log.i(TAG,"onResponse:getProfile " + response);
 
                     try {
-                        FileUtils.writeFile(json, response);
+                        FileUtils.writeFile(profile_json, response);
                         if ( netCallback != null){
                             netCallback.onSuccess(parseProfile(response));
                         }
@@ -105,7 +99,6 @@ public class LocalApiHelper extends AbsApiHelper{
                 netCallback.onSuccess(parseProfile(localProfile));
             }
         }
-
 
     }
 
