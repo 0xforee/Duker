@@ -24,6 +24,7 @@ import org.foree.duker.api.AbsApiFactory;
 import org.foree.duker.api.AbsApiHelper;
 import org.foree.duker.api.ApiFactory;
 import org.foree.duker.api.FeedlyApiHelper;
+import org.foree.duker.api.LocalApiHelper;
 import org.foree.duker.base.BaseActivity;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssCategory;
@@ -117,7 +118,11 @@ public class MainActivity extends BaseActivity{
                 )
                 .withSavedInstance(savedInstanceState)
                 .build();
-        apiHelper.getProfile("", new NetCallback<RssProfile>() {
+
+        AbsApiFactory absApiFactory = new ApiFactory();
+        AbsApiHelper apiHelper1 = absApiFactory.createApiHelper(LocalApiHelper.class);
+        // getProfile from Network
+        apiHelper1.getProfile("", new NetCallback<RssProfile>() {
             @Override
             public void onSuccess(RssProfile data) {
                 final IProfile profile2 = new ProfileDrawerItem().withName(data.getFullName()).withEmail(data.getEmail()).withIcon(data.getPicture()).withIdentifier(100);
