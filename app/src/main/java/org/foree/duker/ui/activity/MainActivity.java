@@ -159,7 +159,6 @@ public class MainActivity extends BaseActivity{
                         Fragment f = ItemListFragment.newInstance(FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID));
                         getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
                     }
-                    Toast.makeText(getApplicationContext(),position + "", Toast.LENGTH_SHORT).show();
                 }
                 return false;
             }

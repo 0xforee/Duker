@@ -2,6 +2,7 @@ package org.foree.duker.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.WindowManager;
 
 import org.foree.duker.R;
@@ -35,38 +36,34 @@ public class SplashActivity extends BaseActivity{
         apiHelper.getStream("", FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID), new NetCallback<List<RssItem>>() {
             @Override
             public void onSuccess(final List<RssItem> data) {
-                final long mEndTime = System.currentTimeMillis()-mStartTime;
-                final long loadTime = Math.max(WAIT_TIME, mEndTime);
-                Thread loadThread = new Thread() {
-                    @Override
-                    public void run() {
-                        synchronized (this) {
-                            try {
-                                wait(loadTime-mEndTime);
-                                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
-                                intent.putExtra("rssItemList", (Serializable)data);
-                                startActivity(intent);
-                                finish();
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            } finally {
-                                finish();
-                            }
-                        }
-                    }
-                };
-
-                loadThread.start();
+                gotoMainActivity((Serializable) data);
 
             }
 
             @Override
             public void onFail(String msg) {
-
+                gotoMainActivity(msg);
             }
         });
 
     }
 
+    private void gotoMainActivity(final Serializable data) {
+        final long mEndTime = System.currentTimeMillis()-mStartTime;
+        final long loadTime = Math.max(WAIT_TIME, mEndTime);
+        Log.i(TAG, "loadTime = " + loadTime);
+        synchronized (this) {
+            try {
+                wait(loadTime - mEndTime);
+                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                intent.putExtra("rssItemList", data);
+                startActivity(intent);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            finish();
+        }
+
+    }
 
 }
