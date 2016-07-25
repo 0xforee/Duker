@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import org.foree.duker.R;
 import org.foree.duker.api.AbsApiFactory;
@@ -42,7 +43,8 @@ public class SplashActivity extends BaseActivity{
 
             @Override
             public void onFail(String msg) {
-                gotoMainActivity(msg);
+                Toast.makeText(SplashActivity.this, "getGlobalAllError: " + msg, Toast.LENGTH_LONG).show();
+                gotoMainActivity(null);
             }
         });
 

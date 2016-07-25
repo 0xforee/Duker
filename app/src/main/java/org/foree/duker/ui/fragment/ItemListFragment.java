@@ -74,42 +74,51 @@ public class ItemListFragment extends Fragment {
         mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
                 DividerItemDecoration.VERTICAL_LIST));
 
-        // getItemList
-        AbsApiFactory absApiFactory = new ApiFactory();
-        mApiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
+        itemList = (List<RssItem>)getActivity().getIntent().getSerializableExtra("rssItemList");
 
-        mApiHelper.getStream("", getArguments().getString(KEY_FEEDID), new NetCallback<List<RssItem>>() {
+        if (itemList == null) {
+            // getItemList
+            AbsApiFactory absApiFactory = new ApiFactory();
+            mApiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
+
+            mApiHelper.getStream("", getArguments().getString(KEY_FEEDID), new NetCallback<List<RssItem>>() {
+                @Override
+                public void onSuccess(List<RssItem> data) {
+                    itemList = data;
+                    initAdapter();
+                }
+
+                @Override
+                public void onFail(String msg) {
+
+                }
+            });
+        } else {
+            initAdapter();
+        }
+        return linearLayout;
+    }
+
+    private void initAdapter() {
+        mAdapter = new ItemListAdapter(getActivity(), itemList);
+        mRecyclerView.setAdapter(mAdapter);
+        mAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
-            public void onSuccess(List<RssItem> data) {
-                itemList = data;
-                mAdapter = new ItemListAdapter(getActivity(),itemList);
-                mRecyclerView.setAdapter(mAdapter);
-                mAdapter.setOnItemClickListener(new OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        Toast.makeText(getActivity(),position+"",Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(getActivity(), ArticleActivity.class);
-                        Bundle bundle = new Bundle();
-                        bundle.putString("entryUrl", itemList.get(position).getUrl());
-                        bundle.putString("entryTitle", itemList.get(position).getTitle());
-                        intent.putExtras(bundle);
-                        startActivity(intent);
-                    }
-
-                    @Override
-                    public void onItemLongClick(View view, int position) {
-
-                    }
-                });
+            public void onItemClick(View view, int position) {
+                Toast.makeText(getActivity(), position + "", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(), ArticleActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("entryUrl", itemList.get(position).getUrl());
+                bundle.putString("entryTitle", itemList.get(position).getTitle());
+                intent.putExtras(bundle);
+                startActivity(intent);
             }
 
             @Override
-            public void onFail(String msg) {
+            public void onItemLongClick(View view, int position) {
 
             }
         });
-
-        return linearLayout;
     }
 
     class DividerItemDecoration extends RecyclerView.ItemDecoration {
