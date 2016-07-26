@@ -77,7 +77,7 @@ public class MainActivity extends BaseActivity{
         localApiHelper.getCategoriesList("", new NetCallback<List<RssCategory>>() {
             @Override
             public void onSuccess(final List<RssCategory> categoryList) {
-                apiHelper.getSubscriptions("", new NetCallback<List<RssFeed>>() {
+                localApiHelper.getSubscriptions("", new NetCallback<List<RssFeed>>() {
                     @Override
                     public void onSuccess(List<RssFeed> feedList) {
                         initDrawer(categoryList, feedList);

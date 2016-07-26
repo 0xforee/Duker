@@ -183,7 +183,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
         return rssCategories;
     }
 
-    private List<RssFeed> parseSubscriptions(String data){
+    protected List<RssFeed> parseSubscriptions(String data){
         List<RssFeed> RssFeeds = new ArrayList<>();
         try {
             JSONArray jsonArray = new JSONArray(data);

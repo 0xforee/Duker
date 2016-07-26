@@ -8,6 +8,7 @@ import com.android.volley.VolleyError;
 import org.foree.duker.base.MyApplication;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssCategory;
+import org.foree.duker.rssinfo.RssFeed;
 import org.foree.duker.rssinfo.RssProfile;
 import org.foree.duker.utils.FileUtils;
 
@@ -117,6 +118,51 @@ public class LocalApiHelper extends FeedlyApiHelper {
                 netCallback.onSuccess(parseProfile(localProfile));
         }
 
+    }
+
+    @Override
+    public void getSubscriptions(String token, final NetCallback<List<RssFeed>> netCallback) {
+        token = API_TOKEN_TEST;
+        String localSubscriptions = "";
+        final File subscriptions_json = new File(MyApplication.myApplicationDirPath + File.separator + MyApplication.myApplicationDataName + File.separator + "subscriptions.json");
+
+        String url = API_HOST_URL + API_SUBSCRIPTIONS_URL;
+
+        try {
+            localSubscriptions = FileUtils.readFile(subscriptions_json);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (localSubscriptions.isEmpty()){
+        final Map<String,String> headers = new HashMap<>();
+        headers.put("Authorization","OAuth " + token);
+        NetWorkApiHelper.newInstance().getRequest(url, headers, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.i(TAG,"onResponse:getSubscriptions " + response);
+                try {
+                    FileUtils.writeFile(subscriptions_json, response);
+                    if ( netCallback != null){
+                        netCallback.onSuccess(parseSubscriptions(response));
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG,"onErrorResponse:getSubscriptions " + error.getMessage());
+
+                if (netCallback != null){
+                    netCallback.onFail(error.getMessage());
+                }
+            }
+        });
+        } else if ( netCallback != null){
+            netCallback.onSuccess(parseSubscriptions(localSubscriptions));
+        }
     }
 
 }
