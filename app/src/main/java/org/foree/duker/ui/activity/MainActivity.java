@@ -59,7 +59,7 @@ public class MainActivity extends BaseActivity{
         localApiHelper = absApiFactory.createApiHelper(LocalApiHelper.class);
 
         if (savedInstanceState == null) {
-            Fragment f = ItemListFragment.newInstance(FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID));
+            Fragment f = ItemListFragment.newInstance("");
             getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
         }
 

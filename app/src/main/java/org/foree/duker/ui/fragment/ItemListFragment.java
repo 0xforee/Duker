@@ -42,7 +42,6 @@ public class ItemListFragment extends Fragment {
     private static final String KEY_FEEDID = "feedId";
     private static final String TAG = ItemListFragment.class.getSimpleName();
 
-    private Drawer result;
     private RecyclerView mRecyclerView;
     private ItemListAdapter mAdapter;
     private AbsApiHelper mApiHelper;
@@ -74,14 +73,16 @@ public class ItemListFragment extends Fragment {
         mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
                 DividerItemDecoration.VERTICAL_LIST));
 
+        String feedId = getArguments().getString(KEY_FEEDID);
+
         itemList = (List<RssItem>)getActivity().getIntent().getSerializableExtra("rssItemList");
 
-        if (itemList == null) {
+        if (itemList == null && feedId != null) {
             // getItemList
             AbsApiFactory absApiFactory = new ApiFactory();
             mApiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
 
-            mApiHelper.getStream("", getArguments().getString(KEY_FEEDID), new NetCallback<List<RssItem>>() {
+            mApiHelper.getStream("", feedId, new NetCallback<List<RssItem>>() {
                 @Override
                 public void onSuccess(List<RssItem> data) {
                     itemList = data;

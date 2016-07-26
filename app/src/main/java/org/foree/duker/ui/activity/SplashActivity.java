@@ -56,6 +56,7 @@ public class SplashActivity extends BaseActivity{
     }
 
     private void gotoMainActivity(final Serializable data) {
+        // TODO: 注意网络延时情况严重的情况下，在此页面会停留时间过长的情况
         final long mResponseTime = System.currentTimeMillis()-mStartTime;
         final long loadTime = Math.max(WAIT_TIME, mResponseTime);
         Log.i(TAG, "loadTime = " + loadTime + "endTime" + mResponseTime);
