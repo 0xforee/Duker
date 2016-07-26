@@ -27,14 +27,14 @@ import java.util.Map;
  * Feedly相关的接口显示
  */
 public class FeedlyApiHelper extends AbsApiHelper {
-    private static final String TAG = FeedlyApiHelper.class.getSimpleName();
-    private static final String API_HOST_URL = "http://cloud.feedly.com";
-    private static final String API_TOKEN_TEST = "A3wMXqyNgMOZwCqIoBC5OZoKdSyKemk1IYWp12rk86Kb7KIBHlUBER2Pe2PWaro4Ur_0Rq1h8MiqQBFE_uly7A6GNbjtT5wWbIF5rf6haQetytQcjZj6_FSDSTrkmF3y5CclNtH3q_6UlK1kPPY0i4_CXXIkhIrT7aTJRUTry3b-HGvq_rwWK7JFewguG4PvV7EMozQuosYKOcMrcd3cGwmYsToq8hc:feedlydev";
-    private static final String API_CATEGORIES_URL = "/v3/categories";
-    private static final String API_SUBSCRIPTIONS_URL = "/v3/subscriptions";
-    private static final String API_PROFILE_URL = "/v3/profile";
-    private static final String API_STREAM_IDS_URL = "/v3/streams/ids?streamId=:streamId";
-    private static final String API_STREAM_CONTENTS_URL = "/v3/streams/contents?streamId=:streamId";
+    protected static final String TAG = FeedlyApiHelper.class.getSimpleName();
+    protected static final String API_HOST_URL = "http://cloud.feedly.com";
+    protected static final String API_TOKEN_TEST = "A3wMXqyNgMOZwCqIoBC5OZoKdSyKemk1IYWp12rk86Kb7KIBHlUBER2Pe2PWaro4Ur_0Rq1h8MiqQBFE_uly7A6GNbjtT5wWbIF5rf6haQetytQcjZj6_FSDSTrkmF3y5CclNtH3q_6UlK1kPPY0i4_CXXIkhIrT7aTJRUTry3b-HGvq_rwWK7JFewguG4PvV7EMozQuosYKOcMrcd3cGwmYsToq8hc:feedlydev";
+    protected static final String API_CATEGORIES_URL = "/v3/categories";
+    protected static final String API_SUBSCRIPTIONS_URL = "/v3/subscriptions";
+    protected static final String API_PROFILE_URL = "/v3/profile";
+    protected static final String API_STREAM_IDS_URL = "/v3/streams/ids?streamId=:streamId";
+    protected static final String API_STREAM_CONTENTS_URL = "/v3/streams/contents?streamId=:streamId";
     public static final String USER_ID = "a5a12800-0cc3-4b9e-bc33-9d46f76cc162";
     public static final String API_GLOBAL_ALL_URL = "user/:userId/category/global.all";
 
@@ -150,7 +150,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
         });
     }
 
-    private RssProfile parseProfile(String data) {
+    protected RssProfile parseProfile(String data) {
         RssProfile rssProfile = new RssProfile();
         try {
             JSONObject jsObject = new JSONObject(data);
@@ -164,7 +164,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
         return rssProfile;
     }
 
-    private List<RssCategory> parseCategories(String data){
+    protected List<RssCategory> parseCategories(String data){
         List<RssCategory> rssCategories = new ArrayList<>();
         try {
             JSONArray jsonArray = new JSONArray(data);
