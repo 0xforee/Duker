@@ -56,12 +56,14 @@ public class SplashActivity extends BaseActivity{
     }
 
     private void gotoMainActivity(final Serializable data) {
-        final long mEndTime = System.currentTimeMillis()-mStartTime;
-        final long loadTime = Math.max(WAIT_TIME, mEndTime);
-        Log.i(TAG, "loadTime = " + loadTime);
+        final long mResponseTime = System.currentTimeMillis()-mStartTime;
+        final long loadTime = Math.max(WAIT_TIME, mResponseTime);
+        Log.i(TAG, "loadTime = " + loadTime + "endTime" + mResponseTime);
         synchronized (this) {
             try {
-                wait(loadTime - mEndTime);
+                if ( mResponseTime < WAIT_TIME ) {
+                    wait(WAIT_TIME - mResponseTime);
+                }
                 Intent intent = new Intent(SplashActivity.this, MainActivity.class);
                 intent.putExtra("rssItemList", data);
                 startActivity(intent);
@@ -70,7 +72,6 @@ public class SplashActivity extends BaseActivity{
             }
             finish();
         }
-
     }
 
 }
