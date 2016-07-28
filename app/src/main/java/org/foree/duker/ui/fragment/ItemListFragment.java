@@ -77,7 +77,7 @@ public class ItemListFragment extends Fragment {
 
         itemList = (List<RssItem>)getActivity().getIntent().getSerializableExtra("rssItemList");
 
-        if (itemList == null && feedId != null) {
+        if (feedId != null) {
             // getItemList
             AbsApiFactory absApiFactory = new ApiFactory();
             mApiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
