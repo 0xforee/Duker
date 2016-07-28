@@ -137,8 +137,10 @@ public class MainActivity extends BaseActivity{
     }
 
     private void initDrawer(final List<RssCategory> categoryList, final List<RssFeed> feedList) {
+        // Add Home
         result.addItem(new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIdentifier(1));
 
+        // Add Category
         for (int cate_i = 0; cate_i < categoryList.size(); cate_i++) {
             ExpandableDrawerItem expandableDrawerItem = new ExpandableDrawerItem().withName(categoryList.get(cate_i).getLabel()).withIdentifier(CATEGORY_INDENTIFIER+cate_i).withSelectable(false);
             result.addItem(expandableDrawerItem);
@@ -150,6 +152,11 @@ public class MainActivity extends BaseActivity{
             }
         }
 
+        // Add Settings and OpenSource
+        result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_settings).withIdentifier(2));
+        result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_open_source).withIdentifier(3));
+
+        // Set OnClickListener
         result.setOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
             @Override
             public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
