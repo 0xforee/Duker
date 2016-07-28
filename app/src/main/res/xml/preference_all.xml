@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:layout="@layout/my_preference_category"
+        android:title="@string/general">
+        <Preference
+            android:key="pf_change_theme"
+            android:layout="@layout/my_preference"
+            android:title="@string/change_theme" />
+        <CheckBoxPreference
+            android:key="lp_dark_theme"
+            android:layout="@layout/my_preference"
+            android:title="@string/dark_theme"
+            android:widgetLayout="@layout/my_preference_widget_checkbox" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:layout="@layout/my_preference_category"
+        android:title="@string/offline">
+        <CheckBoxPreference
+            android:key="lp_download_only_wifi"
+            android:layout="@layout/my_preference"
+            android:title="@string/download_only_wifi"
+            android:widgetLayout="@layout/my_preference_widget_checkbox" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:layout="@layout/my_preference_category"
+        android:title="@string/about">
+        <Preference
+            android:layout="@layout/my_preference"
+            android:title="@string/about">
+            <intent android:action=".AboutActivity" />
+        </Preference>
+    </PreferenceCategory>
+</PreferenceScreen>
