@@ -2,6 +2,7 @@ package org.foree.duker.ui.activity;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
@@ -13,6 +14,8 @@ import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.holder.BadgeStyle;
+import com.mikepenz.materialdrawer.holder.StringHolder;
 import com.mikepenz.materialdrawer.model.ExpandableDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
@@ -33,14 +36,19 @@ import org.foree.duker.rssinfo.RssCategory;
 import org.foree.duker.rssinfo.RssFeed;
 import org.foree.duker.rssinfo.RssProfile;
 import org.foree.duker.ui.fragment.ItemListFragment;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends BaseActivity{
-    private static final int PROFILE_SETTING = 100000;
-    private static final int CATEGORY_INDENTIFIER = 20000;
-    private static final int FEED_INDENTIFIER = 30000;
-    private static final int OTHER_INDENTIFIER = 40000;
+    private static final long PROFILE_SETTING = 100000;
+    private static final long CATEGORY_INDENTIFIER = 20000;
+    private static final long FEED_INDENTIFIER = 30000;
+    private static final long OTHER_INDENTIFIER = 40000;
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -48,6 +56,7 @@ public class MainActivity extends BaseActivity{
     private Drawer result = null;
     AbsApiHelper apiHelper,localApiHelper;
     FloatingActionButton testFloatingButton;
+    Map<String, Long> badgeStyleMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +93,7 @@ public class MainActivity extends BaseActivity{
                     @Override
                     public void onSuccess(List<RssFeed> feedList) {
                         initDrawer(categoryList, feedList);
+                        initBadgeStyle();
                     }
                     @Override
                     public void onFail(String msg) {
@@ -101,6 +111,7 @@ public class MainActivity extends BaseActivity{
             }
         });
 
+
         // get FloatActionButton
         testFloatingButton = (FloatingActionButton)findViewById(R.id.fab);
         testFloatingButton.setOnClickListener(new View.OnClickListener() {
@@ -110,6 +121,36 @@ public class MainActivity extends BaseActivity{
             }
         });
 
+    }
+
+    private void initBadgeStyle() {
+        apiHelper.getUnreadCounts("", new NetCallback<String>() {
+            @Override
+            public void onSuccess(String data) {
+                try {
+                    JSONObject jsonObject = new JSONObject(data);
+                    JSONArray unreadArry = jsonObject.getJSONArray("unreadcounts");
+                    for(int unread_i = 0; unread_i < unreadArry.length(); unread_i++){
+                        JSONObject id = unreadArry.getJSONObject(unread_i);
+                        String identifier = id.getString("id");
+                        Log.d(TAG, "identifier = " + identifier);
+                        if (badgeStyleMap.containsKey(identifier)) {
+                            Log.d(TAG, "badgeStyleMap:" + badgeStyleMap.get(identifier));
+                            result.updateBadge(badgeStyleMap.get(identifier), new StringHolder(id.getLong("count") + "sss"));
+                        } else if (identifier.equals(FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID))){
+                            result.updateBadge(1, new StringHolder(id.getLong("count") + ""));
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFail(String msg) {
+
+            }
+        });
     }
 
     private void initProfile(final Bundle savedInstanceState) {
@@ -149,8 +190,10 @@ public class MainActivity extends BaseActivity{
     }
 
     private void initDrawer(final List<RssCategory> categoryList, final List<RssFeed> feedList) {
+        BadgeStyle badgeStyle = new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.red);
+        badgeStyleMap = new HashMap<>();
         // Add Home
-        result.addItem(new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIdentifier(1));
+        result.addItem(new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIdentifier(1).withBadgeStyle(badgeStyle));
 
         // Add Category
         for (int cate_i = 0; cate_i < categoryList.size(); cate_i++) {
@@ -158,12 +201,13 @@ public class MainActivity extends BaseActivity{
             result.addItem(expandableDrawerItem);
             for (int feed_i = 0; feed_i < feedList.size(); feed_i++) {
                 for (int feed_cate_id = 0; feed_cate_id < feedList.get(feed_i).getCategoryIds().size(); feed_cate_id++) {
-                    if( feedList.get(feed_i).getCategoryIds().get(feed_cate_id).equals(categoryList.get(cate_i).getCategoryId()))
-                        expandableDrawerItem.withSubItems(new SecondaryDrawerItem().withName(feedList.get(feed_i).getName()).withIdentifier(FEED_INDENTIFIER+feed_i).withLevel(2));
+                    if( feedList.get(feed_i).getCategoryIds().get(feed_cate_id).equals(categoryList.get(cate_i).getCategoryId())) {
+                        expandableDrawerItem.withSubItems(new SecondaryDrawerItem().withName(feedList.get(feed_i).getName()).withIdentifier(FEED_INDENTIFIER + feed_i).withLevel(2).withBadgeStyle(badgeStyle));
+                        badgeStyleMap.put(feedList.get(feed_i).getFeedId(), FEED_INDENTIFIER + feed_i);
+                    }
                 }
             }
         }
-
         // Add Settings and OpenSource
         result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_settings).withIdentifier(2));
         result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_open_source).withIdentifier(3));
@@ -175,8 +219,8 @@ public class MainActivity extends BaseActivity{
                 if (drawerItem != null){
                     if( FEED_INDENTIFIER <= drawerItem.getIdentifier() && drawerItem.getIdentifier() < OTHER_INDENTIFIER){
                         Log.d(TAG, "Identifier = " + drawerItem.getIdentifier());
-                        Log.d(TAG, "feedId = " + feedList.get((int)drawerItem.getIdentifier()-FEED_INDENTIFIER).getFeedId());
-                        Fragment f = ItemListFragment.newInstance(feedList.get((int)drawerItem.getIdentifier()-FEED_INDENTIFIER).getFeedId());
+                        Log.d(TAG, "feedId = " + feedList.get((int)(drawerItem.getIdentifier()-FEED_INDENTIFIER)).getFeedId());
+                        Fragment f = ItemListFragment.newInstance(feedList.get((int)(drawerItem.getIdentifier()-FEED_INDENTIFIER)).getFeedId());
                         getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
                     } else if (drawerItem.getIdentifier() == 1){
                         Fragment f = ItemListFragment.newInstance(FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID));

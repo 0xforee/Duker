@@ -7,5 +7,6 @@
     <color name="aquamarine">#1CAF9A</color>
     <color name="white">#FFFFFF</color>
 
-
+    <!--红色 -->
+    <color name="red">#FF0000</color>
 </resources>

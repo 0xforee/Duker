@@ -164,7 +164,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
             public void onResponse(String response) {
                 Log.i(TAG,"onResponse:getUnreadCounts " + response);
                 if (netCallback != null){
-                    netCallback.onSuccess(null);
+                    netCallback.onSuccess(response);
                 }
             }
         }, new Response.ErrorListener() {
