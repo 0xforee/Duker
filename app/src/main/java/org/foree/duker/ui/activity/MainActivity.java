@@ -3,6 +3,7 @@ package org.foree.duker.ui.activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -46,6 +47,7 @@ public class MainActivity extends BaseActivity{
     private AccountHeader headerResult = null;
     private Drawer result = null;
     AbsApiHelper apiHelper,localApiHelper;
+    FloatingActionButton testFloatingButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +98,15 @@ public class MainActivity extends BaseActivity{
             public void onFail(String msg) {
                 Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_LONG).show();
                 Log.e(TAG,"getSubscription " + msg);
+            }
+        });
+
+        // get FloatActionButton
+        testFloatingButton = (FloatingActionButton)findViewById(R.id.fab);
+        testFloatingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                apiHelper.getUnreadCounts("",null);
             }
         });
 

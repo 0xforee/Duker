@@ -35,6 +35,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
     protected static final String API_PROFILE_URL = "/v3/profile";
     protected static final String API_STREAM_IDS_URL = "/v3/streams/ids?streamId=:streamId";
     protected static final String API_STREAM_CONTENTS_URL = "/v3/streams/contents?streamId=:streamId";
+    protected static final String API_UNREAD_COUNTS_URL = "/v3/markers/counts";
     public static final String USER_ID = "a5a12800-0cc3-4b9e-bc33-9d46f76cc162";
     public static final String API_GLOBAL_ALL_URL = "user/:userId/category/global.all";
 
@@ -142,6 +143,34 @@ public class FeedlyApiHelper extends AbsApiHelper {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG,"onErrorResponse:getProfile " + error.getMessage());
+
+                if (netCallback != null){
+                    netCallback.onFail(error.getMessage());
+                }
+            }
+        });
+    }
+
+    @Override
+    public void getUnreadCounts(String token, final NetCallback<String> netCallback) {
+        token = API_TOKEN_TEST;
+
+        String url = API_HOST_URL + API_UNREAD_COUNTS_URL;
+
+        final Map<String,String> headers = new HashMap<>();
+        headers.put("Authorization","OAuth " + token);
+        NetWorkApiHelper.newInstance().getRequest(url, headers, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.i(TAG,"onResponse:getUnreadCounts " + response);
+                if (netCallback != null){
+                    netCallback.onSuccess(null);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG,"onErrorResponse:getUnreadCounts " + error.getMessage());
 
                 if (netCallback != null){
                     netCallback.onFail(error.getMessage());
