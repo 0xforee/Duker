@@ -57,13 +57,14 @@ public class MainActivity extends BaseActivity{
     AbsApiHelper apiHelper,localApiHelper;
     FloatingActionButton testFloatingButton;
     Map<String, Long> badgeStyleMap;
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         AbsApiFactory absApiFactory = new ApiFactory();
@@ -75,6 +76,21 @@ public class MainActivity extends BaseActivity{
             getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
         }
 
+
+
+        setUpDrawerLayout(savedInstanceState);
+
+        // get FloatActionButton
+        testFloatingButton = (FloatingActionButton)findViewById(R.id.fab);
+        testFloatingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                apiHelper.getUnreadCounts("",null);
+            }
+        });
+
+    }
+    private void setUpDrawerLayout(Bundle savedInstanceState){
         initProfile(savedInstanceState);
 
         result = new DrawerBuilder()
@@ -86,6 +102,10 @@ public class MainActivity extends BaseActivity{
                 .withShowDrawerOnFirstLaunch(true)
                 .build();
 
+        initCategoriesList();
+    }
+
+    private void initCategoriesList() {
         localApiHelper.getCategoriesList("", new NetCallback<List<RssCategory>>() {
             @Override
             public void onSuccess(final List<RssCategory> categoryList) {
@@ -110,17 +130,6 @@ public class MainActivity extends BaseActivity{
                 Log.e(TAG,"getSubscription " + msg);
             }
         });
-
-
-        // get FloatActionButton
-        testFloatingButton = (FloatingActionButton)findViewById(R.id.fab);
-        testFloatingButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                apiHelper.getUnreadCounts("",null);
-            }
-        });
-
     }
 
     private void initBadgeStyle(final List<RssCategory> categoryList, final List<RssFeed> feedList) {
@@ -137,7 +146,6 @@ public class MainActivity extends BaseActivity{
                         Log.d(TAG, "identifier = " + identifier + " count = " + id.getLong("count"));
                         badgeStyleMap.put(identifier, id.getLong("count"));
                     }
-
                     initDrawer(categoryList, feedList);
                 } catch (JSONException e) {
                     e.printStackTrace();
