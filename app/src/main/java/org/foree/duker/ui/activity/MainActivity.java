@@ -43,9 +43,9 @@ import java.util.Map;
 
 public class MainActivity extends BaseActivity implements OnDrawerItemClickListener{
     private static final long PROFILE_SETTING = 100000;
-    private static final long CATEGORY_INDENTIFIER = 20000;
-    private static final long FEED_INDENTIFIER = 30000;
-    private static final long OTHER_INDENTIFIER = 40000;
+    private static final long CATEGORY_IDENTIFIER = 20000;
+    private static final long FEED_IDENTIFIER = 30000;
+    private static final long OTHER_IDENTIFIER = 40000;
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -199,7 +199,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         // Add Category
         for (int cate_i = 0; cate_i < categoryList.size(); cate_i++) {
             ExpandableDrawerItem expandableDrawerItem = new ExpandableDrawerItem()
-                    .withName(categoryList.get(cate_i).getLabel()).withIdentifier(CATEGORY_INDENTIFIER+cate_i).withSelectable(false);
+                    .withName(categoryList.get(cate_i).getLabel()).withIdentifier(CATEGORY_IDENTIFIER +cate_i).withSelectable(false);
             result.addItem(expandableDrawerItem);
 
             for (int feed_i = 0; feed_i < feedList.size(); feed_i++) {
@@ -207,7 +207,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
                     if( feedList.get(feed_i).getCategoryIds().get(feed_cate_id).equals(categoryList.get(cate_i).getCategoryId())) {
                         expandableDrawerItem.withSubItems(new SecondaryDrawerItem().withName(feedList.get(feed_i).getName())
-                                .withBadge(new StringHolder(unReadCountsMap.get(feedList.get(feed_i).getFeedId()) + "")).withIdentifier(FEED_INDENTIFIER + feed_i).withLevel(2).withBadgeStyle(badgeStyle));
+                                .withBadge(new StringHolder(unReadCountsMap.get(feedList.get(feed_i).getFeedId()) + "")).withIdentifier(FEED_IDENTIFIER + feed_i).withLevel(2).withBadgeStyle(badgeStyle));
                     }
                 }
             }
@@ -224,10 +224,10 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
         if (drawerItem != null){
 
-            if( FEED_INDENTIFIER <= drawerItem.getIdentifier() && drawerItem.getIdentifier() < OTHER_INDENTIFIER){
+            if( FEED_IDENTIFIER <= drawerItem.getIdentifier() && drawerItem.getIdentifier() < OTHER_IDENTIFIER){
                 Log.d(TAG, "Identifier = " + drawerItem.getIdentifier());
-                Log.d(TAG, "feedId = " + feedList.get((int)(drawerItem.getIdentifier()-FEED_INDENTIFIER)).getFeedId());
-                Fragment f = ItemListFragment.newInstance(feedList.get((int)(drawerItem.getIdentifier()-FEED_INDENTIFIER)).getFeedId());
+                Log.d(TAG, "feedId = " + feedList.get((int)(drawerItem.getIdentifier()- FEED_IDENTIFIER)).getFeedId());
+                Fragment f = ItemListFragment.newInstance(feedList.get((int)(drawerItem.getIdentifier()- FEED_IDENTIFIER)).getFeedId());
                 getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
             } else if (drawerItem.getIdentifier() == 1){
                 Fragment f = ItemListFragment.newInstance(FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID));
