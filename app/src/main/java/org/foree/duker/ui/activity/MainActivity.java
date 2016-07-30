@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.Drawer.OnDrawerItemClickListener;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.holder.BadgeStyle;
 import com.mikepenz.materialdrawer.holder.StringHolder;
@@ -36,15 +37,11 @@ import org.foree.duker.rssinfo.RssCategory;
 import org.foree.duker.rssinfo.RssFeed;
 import org.foree.duker.rssinfo.RssProfile;
 import org.foree.duker.ui.fragment.ItemListFragment;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends BaseActivity{
+public class MainActivity extends BaseActivity implements OnDrawerItemClickListener{
     private static final long PROFILE_SETTING = 100000;
     private static final long CATEGORY_INDENTIFIER = 20000;
     private static final long FEED_INDENTIFIER = 30000;
@@ -56,6 +53,8 @@ public class MainActivity extends BaseActivity{
     private Drawer result = null;
     AbsApiHelper apiHelper,localApiHelper;
     FloatingActionButton testFloatingButton;
+    List<RssCategory> categoryList;
+    List<RssFeed> feedList;
     Toolbar toolbar;
 
     @Override
@@ -115,6 +114,7 @@ public class MainActivity extends BaseActivity{
                 .withAccountHeader(headerResult)
                 .withSavedInstance(savedInstanceState)
                 .withShowDrawerOnFirstLaunch(true)
+                .withOnDrawerItemClickListener(this)
                 .build();
 
     }
@@ -128,8 +128,9 @@ public class MainActivity extends BaseActivity{
     private void updateCategories() {
         localApiHelper.getCategoriesList("", new NetCallback<List<RssCategory>>() {
             @Override
-            public void onSuccess(final List<RssCategory> categoryList) {
-                updateFeeds(categoryList);
+            public void onSuccess(final List<RssCategory> data) {
+                categoryList = data;
+                updateFeeds();
             }
 
             @Override
@@ -140,12 +141,13 @@ public class MainActivity extends BaseActivity{
         });
     }
 
-    private void updateFeeds(final List<RssCategory> categoryList) {
+    private void updateFeeds() {
 
         localApiHelper.getSubscriptions("", new NetCallback<List<RssFeed>>() {
             @Override
-            public void onSuccess(List<RssFeed> feedList) {
-                updateUnreadCounts(categoryList,feedList);
+            public void onSuccess(List<RssFeed> data) {
+                feedList = data;
+                updateUnreadCounts();
 
             }
             @Override
@@ -156,12 +158,12 @@ public class MainActivity extends BaseActivity{
         });
     }
 
-    private void updateUnreadCounts(final List<RssCategory> categoryList, final List<RssFeed> feedList) {
+    private void updateUnreadCounts() {
 
         apiHelper.getUnreadCounts("", new NetCallback<Map<String, Long>>() {
             @Override
             public void onSuccess(Map<String, Long> unReadCountsMap) {
-                initDrawer(categoryList, feedList, unReadCountsMap);
+                initDrawer(unReadCountsMap);
             }
             @Override
             public void onFail(String msg) {
@@ -187,7 +189,7 @@ public class MainActivity extends BaseActivity{
         });
     }
 
-    private void initDrawer(final List<RssCategory> categoryList, final List<RssFeed> feedList, Map<String, Long> unReadCountsMap) {
+    private void initDrawer(Map<String, Long> unReadCountsMap) {
 
         BadgeStyle badgeStyle = new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.red);
 
@@ -215,28 +217,28 @@ public class MainActivity extends BaseActivity{
         result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_settings).withIdentifier(2));
         result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_open_source).withIdentifier(3));
 
-        // Set OnClickListener
-        result.setOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-            @Override
-            public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                if (drawerItem != null){
-                    if( FEED_INDENTIFIER <= drawerItem.getIdentifier() && drawerItem.getIdentifier() < OTHER_INDENTIFIER){
-                        Log.d(TAG, "Identifier = " + drawerItem.getIdentifier());
-                        Log.d(TAG, "feedId = " + feedList.get((int)(drawerItem.getIdentifier()-FEED_INDENTIFIER)).getFeedId());
-                        Fragment f = ItemListFragment.newInstance(feedList.get((int)(drawerItem.getIdentifier()-FEED_INDENTIFIER)).getFeedId());
-                        getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
-                    } else if (drawerItem.getIdentifier() == 1){
-                        Fragment f = ItemListFragment.newInstance(FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID));
-                        getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
-                    } else if (drawerItem.getIdentifier() == 2) {
-                        Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                        startActivity(intent);
-                    } else if (drawerItem.getIdentifier() == 3) {
+    }
 
-                    }
-                }
-                return false;
+    @Override
+    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+
+        if (drawerItem != null){
+
+            if( FEED_INDENTIFIER <= drawerItem.getIdentifier() && drawerItem.getIdentifier() < OTHER_INDENTIFIER){
+                Log.d(TAG, "Identifier = " + drawerItem.getIdentifier());
+                Log.d(TAG, "feedId = " + feedList.get((int)(drawerItem.getIdentifier()-FEED_INDENTIFIER)).getFeedId());
+                Fragment f = ItemListFragment.newInstance(feedList.get((int)(drawerItem.getIdentifier()-FEED_INDENTIFIER)).getFeedId());
+                getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
+            } else if (drawerItem.getIdentifier() == 1){
+                Fragment f = ItemListFragment.newInstance(FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID));
+                getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
+            } else if (drawerItem.getIdentifier() == 2) {
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
+            } else if (drawerItem.getIdentifier() == 3) {
+
             }
-        });
+        }
+        return false;
     }
 }
