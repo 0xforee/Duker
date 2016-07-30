@@ -152,7 +152,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
     }
 
     @Override
-    public void getUnreadCounts(String token, final NetCallback<String> netCallback) {
+    public void getUnreadCounts(String token, final NetCallback<Map<String, Long>> netCallback) {
         token = API_TOKEN_TEST;
 
         String url = API_HOST_URL + API_UNREAD_COUNTS_URL;
@@ -164,7 +164,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
             public void onResponse(String response) {
                 Log.i(TAG,"onResponse:getUnreadCounts " + response);
                 if (netCallback != null){
-                    netCallback.onSuccess(response);
+                    netCallback.onSuccess(parseUnreadCounts(response));
                 }
             }
         }, new Response.ErrorListener() {
@@ -177,6 +177,24 @@ public class FeedlyApiHelper extends AbsApiHelper {
                 }
             }
         });
+    }
+
+    protected Map<String, Long> parseUnreadCounts(String data){
+        Map<String, Long> unReadCountsMap = new HashMap<>();
+        try {
+            JSONObject jsonObject = new JSONObject(data);
+            JSONArray unreadArray = jsonObject.getJSONArray("unreadcounts");
+            for (int unread_i = 0; unread_i < unreadArray.length(); unread_i++) {
+                JSONObject id = unreadArray.getJSONObject(unread_i);
+                String identifier = id.getString("id");
+                Log.d(TAG, "identifier = " + identifier + " count = " + id.getLong("count"));
+                unReadCountsMap.put(identifier, id.getLong("count"));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return unReadCountsMap;
     }
 
     protected RssProfile parseProfile(String data) {

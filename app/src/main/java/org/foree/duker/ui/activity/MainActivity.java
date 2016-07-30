@@ -56,7 +56,6 @@ public class MainActivity extends BaseActivity{
     private Drawer result = null;
     AbsApiHelper apiHelper,localApiHelper;
     FloatingActionButton testFloatingButton;
-    Map<String, Long> badgeStyleMap;
     Toolbar toolbar;
 
     @Override
@@ -90,8 +89,6 @@ public class MainActivity extends BaseActivity{
 
     }
     private void setUpDrawerLayout(Bundle savedInstanceState){
-
-        badgeStyleMap = new HashMap<>();
 
         // Create a few sample profile
         // NOTE you have to define the loader logic too. See the CustomApplication for more details
@@ -161,27 +158,15 @@ public class MainActivity extends BaseActivity{
 
     private void updateUnreadCounts(final List<RssCategory> categoryList, final List<RssFeed> feedList) {
 
-        apiHelper.getUnreadCounts("", new NetCallback<String>() {
+        apiHelper.getUnreadCounts("", new NetCallback<Map<String, Long>>() {
             @Override
-            public void onSuccess(String data) {
-                try {
-                    JSONObject jsonObject = new JSONObject(data);
-                    JSONArray unreadArry = jsonObject.getJSONArray("unreadcounts");
-                    for (int unread_i = 0; unread_i < unreadArry.length(); unread_i++) {
-                        JSONObject id = unreadArry.getJSONObject(unread_i);
-                        String identifier = id.getString("id");
-                        Log.d(TAG, "identifier = " + identifier + " count = " + id.getLong("count"));
-                        badgeStyleMap.put(identifier, id.getLong("count"));
-                    }
-                    initDrawer(categoryList, feedList);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+            public void onSuccess(Map<String, Long> unReadCountsMap) {
+                initDrawer(categoryList, feedList, unReadCountsMap);
             }
-
             @Override
             public void onFail(String msg) {
-
+                Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_LONG).show();
+                Log.e(TAG,"getUnreadCounts " + msg);
             }
         });
     }
@@ -202,24 +187,30 @@ public class MainActivity extends BaseActivity{
         });
     }
 
-    private void initDrawer(final List<RssCategory> categoryList, final List<RssFeed> feedList) {
+    private void initDrawer(final List<RssCategory> categoryList, final List<RssFeed> feedList, Map<String, Long> unReadCountsMap) {
+
         BadgeStyle badgeStyle = new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.red);
+
         // Add Home
         result.addItem(new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIdentifier(1).withBadgeStyle(badgeStyle));
 
         // Add Category
         for (int cate_i = 0; cate_i < categoryList.size(); cate_i++) {
-            ExpandableDrawerItem expandableDrawerItem = new ExpandableDrawerItem().withName(categoryList.get(cate_i).getLabel()).withIdentifier(CATEGORY_INDENTIFIER+cate_i).withSelectable(false);
+            ExpandableDrawerItem expandableDrawerItem = new ExpandableDrawerItem()
+                    .withName(categoryList.get(cate_i).getLabel()).withIdentifier(CATEGORY_INDENTIFIER+cate_i).withSelectable(false);
             result.addItem(expandableDrawerItem);
+
             for (int feed_i = 0; feed_i < feedList.size(); feed_i++) {
                 for (int feed_cate_id = 0; feed_cate_id < feedList.get(feed_i).getCategoryIds().size(); feed_cate_id++) {
+
                     if( feedList.get(feed_i).getCategoryIds().get(feed_cate_id).equals(categoryList.get(cate_i).getCategoryId())) {
                         expandableDrawerItem.withSubItems(new SecondaryDrawerItem().withName(feedList.get(feed_i).getName())
-                                .withBadge(new StringHolder(badgeStyleMap.get(feedList.get(feed_i).getFeedId()) + "")).withIdentifier(FEED_INDENTIFIER + feed_i).withLevel(2).withBadgeStyle(badgeStyle));
+                                .withBadge(new StringHolder(unReadCountsMap.get(feedList.get(feed_i).getFeedId()) + "")).withIdentifier(FEED_INDENTIFIER + feed_i).withLevel(2).withBadgeStyle(badgeStyle));
                     }
                 }
             }
         }
+
         // Add Settings and OpenSource
         result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_settings).withIdentifier(2));
         result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_open_source).withIdentifier(3));

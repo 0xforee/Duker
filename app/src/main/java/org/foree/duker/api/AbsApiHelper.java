@@ -8,6 +8,7 @@ import org.foree.duker.rssinfo.RssItem;
 import org.foree.duker.rssinfo.RssProfile;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by foree on 16-7-15.
@@ -18,5 +19,5 @@ public abstract class AbsApiHelper {
     public abstract void getSubscriptions(String token, NetCallback<List<RssFeed>> netCallback);
     public abstract void getStream(String token, String streamId, NetCallback<List<RssItem>> netCallback);
     public abstract void getProfile(String token, NetCallback<RssProfile> netCallback);
-    public abstract void getUnreadCounts(String token, NetCallback<String> netCallback);
+    public abstract void getUnreadCounts(String token, NetCallback<Map<String, Long>> netCallback);
 }
