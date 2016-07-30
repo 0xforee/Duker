@@ -92,8 +92,8 @@ public class MainActivity extends BaseActivity{
                 localApiHelper.getSubscriptions("", new NetCallback<List<RssFeed>>() {
                     @Override
                     public void onSuccess(List<RssFeed> feedList) {
-                        initDrawer(categoryList, feedList);
-                        initBadgeStyle();
+                        initBadgeStyle(categoryList,feedList);
+
                     }
                     @Override
                     public void onFail(String msg) {
@@ -123,24 +123,22 @@ public class MainActivity extends BaseActivity{
 
     }
 
-    private void initBadgeStyle() {
+    private void initBadgeStyle(final List<RssCategory> categoryList, final List<RssFeed> feedList) {
+        badgeStyleMap = new HashMap<>();
         apiHelper.getUnreadCounts("", new NetCallback<String>() {
             @Override
             public void onSuccess(String data) {
                 try {
                     JSONObject jsonObject = new JSONObject(data);
                     JSONArray unreadArry = jsonObject.getJSONArray("unreadcounts");
-                    for(int unread_i = 0; unread_i < unreadArry.length(); unread_i++){
+                    for (int unread_i = 0; unread_i < unreadArry.length(); unread_i++) {
                         JSONObject id = unreadArry.getJSONObject(unread_i);
                         String identifier = id.getString("id");
-                        Log.d(TAG, "identifier = " + identifier);
-                        if (badgeStyleMap.containsKey(identifier)) {
-                            Log.d(TAG, "badgeStyleMap:" + badgeStyleMap.get(identifier));
-                            result.updateBadge(badgeStyleMap.get(identifier), new StringHolder(id.getLong("count") + "sss"));
-                        } else if (identifier.equals(FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID))){
-                            result.updateBadge(1, new StringHolder(id.getLong("count") + ""));
-                        }
+                        Log.d(TAG, "identifier = " + identifier + " count = " + id.getLong("count"));
+                        badgeStyleMap.put(identifier, id.getLong("count"));
                     }
+
+                    initDrawer(categoryList, feedList);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -191,7 +189,6 @@ public class MainActivity extends BaseActivity{
 
     private void initDrawer(final List<RssCategory> categoryList, final List<RssFeed> feedList) {
         BadgeStyle badgeStyle = new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.red);
-        badgeStyleMap = new HashMap<>();
         // Add Home
         result.addItem(new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIdentifier(1).withBadgeStyle(badgeStyle));
 
@@ -202,8 +199,8 @@ public class MainActivity extends BaseActivity{
             for (int feed_i = 0; feed_i < feedList.size(); feed_i++) {
                 for (int feed_cate_id = 0; feed_cate_id < feedList.get(feed_i).getCategoryIds().size(); feed_cate_id++) {
                     if( feedList.get(feed_i).getCategoryIds().get(feed_cate_id).equals(categoryList.get(cate_i).getCategoryId())) {
-                        expandableDrawerItem.withSubItems(new SecondaryDrawerItem().withName(feedList.get(feed_i).getName()).withIdentifier(FEED_INDENTIFIER + feed_i).withLevel(2).withBadgeStyle(badgeStyle));
-                        badgeStyleMap.put(feedList.get(feed_i).getFeedId(), FEED_INDENTIFIER + feed_i);
+                        expandableDrawerItem.withSubItems(new SecondaryDrawerItem().withName(feedList.get(feed_i).getName())
+                                .withBadge(new StringHolder(badgeStyleMap.get(feedList.get(feed_i).getFeedId()) + "")).withIdentifier(FEED_INDENTIFIER + feed_i).withLevel(2).withBadgeStyle(badgeStyle));
                     }
                 }
             }
