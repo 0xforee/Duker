@@ -76,9 +76,8 @@ public class MainActivity extends BaseActivity{
             getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
         }
 
-
-
         setUpDrawerLayout(savedInstanceState);
+        updateSubscriptions();
 
         // get FloatActionButton
         testFloatingButton = (FloatingActionButton)findViewById(R.id.fab);
@@ -91,7 +90,26 @@ public class MainActivity extends BaseActivity{
 
     }
     private void setUpDrawerLayout(Bundle savedInstanceState){
-        initProfile(savedInstanceState);
+
+        badgeStyleMap = new HashMap<>();
+
+        // Create a few sample profile
+        // NOTE you have to define the loader logic too. See the CustomApplication for more details
+        final IProfile profile = new ProfileDrawerItem().withName("").withEmail("").withIcon("").withIdentifier(100);
+
+        // Create the AccountHeader
+        headerResult = new AccountHeaderBuilder()
+                .withActivity(MainActivity.this)
+                .withTranslucentStatusBar(true)
+                .withHeaderBackground(R.drawable.header)
+                .addProfiles(
+                        profile,
+                        //don't ask but google uses 14dp for the add account icon in gmail but 20dp for the normal icons (like manage account)
+                        new ProfileSettingDrawerItem().withName("Add Account").withDescription("Add new GitHub Account").withIdentifier(PROFILE_SETTING),
+                        new ProfileSettingDrawerItem().withName("Manage Account").withIdentifier(100001)
+                )
+                .withSavedInstance(savedInstanceState)
+                .build();
 
         result = new DrawerBuilder()
                 .withActivity(this)
@@ -102,26 +120,19 @@ public class MainActivity extends BaseActivity{
                 .withShowDrawerOnFirstLaunch(true)
                 .build();
 
-        initCategoriesList();
     }
 
-    private void initCategoriesList() {
+    private void updateSubscriptions(){
+
+        updateProfile();
+        updateCategories();
+    }
+
+    private void updateCategories() {
         localApiHelper.getCategoriesList("", new NetCallback<List<RssCategory>>() {
             @Override
             public void onSuccess(final List<RssCategory> categoryList) {
-                localApiHelper.getSubscriptions("", new NetCallback<List<RssFeed>>() {
-                    @Override
-                    public void onSuccess(List<RssFeed> feedList) {
-                        initBadgeStyle(categoryList,feedList);
-
-                    }
-                    @Override
-                    public void onFail(String msg) {
-                        Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_LONG).show();
-                        Log.e(TAG,"getCategoriesList " + msg);
-                    }
-                });
-
+                updateFeeds(categoryList);
             }
 
             @Override
@@ -132,8 +143,24 @@ public class MainActivity extends BaseActivity{
         });
     }
 
-    private void initBadgeStyle(final List<RssCategory> categoryList, final List<RssFeed> feedList) {
-        badgeStyleMap = new HashMap<>();
+    private void updateFeeds(final List<RssCategory> categoryList) {
+
+        localApiHelper.getSubscriptions("", new NetCallback<List<RssFeed>>() {
+            @Override
+            public void onSuccess(List<RssFeed> feedList) {
+                updateUnreadCounts(categoryList,feedList);
+
+            }
+            @Override
+            public void onFail(String msg) {
+                Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_LONG).show();
+                Log.e(TAG,"getCategoriesList " + msg);
+            }
+        });
+    }
+
+    private void updateUnreadCounts(final List<RssCategory> categoryList, final List<RssFeed> feedList) {
+
         apiHelper.getUnreadCounts("", new NetCallback<String>() {
             @Override
             public void onSuccess(String data) {
@@ -159,25 +186,7 @@ public class MainActivity extends BaseActivity{
         });
     }
 
-    private void initProfile(final Bundle savedInstanceState) {
-
-        // Create a few sample profile
-        // NOTE you have to define the loader logic too. See the CustomApplication for more details
-        final IProfile profile = new ProfileDrawerItem().withName("").withEmail("").withIcon("").withIdentifier(100);
-
-        // Create the AccountHeader
-        headerResult = new AccountHeaderBuilder()
-                .withActivity(MainActivity.this)
-                .withTranslucentStatusBar(true)
-                .withHeaderBackground(R.drawable.header)
-                .addProfiles(
-                        profile,
-                        //don't ask but google uses 14dp for the add account icon in gmail but 20dp for the normal icons (like manage account)
-                        new ProfileSettingDrawerItem().withName("Add Account").withDescription("Add new GitHub Account").withIdentifier(PROFILE_SETTING),
-                        new ProfileSettingDrawerItem().withName("Manage Account").withIdentifier(100001)
-                )
-                .withSavedInstance(savedInstanceState)
-                .build();
+    private void updateProfile() {
 
         // getProfile from Network
         localApiHelper.getProfile("", new NetCallback<RssProfile>() {
@@ -186,13 +195,11 @@ public class MainActivity extends BaseActivity{
                 final IProfile profile2 = new ProfileDrawerItem().withName(data.getFullName()).withEmail(data.getEmail()).withIcon(data.getPicture()).withIdentifier(100);
                 headerResult.updateProfile(profile2);
             }
-
             @Override
             public void onFail(String msg) {
 
             }
         });
-
     }
 
     private void initDrawer(final List<RssCategory> categoryList, final List<RssFeed> feedList) {
