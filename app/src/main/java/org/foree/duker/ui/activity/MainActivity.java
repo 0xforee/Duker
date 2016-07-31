@@ -37,6 +37,9 @@ import org.foree.duker.rssinfo.RssCategory;
 import org.foree.duker.rssinfo.RssFeed;
 import org.foree.duker.rssinfo.RssProfile;
 import org.foree.duker.ui.fragment.ItemListFragment;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Map;
@@ -82,7 +85,19 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         testFloatingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                apiHelper.getUnreadCounts("",null);
+                JSONArray jsonArray = new JSONArray();
+                jsonArray.put("LlyJYTwK/hOGoxD8Z+3MsWLJSX6u9Y+aMhOtmdEkqbs=_1563fb51181:2664f4b:d45364f0");
+                jsonArray.put("NxtobpK+RO3JXXJWxQJBKJe1Z9o0UgatkVxYNLu3L6g=_1563fd85655:26350be:85ca5f35");
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put("action", "markAsRead");
+                    jsonObject.put("entryIds", jsonArray);
+                    jsonObject.put("type", "entries");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                apiHelper.markStream("", jsonObject, null);
             }
         });
 
