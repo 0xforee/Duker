@@ -188,12 +188,12 @@ public class FeedlyApiHelper extends AbsApiHelper {
         final Map<String,String> headers = new HashMap<>();
         headers.put("Authorization","OAuth " + token);
 
-        NetWorkApiHelper.newInstance().postRequest(url, params, headers, new Response.Listener<JSONObject>() {
+        NetWorkApiHelper.newInstance().postRequest(url, params, headers, new Response.Listener<String>() {
             @Override
-            public void onResponse(JSONObject response) {
-                Log.d(TAG, "setArticleRead: " + response.toString());
+            public void onResponse(String response) {
+                Log.d(TAG, "setArticleRead: " + response);
                 if (netCallback != null){
-                    netCallback.onSuccess(response.toString());
+                    netCallback.onSuccess(response);
                 }
             }
         }, new Response.ErrorListener() {

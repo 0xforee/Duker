@@ -1,12 +1,9 @@
 package org.foree.duker.api;
 
 import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -45,15 +42,24 @@ public class NetWorkApiHelper {
         queue.add(stringRequest);
     }
 
-    public void postRequest(String requestUrl, JSONObject params, final Map<String, String> headers, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener){
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, requestUrl, params, listener, errorListener){
+    public void postRequest(String requestUrl, final JSONObject params, final Map<String, String> headers, Response.Listener<String> listener, Response.ErrorListener errorListener){
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, requestUrl, listener, errorListener){
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return headers;
             }
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                return params.toString().getBytes();
+            }
+
+            @Override
+            public String getBodyContentType() {
+                return "application/json";
+            }
         };
 
-        queue.add(jsonObjectRequest);
+        queue.add(stringRequest);
     }
 
 
