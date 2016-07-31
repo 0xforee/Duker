@@ -191,7 +191,8 @@ public class FeedlyApiHelper extends AbsApiHelper {
         NetWorkApiHelper.newInstance().postRequest(url, params, headers, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Log.d(TAG, "setArticleRead: " + response);
+                Log.d(TAG, "setArticleRead: " + NetWorkApiHelper.newInstance().getStatusCode());
+
                 if (netCallback != null){
                     netCallback.onSuccess(response);
                 }
