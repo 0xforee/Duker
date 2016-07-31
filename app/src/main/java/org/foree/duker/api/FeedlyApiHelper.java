@@ -181,12 +181,22 @@ public class FeedlyApiHelper extends AbsApiHelper {
     }
 
     @Override
-    public void markStream(String token, JSONObject params, final NetCallback<String> netCallback){
+    public void markAsOneRead(String token, RssItem rssItem, NetCallback<String> netCallback){
+        List<RssItem>  rssItems = new ArrayList<>();
+        rssItems.add(rssItem);
+        markStream(token, rssItems, netCallback);
+    }
+
+    @Override
+    public void markStream(String token, List<RssItem> rssItems, final NetCallback<String> netCallback){
         token = API_TOKEN_TEST;
         String url = API_HOST_URL + API_MARKERS_URL;
 
         final Map<String,String> headers = new HashMap<>();
         headers.put("Authorization","OAuth " + token);
+
+        // generate JsonObject params
+        JSONObject params = generateJsonParams(rssItems);
 
         NetWorkApiHelper.newInstance().postRequest(url, params, headers, new Response.Listener<String>() {
             @Override
@@ -207,6 +217,24 @@ public class FeedlyApiHelper extends AbsApiHelper {
                 }
             }
         });
+    }
+
+    private JSONObject generateJsonParams(List<RssItem> items) {
+
+        JSONArray jsonArray = new JSONArray();
+        for(int item_i=0; item_i < items.size(); item_i++) {
+            jsonArray.put(items.get(item_i).getEntryId());
+        }
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("action", "markAsRead");
+            jsonObject.put("entryIds", jsonArray);
+            jsonObject.put("type", "entries");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return jsonObject;
     }
 
     protected Map<String, Long> parseUnreadCounts(String data){

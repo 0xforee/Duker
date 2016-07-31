@@ -67,6 +67,9 @@ public class ItemListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         LinearLayout linearLayout = (LinearLayout)inflater.inflate(R.layout.fragment_itemlist, container, false);
 
+        AbsApiFactory absApiFactory = new ApiFactory();
+        mApiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
+
         mRecyclerView = (RecyclerView) linearLayout.findViewById(R.id.rv_item_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this.getActivity()));
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -79,9 +82,6 @@ public class ItemListFragment extends Fragment {
 
         if (feedId != "") {
             // getItemList
-            AbsApiFactory absApiFactory = new ApiFactory();
-            mApiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
-
             mApiHelper.getStream("", feedId, new NetCallback<List<RssItem>>() {
                 @Override
                 public void onSuccess(List<RssItem> data) {
@@ -111,6 +111,7 @@ public class ItemListFragment extends Fragment {
                 Bundle bundle = new Bundle();
                 bundle.putString("entryUrl", itemList.get(position).getUrl());
                 bundle.putString("entryTitle", itemList.get(position).getTitle());
+                mApiHelper.markAsOneRead("", itemList.get(position), null);
                 intent.putExtras(bundle);
                 startActivity(intent);
             }
