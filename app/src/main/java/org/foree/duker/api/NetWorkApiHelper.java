@@ -41,7 +41,7 @@ public class NetWorkApiHelper {
             return headers;
         }
         };
-
+        stringRequest.setShouldCache(false);
         queue.add(stringRequest);
     }
 
