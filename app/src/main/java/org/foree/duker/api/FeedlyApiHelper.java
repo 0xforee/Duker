@@ -5,6 +5,7 @@ import android.util.Log;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssCategory;
@@ -262,22 +263,8 @@ public class FeedlyApiHelper extends AbsApiHelper {
     }
 
     protected List<RssCategory> parseCategories(String data){
-        List<RssCategory> rssCategories = new ArrayList<>();
-        try {
-            JSONArray jsonArray = new JSONArray(data);
-            for( int js_i = 0; js_i < jsonArray.length(); js_i++){
-                RssCategory rssCategory = new RssCategory();
-                JSONObject jsonObject = jsonArray.getJSONObject(js_i);
-                rssCategory.setCategoryId(jsonObject.getString("id"));
-                rssCategory.setLable(jsonObject.getString("label"));
 
-                rssCategories.add(rssCategory);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return rssCategories;
+        return new Gson().fromJson(data, new TypeToken<List<RssCategory>>(){}.getType());
     }
 
     protected List<RssFeed> parseSubscriptions(String data){
