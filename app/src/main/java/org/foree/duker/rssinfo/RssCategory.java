@@ -36,4 +36,18 @@ public class RssCategory {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof RssCategory)) return false;
+
+        RssCategory that = (RssCategory) o;
+
+        if (categoryId != null ? !categoryId.equals(that.categoryId) : that.categoryId != null)
+            return false;
+        if (label != null ? !label.equals(that.label) : that.label != null) return false;
+        return description != null ? description.equals(that.description) : that.description == null;
+
+    }
 }

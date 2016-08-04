@@ -1,5 +1,7 @@
 package org.foree.duker.rssinfo;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 /**
@@ -9,43 +11,45 @@ import java.util.List;
 public class RssFeed {
 
     // FeedId
+    @SerializedName("id")
     private String feedId;
     // 订阅号的名称
-    private String name = null;
+    private String title = null;
     // 订阅号的rss链接
-    private String url = null;
+    private String website = null;
+    private String iconUrl = null;
     // 分类ID
-    private List<String> categoryIds;
+    private List<RssCategory> categories;
 
     public String getFeedId() {
         return feedId;
     }
 
     public String getName() {
-        return name;
+        return title;
     }
 
     public String getUrl() {
-        return url;
+        return website;
     }
 
-    public List<String> getCategoryIds() {
-        return categoryIds;
+    public List<RssCategory> getCategories() {
+        return categories;
     }
 
     public void setFeedId(String feedId) {
         this.feedId = feedId;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setName(String title) {
+        this.title = title;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setUrl(String website) {
+        this.website = website;
     }
 
-    public void setCategoryIds(List<String> categoryIds) {
-        this.categoryIds = categoryIds;
+    public void setCategoryIds(List<RssCategory> categories) {
+        this.categories = categories;
     }
 }

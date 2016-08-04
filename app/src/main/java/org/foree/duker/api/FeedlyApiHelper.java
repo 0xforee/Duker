@@ -268,30 +268,8 @@ public class FeedlyApiHelper extends AbsApiHelper {
     }
 
     protected List<RssFeed> parseSubscriptions(String data){
-        List<RssFeed> RssFeeds = new ArrayList<>();
-        try {
-            JSONArray jsonArray = new JSONArray(data);
-            for( int js_i = 0; js_i < jsonArray.length(); js_i++){
-                RssFeed RssFeed = new RssFeed();
-                JSONObject jsonObject = jsonArray.getJSONObject(js_i);
-                RssFeed.setFeedId(jsonObject.getString("id"));
-                RssFeed.setName(jsonObject.getString("title"));
-                RssFeed.setUrl(jsonObject.getString("website"));
 
-                JSONArray cateArray = jsonObject.getJSONArray("categories");
-                List<String> rssCategoriesId = new ArrayList<>();
-                for(int cate_i = 0; cate_i < cateArray.length(); cate_i++){
-                    rssCategoriesId.add(cateArray.getJSONObject(cate_i).getString("id"));
-                }
-                RssFeed.setCategoryIds(rssCategoriesId);
-
-                RssFeeds.add(RssFeed);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return RssFeeds;
+        return new Gson().fromJson(data, new TypeToken<List<RssFeed>>(){}.getType());
     }
 
     private List<RssItem> parseStream(String data){
