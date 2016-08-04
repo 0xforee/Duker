@@ -8,6 +8,10 @@ public class RssProfile {
     private String gender;
     private String givenName;
     private String familyName;
+    private String fullName;
+    private String id;
+    private String picture;
+    private String email;
 
     public String getFullName() {
         return fullName;
@@ -16,11 +20,6 @@ public class RssProfile {
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
-
-    private String fullName;
-    private String id;
-    private String picture;
-    private String email;
 
     public void setGivenName(String givenName) {
         this.givenName = givenName;
