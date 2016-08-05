@@ -272,7 +272,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
         return new Gson().fromJson(data, new TypeToken<List<RssFeed>>(){}.getType());
     }
 
-    private List<RssItem> parseStream(String data){
+    protected List<RssItem> parseStream(String data){
         List<RssItem> RssItems = new ArrayList<>();
         try {
             JSONObject jsonObject = new JSONObject(data);

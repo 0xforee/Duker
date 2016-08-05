@@ -27,6 +27,7 @@ import org.foree.duker.api.AbsApiFactory;
 import org.foree.duker.api.AbsApiHelper;
 import org.foree.duker.api.ApiFactory;
 import org.foree.duker.api.FeedlyApiHelper;
+import org.foree.duker.api.LocalApiHelper;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssItem;
 import org.foree.duker.ui.activity.ArticleActivity;
@@ -44,7 +45,7 @@ public class ItemListFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
     private ItemListAdapter mAdapter;
-    private AbsApiHelper mApiHelper;
+    private AbsApiHelper mApiHelper, localApiHelper;
     private List<RssItem> itemList;
 
     public ItemListFragment() {
@@ -69,6 +70,7 @@ public class ItemListFragment extends Fragment {
 
         AbsApiFactory absApiFactory = new ApiFactory();
         mApiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
+        localApiHelper = absApiFactory.createApiHelper(LocalApiHelper.class);
 
         mRecyclerView = (RecyclerView) linearLayout.findViewById(R.id.rv_item_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this.getActivity()));
@@ -82,7 +84,7 @@ public class ItemListFragment extends Fragment {
 
         if (feedId != "") {
             // getItemList
-            mApiHelper.getStream("", feedId, new NetCallback<List<RssItem>>() {
+            localApiHelper.getStream("", feedId, new NetCallback<List<RssItem>>() {
                 @Override
                 public void onSuccess(List<RssItem> data) {
                     itemList = data;

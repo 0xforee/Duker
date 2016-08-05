@@ -11,6 +11,7 @@ import org.foree.duker.api.AbsApiFactory;
 import org.foree.duker.api.AbsApiHelper;
 import org.foree.duker.api.ApiFactory;
 import org.foree.duker.api.FeedlyApiHelper;
+import org.foree.duker.api.LocalApiHelper;
 import org.foree.duker.base.BaseActivity;
 import org.foree.duker.base.MyApplication;
 import org.foree.duker.net.NetCallback;
@@ -39,7 +40,8 @@ public class SplashActivity extends BaseActivity{
 
         AbsApiFactory absApiFactory = new ApiFactory();
         AbsApiHelper apiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
-        apiHelper.getStream("", FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID), new NetCallback<List<RssItem>>() {
+        AbsApiHelper localApiHelper = absApiFactory.createApiHelper(LocalApiHelper.class);
+        localApiHelper.getStream("", FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID), new NetCallback<List<RssItem>>() {
             @Override
             public void onSuccess(final List<RssItem> data) {
                 gotoMainActivity((Serializable) data);

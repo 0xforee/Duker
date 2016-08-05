@@ -37,9 +37,6 @@ import org.foree.duker.rssinfo.RssCategory;
 import org.foree.duker.rssinfo.RssFeed;
 import org.foree.duker.rssinfo.RssProfile;
 import org.foree.duker.ui.fragment.ItemListFragment;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Map;
