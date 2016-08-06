@@ -40,7 +40,7 @@ public class RssSQLiteOpenHelper extends SQLiteOpenHelper{
     }
 
     private void createEntriesTable(SQLiteDatabase db) {
-        // id, category, unread, url, published
+        // id, category, unread, url, published, title
         db.execSQL("create table entries(id varchar(255) primary key,  category varchar(255), unread varchar(5), url varchar(255), published int(20)");
     }
 
