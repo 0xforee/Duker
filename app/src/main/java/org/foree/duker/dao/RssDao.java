@@ -83,9 +83,36 @@ public class RssDao {
         return rssItemList;
     }
 
+    /**
+     * 清空表
+     * @param table 表名称
+     */
     public void cleanTable(String table){
         SQLiteDatabase db = rssSQLiteOpenHelper.getWritableDatabase();
         db.delete(table, null, null);
         db.close();
+    }
+
+    /**
+     * 更新rssItem的unread字段
+     */
+    public int update(String id, boolean newValue){
+
+        SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("unread", newValue);
+
+        return db.update(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, contentValues, "id=?", new String[]{id});
+    }
+
+    /**
+     * 删除某一项
+     * @param id rssItem的标示
+     */
+    public int delete(String id){
+
+        SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
+        return db.delete(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, "id=?", new String[]{id});
+
     }
 }
