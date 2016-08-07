@@ -1,7 +1,6 @@
 package org.foree.duker.rssinfo;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -23,6 +22,16 @@ public class RssItem implements Serializable{
     private List<RssCategory> categories;
     // Item unread;
     private boolean unread;
+
+    public RssItem (){}
+
+    public RssItem (String entryId, String title, String url, boolean unread, long published){
+        this.entryId = entryId;
+        this.title = title;
+        this.url = url;
+        this.unread = unread;
+        this.published = published;
+    }
 
     public boolean isUnread() {
         return unread;

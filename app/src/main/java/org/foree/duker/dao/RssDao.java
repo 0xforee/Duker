@@ -8,6 +8,7 @@ import android.util.Log;
 
 import org.foree.duker.rssinfo.RssItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -45,5 +46,26 @@ public class RssDao {
         }
         cursor.close();
         db.close();
+    }
+
+    public List<RssItem> find(){
+        List<RssItem> rssItemList = new ArrayList<>();
+        SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
+        Cursor cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, new String[]{"id,title,url,published,unread"},
+                null, null, null, null, null);
+        while(cursor.moveToNext()){
+            String id = cursor.getString(cursor.getColumnIndex("id"));
+            String title = cursor.getString(cursor.getColumnIndex("title"));
+            String url = cursor.getString(cursor.getColumnIndex("url"));
+            boolean unread = cursor.getInt(cursor.getColumnIndex("unread"))>0;
+            long published = cursor.getLong(cursor.getColumnIndex("published"));
+            RssItem rssItem = new RssItem(id, title, url, unread, published);
+
+            rssItemList.add(rssItem);
+
+        }
+        cursor.close();
+        db.close();
+        return rssItemList;
     }
 }
