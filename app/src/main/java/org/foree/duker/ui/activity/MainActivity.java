@@ -194,7 +194,9 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         BadgeStyle badgeStyle = new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.red);
 
         // Add Home
-        result.addItem(new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIdentifier(1).withBadgeStyle(badgeStyle));
+        result.addItem(new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIdentifier(1)
+                .withBadge(new StringHolder(unReadCountsMap.get(FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID)) + "")).withBadgeStyle(badgeStyle));
+
 
         // Add Category
         for (int cate_i = 0; cate_i < categoryList.size(); cate_i++) {
