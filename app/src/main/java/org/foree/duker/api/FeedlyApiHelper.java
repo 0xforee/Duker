@@ -33,7 +33,8 @@ public class FeedlyApiHelper extends AbsApiHelper {
     protected static final String API_SUBSCRIPTIONS_URL = "/v3/subscriptions";
     protected static final String API_PROFILE_URL = "/v3/profile";
     protected static final String API_STREAM_IDS_URL = "/v3/streams/ids?streamId=:streamId";
-    protected static final String API_STREAM_CONTENTS_URL = "/v3/streams/contents?streamId=:streamId";
+    // TODO: 考虑最高请求数目为10000条时，线程的处理逻辑
+    protected static final String API_STREAM_CONTENTS_URL = "/v3/streams/contents?streamId=:streamId&unreadOnly=true&count=500";
     protected static final String API_UNREAD_COUNTS_URL = "/v3/markers/counts";
     protected static final String API_MARKERS_URL = "/v3/markers";
     public static final String USER_ID = "a5a12800-0cc3-4b9e-bc33-9d46f76cc162";
