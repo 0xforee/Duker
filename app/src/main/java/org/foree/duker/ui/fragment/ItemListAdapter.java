@@ -10,6 +10,7 @@ import android.widget.TextView;
 import org.foree.duker.R;
 import org.foree.duker.rssinfo.RssItem;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -50,7 +51,7 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.MyView
             holder.tvSummary.setVisibility(View.VISIBLE);
             holder.tvSummary.setText(mItemList.get(position).getSummary());
         }
-        holder.tvPublished.setText(mItemList.get(position).getPubDate().toString());
+        holder.tvPublished.setText(new Date(mItemList.get(position).getPublished()).toString());
 
         // 如果设置了回调，则设置点击事件
         if (mOnItemClickListener != null)

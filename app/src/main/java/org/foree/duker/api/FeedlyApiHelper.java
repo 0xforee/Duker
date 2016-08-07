@@ -10,8 +10,6 @@ import com.google.gson.reflect.TypeToken;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssCategory;
 import org.foree.duker.rssinfo.RssFeed;
-import org.foree.duker.rssinfo.RssFeed;
-import org.foree.duker.rssinfo.RssItem;
 import org.foree.duker.rssinfo.RssItem;
 import org.foree.duker.rssinfo.RssProfile;
 import org.json.JSONArray;
@@ -273,28 +271,33 @@ public class FeedlyApiHelper extends AbsApiHelper {
     }
 
     protected List<RssItem> parseStream(String data){
-        List<RssItem> RssItems = new ArrayList<>();
+        List<RssItem> rssItems = new ArrayList<>();
         try {
             JSONObject jsonObject = new JSONObject(data);
             JSONArray jsonArray = jsonObject.getJSONArray("items");
             for(int item_i=0; item_i<jsonArray.length(); item_i++){
                 JSONObject itemObject = jsonArray.getJSONObject(item_i);
-                RssItem RssItem = new RssItem();
+                RssItem rssItem = new RssItem();
 
-                RssItem.setPubDate(new Date(itemObject.getLong("published")));
-                RssItem.setUrl(itemObject.getJSONArray("alternate").getJSONObject(0).getString("href"));
+                rssItem.setPublished(itemObject.getLong("published"));
+                rssItem.setUrl(itemObject.getJSONArray("alternate").getJSONObject(0).getString("href"));
                 // TODO:summary需要更好的过滤
                 String summary = itemObject.getJSONObject("summary").getString("content");
-                RssItem.setSummary(summary.substring(0, Math.min(32, summary.length())));
-                RssItem.setEntryId(itemObject.getString("id"));
-                RssItem.setTitle(itemObject.getString("title"));
+                rssItem.setSummary(summary.substring(0, Math.min(32, summary.length())));
 
-                RssItems.add(RssItem);
+                rssItem.setEntryId(itemObject.getString("id"));
+                rssItem.setTitle(itemObject.getString("title"));
+
+                List<RssCategory> categoryList = new Gson().fromJson(itemObject.getJSONArray("categories").toString(), new TypeToken<List<RssCategory>>(){}.getType());
+                rssItem.setCategories(categoryList);
+
+                rssItem.setUnread(itemObject.getBoolean("unread"));
+                rssItems.add(rssItem);
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        return RssItems;
+        return rssItems;
     }
 }

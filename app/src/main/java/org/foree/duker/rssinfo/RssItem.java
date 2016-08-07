@@ -2,6 +2,7 @@ package org.foree.duker.rssinfo;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by foree on 16-7-19.
@@ -13,11 +14,23 @@ public class RssItem implements Serializable{
     // Item 概览
     private String summary;
     // Item 发布时间
-    private Date pubDate;
+    private long published;
     // Item ID
     private String entryId;
-    // Itme 链接
+    // Item 链接
     private String url;
+    // Item categories
+    private List<RssCategory> categories;
+    // Item unread;
+    private boolean unread;
+
+    public boolean isUnread() {
+        return unread;
+    }
+
+    public void setUnread(boolean unread) {
+        this.unread = unread;
+    }
 
     public String getTitle() {
         return title;
@@ -27,8 +40,8 @@ public class RssItem implements Serializable{
         return summary;
     }
 
-    public Date getPubDate() {
-        return pubDate;
+    public long getPublished() {
+        return published;
     }
 
     public String getEntryId() {
@@ -39,6 +52,10 @@ public class RssItem implements Serializable{
         return url;
     }
 
+    public List<RssCategory> getCategories() {
+        return categories;
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -47,8 +64,8 @@ public class RssItem implements Serializable{
         this.summary = summary;
     }
 
-    public void setPubDate(Date pubDate) {
-        this.pubDate = pubDate;
+    public void setPublished(long published) {
+        this.published = published;
     }
 
     public void setEntryId(String entryId) {
@@ -57,5 +74,9 @@ public class RssItem implements Serializable{
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public void setCategories(List<RssCategory> categoryList){
+        categories = categoryList;
     }
 }

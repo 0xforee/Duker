@@ -36,6 +36,8 @@ public class RssDao {
                 contentValues.put("id", item.getEntryId());
                 contentValues.put("title", item.getTitle());
                 contentValues.put("url", item.getUrl());
+                contentValues.put("published", item.getPublished());
+                contentValues.put("unread", item.isUnread());
                 if( db.insert(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, null, contentValues) == -1 ){
                     Log.e(TAG, "Database insert id: " + item.getEntryId() + " error");
                 }

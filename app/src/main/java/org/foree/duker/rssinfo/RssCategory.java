@@ -2,11 +2,13 @@ package org.foree.duker.rssinfo;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created by foree on 16-7-19.
  * Rss分类
  */
-public class RssCategory {
+public class RssCategory implements Serializable{
 
     @SerializedName("id")
     private String categoryId;

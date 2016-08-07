@@ -47,7 +47,7 @@ public class RssSQLiteOpenHelper extends SQLiteOpenHelper{
                 "category varchar(255), " +
                 "unread varchar(5), " +
                 "url varchar(255), " +
-                "published int(20)," +
+                "published integer," +
                 "title varchar(255)" +
                 ")"
         );
