@@ -52,7 +52,7 @@ public class RssDao {
     }
 
     /**
-     * 根据feedId来查询
+     * 根据feedId来查询未读的文章
      * @return 符合要求的rssItemList
      */
     public List<RssItem> find(String feedId){
@@ -62,10 +62,10 @@ public class RssDao {
         SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
         if (!feedId.equals(FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID))) {
             cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, new String[]{"id,title,url,published,unread"},
-                    "feedId=?", new String[]{feedId}, null, null, "published DESC");
+                    "feedId=? AND unread=?", new String[]{feedId, "1"}, null, null, "published DESC");
         } else {
             cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, new String[]{"id,title,url,published,unread"},
-                    null, null, null, null, "published DESC");
+                    "unread=?", new String[]{"1"}, null, null, "published DESC");
         }
         while(cursor.moveToNext()){
             String id = cursor.getString(cursor.getColumnIndex("id"));

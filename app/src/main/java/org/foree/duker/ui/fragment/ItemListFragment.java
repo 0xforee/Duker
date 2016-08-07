@@ -28,6 +28,7 @@ import org.foree.duker.api.AbsApiHelper;
 import org.foree.duker.api.ApiFactory;
 import org.foree.duker.api.FeedlyApiHelper;
 import org.foree.duker.api.LocalApiHelper;
+import org.foree.duker.dao.RssDao;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssItem;
 import org.foree.duker.ui.activity.ArticleActivity;
@@ -47,6 +48,7 @@ public class ItemListFragment extends Fragment {
     private ItemListAdapter mAdapter;
     private AbsApiHelper mApiHelper, localApiHelper;
     private List<RssItem> itemList;
+    RssDao rssDao;
 
     public ItemListFragment() {
         // Required empty public constructor
@@ -71,6 +73,9 @@ public class ItemListFragment extends Fragment {
         AbsApiFactory absApiFactory = new ApiFactory();
         mApiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
         localApiHelper = absApiFactory.createApiHelper(LocalApiHelper.class);
+
+        // database
+        rssDao = new RssDao(getActivity());
 
         mRecyclerView = (RecyclerView) linearLayout.findViewById(R.id.rv_item_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this.getActivity()));
@@ -113,6 +118,7 @@ public class ItemListFragment extends Fragment {
                 Bundle bundle = new Bundle();
                 bundle.putString("entryUrl", itemList.get(position).getUrl());
                 bundle.putString("entryTitle", itemList.get(position).getTitle());
+                rssDao.update(itemList.get(position).getEntryId(), false);
                 mApiHelper.markAsOneRead("", itemList.get(position), null);
                 intent.putExtras(bundle);
                 startActivity(intent);

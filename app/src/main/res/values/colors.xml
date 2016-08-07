@@ -9,4 +9,7 @@
 
     <!--红色 -->
     <color name="red">#FF0000</color>
+
+    <!-- 紫罗兰蓝色 -->
+    <color name="light_sky_blue">#87CEEB</color>
 </resources>
