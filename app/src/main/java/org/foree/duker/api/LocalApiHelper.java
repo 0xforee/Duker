@@ -5,7 +5,9 @@ import android.util.Log;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
+import org.foree.duker.base.BaseApplication;
 import org.foree.duker.base.MyApplication;
+import org.foree.duker.dao.RssDao;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssCategory;
 import org.foree.duker.rssinfo.RssFeed;
@@ -171,44 +173,37 @@ public class LocalApiHelper extends FeedlyApiHelper {
         token = API_TOKEN_TEST;
 
         String url = API_HOST_URL + API_STREAM_CONTENTS_URL.replace(":streamId", streamId);
-        String localStream = "";
 
-        final File stream_json = new File(MyApplication.myApplicationDirPath + File.separator + MyApplication.myApplicationDataName + File.separator + "stream_" + FileUtils.encodeUrl(url) + ".json");
+        // get data from db
+        final RssDao rssDao = new RssDao(BaseApplication.getInstance().getApplicationContext());
+        List<RssItem> rssItemList = rssDao.find();
 
-        try {
-            localStream = FileUtils.readFile(stream_json);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if (localStream.isEmpty()){
-        final Map<String,String> headers = new HashMap<>();
-        headers.put("Authorization","OAuth " + token);
-        NetWorkApiHelper.newInstance().getRequest(url, headers, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Log.i(TAG,"onResponse:getStream " + response);
-                try {
-                    FileUtils.writeFile(stream_json, response);
-                    if ( netCallback != null){
-                        netCallback.onSuccess(parseStream(response));
+        if (rssItemList.isEmpty()) {
+            final Map<String, String> headers = new HashMap<>();
+            headers.put("Authorization", "OAuth " + token);
+            NetWorkApiHelper.newInstance().getRequest(url, headers, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    Log.i(TAG, "onResponse:getStream " + response);
+                    // insert to db
+                    List<RssItem> rssItems = parseStream(response);
+                    rssDao.insert(rssItems);
+                    if (netCallback != null) {
+                        netCallback.onSuccess(rssItems);
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e(TAG,"onErrorResponse:getStream " + error.getMessage());
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e(TAG, "onErrorResponse:getStream " + error.getMessage());
 
-                if (netCallback != null){
-                    netCallback.onFail(error.getMessage());
+                    if (netCallback != null) {
+                        netCallback.onFail(error.getMessage());
+                    }
                 }
-            }
-        });
-        } else if ( netCallback != null){
-            netCallback.onSuccess(parseStream(localStream));
+            });
+        } else if (netCallback != null) {
+            netCallback.onSuccess(rssItemList);
         }
     }
 
