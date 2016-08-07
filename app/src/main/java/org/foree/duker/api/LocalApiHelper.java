@@ -173,7 +173,7 @@ public class LocalApiHelper extends FeedlyApiHelper {
         String url = API_HOST_URL + API_STREAM_CONTENTS_URL.replace(":streamId", streamId);
         String localStream = "";
 
-        final File stream_json = new File(MyApplication.myApplicationDirPath + File.separator + MyApplication.myApplicationDataName + File.separator + "stream.json");
+        final File stream_json = new File(MyApplication.myApplicationDirPath + File.separator + MyApplication.myApplicationDataName + File.separator + "stream_" + FileUtils.encodeUrl(url) + ".json");
 
         try {
             localStream = FileUtils.readFile(stream_json);

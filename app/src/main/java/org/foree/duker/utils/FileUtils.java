@@ -47,4 +47,9 @@ public class FileUtils {
         bufferedWriter.close();
         out.close();
     }
+
+    // url encode
+    public static String encodeUrl(String url){
+        return url.replaceAll("/", "_");
+    }
 }
