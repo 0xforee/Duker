@@ -82,4 +82,10 @@ public class RssDao {
         db.close();
         return rssItemList;
     }
+
+    public void cleanTable(String table){
+        SQLiteDatabase db = rssSQLiteOpenHelper.getWritableDatabase();
+        db.delete(table, null, null);
+        db.close();
+    }
 }
