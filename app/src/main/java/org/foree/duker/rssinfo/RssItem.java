@@ -16,6 +16,8 @@ public class RssItem implements Serializable{
     private long published;
     // Item ID
     private String entryId;
+    // Item feedId
+    private String feedId;
     // Item 链接
     private String url;
     // Item categories
@@ -31,6 +33,15 @@ public class RssItem implements Serializable{
         this.url = url;
         this.unread = unread;
         this.published = published;
+    }
+
+
+    public String getFeedId() {
+        return feedId;
+    }
+
+    public void setFeedId(String feedId) {
+        this.feedId = feedId;
     }
 
     public boolean isUnread() {

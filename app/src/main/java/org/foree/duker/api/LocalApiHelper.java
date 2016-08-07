@@ -176,7 +176,7 @@ public class LocalApiHelper extends FeedlyApiHelper {
 
         // get data from db
         final RssDao rssDao = new RssDao(BaseApplication.getInstance().getApplicationContext());
-        List<RssItem> rssItemList = rssDao.find();
+        List<RssItem> rssItemList = rssDao.find(streamId);
 
         if (rssItemList.isEmpty()) {
             final Map<String, String> headers = new HashMap<>();

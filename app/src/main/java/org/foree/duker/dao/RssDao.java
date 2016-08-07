@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import org.foree.duker.api.FeedlyApiHelper;
 import org.foree.duker.rssinfo.RssItem;
 
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ public class RssDao {
                 contentValues.put("id", item.getEntryId());
                 contentValues.put("title", item.getTitle());
                 contentValues.put("url", item.getUrl());
+                contentValues.put("feedId", item.getFeedId());
                 contentValues.put("published", item.getPublished());
                 contentValues.put("unread", item.isUnread());
                 if( db.insert(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, null, contentValues) == -1 ){
@@ -48,11 +50,21 @@ public class RssDao {
         db.close();
     }
 
-    public List<RssItem> find(){
+    /**
+     * 根据feedId来查询
+     * @return 符合要求的rssItemList
+     */
+    public List<RssItem> find(String feedId){
+        Cursor cursor;
         List<RssItem> rssItemList = new ArrayList<>();
         SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
-        Cursor cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, new String[]{"id,title,url,published,unread"},
-                null, null, null, null, null);
+        if (!feedId.equals(FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID))) {
+            cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, new String[]{"id,title,url,published,unread"},
+                    "feedId=?", new String[]{feedId}, null, null, null);
+        } else {
+            cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, new String[]{"id,title,url,published,unread"},
+                    null, null, null, null, null);
+        }
         while(cursor.moveToNext()){
             String id = cursor.getString(cursor.getColumnIndex("id"));
             String title = cursor.getString(cursor.getColumnIndex("title"));

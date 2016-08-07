@@ -17,7 +17,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -287,6 +286,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
 
                 rssItem.setEntryId(itemObject.getString("id"));
                 rssItem.setTitle(itemObject.getString("title"));
+                rssItem.setFeedId(itemObject.getJSONObject("origin").getString("streamId"));
 
                 List<RssCategory> categoryList = new Gson().fromJson(itemObject.getJSONArray("categories").toString(), new TypeToken<List<RssCategory>>(){}.getType());
                 rssItem.setCategories(categoryList);
