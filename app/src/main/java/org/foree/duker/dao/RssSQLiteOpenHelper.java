@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class RssSQLiteOpenHelper extends SQLiteOpenHelper{
     public static final int DB_VERSION = 1;
     public static final String DB_NAME = "duker";
+    public static final String DB_TABLE_ENTRIES = "entries";
 
     public RssSQLiteOpenHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -41,7 +42,15 @@ public class RssSQLiteOpenHelper extends SQLiteOpenHelper{
 
     private void createEntriesTable(SQLiteDatabase db) {
         // id, category, unread, url, published, title
-        db.execSQL("create table entries(id varchar(255) primary key,  category varchar(255), unread varchar(5), url varchar(255), published int(20)");
+        db.execSQL("create table entries(" +
+                "id varchar(255) primary key," +
+                "category varchar(255), " +
+                "unread varchar(5), " +
+                "url varchar(255), " +
+                "published int(20)," +
+                "title varchar(255)" +
+                ")"
+        );
     }
 
 }
