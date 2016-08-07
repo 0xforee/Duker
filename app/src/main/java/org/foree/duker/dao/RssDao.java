@@ -25,6 +25,7 @@ public class RssDao {
     }
 
     public void insert(List<RssItem> itemList){
+        Log.d(TAG, "insert rssItems to db");
         SQLiteDatabase db = rssSQLiteOpenHelper.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         Cursor cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, null,
@@ -55,6 +56,7 @@ public class RssDao {
      * @return 符合要求的rssItemList
      */
     public List<RssItem> find(String feedId){
+        Log.d(TAG, "get rssItems from db");
         Cursor cursor;
         List<RssItem> rssItemList = new ArrayList<>();
         SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();

@@ -244,7 +244,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
             for (int unread_i = 0; unread_i < unreadArray.length(); unread_i++) {
                 JSONObject id = unreadArray.getJSONObject(unread_i);
                 String identifier = id.getString("id");
-                Log.d(TAG, "identifier = " + identifier + " count = " + id.getLong("count"));
+//                Log.d(TAG, "identifier = " + identifier + " count = " + id.getLong("count"));
                 unReadCountsMap.put(identifier, id.getLong("count"));
             }
         } catch (JSONException e) {

@@ -225,7 +225,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         if (drawerItem != null){
 
             if( FEED_IDENTIFIER <= drawerItem.getIdentifier() && drawerItem.getIdentifier() < OTHER_IDENTIFIER){
-                Log.d(TAG, "Identifier = " + drawerItem.getIdentifier());
                 Log.d(TAG, "feedId = " + feedList.get((int)(drawerItem.getIdentifier()- FEED_IDENTIFIER)).getFeedId());
                 Fragment f = ItemListFragment.newInstance(feedList.get((int)(drawerItem.getIdentifier()- FEED_IDENTIFIER)).getFeedId());
                 getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
