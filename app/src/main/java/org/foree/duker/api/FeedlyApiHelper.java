@@ -1,5 +1,7 @@
 package org.foree.duker.api;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.android.volley.Response;
@@ -7,6 +9,7 @@ import com.android.volley.VolleyError;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import org.foree.duker.base.BaseApplication;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssCategory;
 import org.foree.duker.rssinfo.RssFeed;
@@ -274,6 +277,16 @@ public class FeedlyApiHelper extends AbsApiHelper {
         List<RssItem> rssItems = new ArrayList<>();
         try {
             JSONObject jsonObject = new JSONObject(data);
+
+            if (jsonObject.has("continuation")){
+                // write continuation
+                SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(BaseApplication.getInstance());
+                SharedPreferences.Editor editor = sp.edit();
+                editor.putString("continuation", jsonObject.getString("continuation"));
+                editor.apply();
+                Log.d(TAG, "write continuation");
+            }
+
             JSONArray jsonArray = jsonObject.getJSONArray("items");
             for(int item_i=0; item_i<jsonArray.length(); item_i++){
                 JSONObject itemObject = jsonArray.getJSONObject(item_i);

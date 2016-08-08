@@ -1,5 +1,7 @@
 package org.foree.duker.api;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.android.volley.Response;
@@ -174,37 +176,39 @@ public class LocalApiHelper extends FeedlyApiHelper {
 
         String url = API_HOST_URL + API_STREAM_CONTENTS_URL.replace(":streamId", streamId);
 
+        //get continuation from SharedPreferences
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(BaseApplication.getInstance());
+        if (!sp.getString("continuation", "").isEmpty()) {
+            Log.d(TAG, "get continuation");
+            url = url + "&continuation=" + sp.getString("continuation", "");
+        }
         // get data from db
         final RssDao rssDao = new RssDao(BaseApplication.getInstance().getApplicationContext());
         List<RssItem> rssItemList = rssDao.find(streamId);
 
-        if (rssItemList.isEmpty()) {
-            final Map<String, String> headers = new HashMap<>();
-            headers.put("Authorization", "OAuth " + token);
-            NetWorkApiHelper.newInstance().getRequest(url, headers, new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    Log.i(TAG, "onResponse:getStream " + response);
-                    // insert to db
-                    List<RssItem> rssItems = parseStream(response);
-                    rssDao.insert(rssItems);
-                    if (netCallback != null) {
-                        netCallback.onSuccess(rssItems);
-                    }
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.e(TAG, "onErrorResponse:getStream " + error.getMessage());
-
-                    if (netCallback != null) {
-                        netCallback.onFail(error.getMessage());
-                    }
-                }
-            });
-        } else if (netCallback != null) {
+        if (!rssItemList.isEmpty() && netCallback != null) {
             netCallback.onSuccess(rssItemList);
         }
+
+        final Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "OAuth " + token);
+        NetWorkApiHelper.newInstance().getRequest(url, headers, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.i(TAG, "onResponse:getStream " + response);
+                // insert to db
+                rssDao.insert(parseStream(response));
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "onErrorResponse:getStream " + error.getMessage());
+
+                if (netCallback != null) {
+                    netCallback.onFail(error.getMessage());
+                }
+            }
+        });
     }
 
 }
