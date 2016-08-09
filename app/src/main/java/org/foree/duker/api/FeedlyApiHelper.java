@@ -193,7 +193,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
     }
 
     @Override
-    public void markStream(String token, List<RssItem> rssItems, final NetCallback<String> netCallback){
+    public void markStream(String token, final List<RssItem> rssItems, final NetCallback<String> netCallback){
         token = API_TOKEN_TEST;
         String url = API_HOST_URL + API_MARKERS_URL;
 
@@ -206,7 +206,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
         NetWorkApiHelper.newInstance().postRequest(url, params, headers, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Log.d(TAG, "setArticleRead: " + NetWorkApiHelper.newInstance().getStatusCode());
+                Log.d(TAG, "setArticleRead: " + rssItems.size() + " StatusCode: " + NetWorkApiHelper.newInstance().getStatusCode());
 
                 if (netCallback != null){
                     netCallback.onSuccess(response);
