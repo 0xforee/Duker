@@ -52,28 +52,28 @@ public class RssDao {
     }
 
     /**
-     * 根据feedId来查询未读的文章
+     * 根据feedId, unread状态来查询文章
      * @return 符合要求的rssItemList
      */
-    public List<RssItem> find(String feedId){
+    public List<RssItem> find(String feedId, boolean unread){
         Log.d(TAG, "get rssItems from db");
         Cursor cursor;
         List<RssItem> rssItemList = new ArrayList<>();
         SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
         if (!feedId.equals(FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID))) {
             cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, new String[]{"id,title,url,published,unread"},
-                    "feedId=? AND unread=?", new String[]{feedId, "1"}, null, null, "published DESC");
+                    "feedId=? AND unread=?", new String[]{feedId, unread?"1":"0"}, null, null, "published DESC");
         } else {
             cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, new String[]{"id,title,url,published,unread"},
-                    "unread=?", new String[]{"1"}, null, null, "published DESC");
+                    "unread=?", new String[]{unread?"1":"0"}, null, null, "published DESC");
         }
         while(cursor.moveToNext()){
             String id = cursor.getString(cursor.getColumnIndex("id"));
             String title = cursor.getString(cursor.getColumnIndex("title"));
             String url = cursor.getString(cursor.getColumnIndex("url"));
-            boolean unread = cursor.getInt(cursor.getColumnIndex("unread"))>0;
+            boolean local_unread = cursor.getInt(cursor.getColumnIndex("unread"))>0;
             long published = cursor.getLong(cursor.getColumnIndex("published"));
-            RssItem rssItem = new RssItem(id, title, url, unread, published);
+            RssItem rssItem = new RssItem(id, title, url, local_unread, published);
 
             rssItemList.add(rssItem);
 
@@ -102,7 +102,11 @@ public class RssDao {
         ContentValues contentValues = new ContentValues();
         contentValues.put("unread", newValue);
 
-        return db.update(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, contentValues, "id=?", new String[]{id});
+        int result = db.update(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, contentValues, "id=?", new String[]{id});
+
+        db.close();
+
+        return result;
     }
 
     /**
@@ -112,7 +116,8 @@ public class RssDao {
     public int delete(String id){
 
         SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
-        return db.delete(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, "id=?", new String[]{id});
-
+        int result = db.delete(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, "id=?", new String[]{id});
+        db.close();
+        return result;
     }
 }
