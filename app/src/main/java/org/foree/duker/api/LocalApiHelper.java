@@ -172,43 +172,18 @@ public class LocalApiHelper extends FeedlyApiHelper {
 
     @Override
     public void getStream(String token, String streamId, FeedlyApiArgs args, final NetCallback<List<RssItem>> netCallback) {
-        token = API_TOKEN_TEST;
 
-        String url = API_HOST_URL + API_STREAM_CONTENTS_URL.replace(":streamId", streamId);
-
-        //get continuation from SharedPreferences
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(BaseApplication.getInstance());
-        if (!sp.getString("continuation", "").isEmpty()) {
-            Log.d(TAG, "get continuation");
-            url = url + "&continuation=" + sp.getString("continuation", "");
-        }
-        // get data from db
+        // only get data from db
         final RssDao rssDao = new RssDao(BaseApplication.getInstance().getApplicationContext());
         List<RssItem> rssItemList = rssDao.find(streamId);
 
-        if (!rssItemList.isEmpty() && netCallback != null) {
-            netCallback.onSuccess(rssItemList);
+        if( netCallback != null) {
+            if (!rssItemList.isEmpty()) {
+                netCallback.onSuccess(rssItemList);
+            } else {
+                netCallback.onFail("rssItemList null");
+            }
         }
-
-        final Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "OAuth " + token);
-        NetWorkApiHelper.newInstance().getRequest(url, headers, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Log.i(TAG, "onResponse:getStream " + response);
-                // insert to db
-                rssDao.insert(parseStream(response));
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "onErrorResponse:getStream " + error.getMessage());
-
-                if (netCallback != null) {
-                    netCallback.onFail(error.getMessage());
-                }
-            }
-        });
     }
 
 }

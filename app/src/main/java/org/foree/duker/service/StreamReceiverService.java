@@ -14,6 +14,8 @@ import org.foree.duker.api.ApiFactory;
 import org.foree.duker.api.FeedlyApiArgs;
 import org.foree.duker.api.FeedlyApiHelper;
 import org.foree.duker.api.LocalApiHelper;
+import org.foree.duker.base.BaseApplication;
+import org.foree.duker.dao.RssDao;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssItem;
 
@@ -23,6 +25,7 @@ public class StreamReceiverService extends Service {
     private static final String TAG = StreamReceiverService.class.getSimpleName();
     AbsApiHelper apiHelper, localApiHelper;
     private StreamCallBack mCallBack;
+    RssDao rssDao;
     private MyBinder mBinder = new MyBinder();
 
     public StreamReceiverService() {
@@ -49,6 +52,7 @@ public class StreamReceiverService extends Service {
         AbsApiFactory absApiFactory = new ApiFactory();
         apiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
         localApiHelper = absApiFactory.createApiHelper(LocalApiHelper.class);
+        rssDao = new RssDao(this);
     }
 
     @Override
@@ -58,23 +62,8 @@ public class StreamReceiverService extends Service {
         // stage 1, sync old data
         syncOldData();
 
-        FeedlyApiArgs args = new FeedlyApiArgs();
-        args.setCount(500);
-
         // stage 2, get new data
-        localApiHelper.getStream("", FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID), args, new NetCallback<List<RssItem>>() {
-            @Override
-            public void onSuccess(final List<RssItem> data) {
-                // success insert
-                // 如果mCallBack为空，证明还未启动MainActivity，无需update
-                if (mCallBack != null)
-                    mCallBack.notifyUpdate();
-            }
-
-            @Override
-            public void onFail(String msg) {
-            }
-        });
+        syncNewData();
 
         // stage 3, time trigger
         timeTrigger();
@@ -93,10 +82,42 @@ public class StreamReceiverService extends Service {
         return mBinder;
     }
 
+    // sync new data
+    private void syncNewData(){
+        FeedlyApiArgs args = new FeedlyApiArgs();
+
+        //get continuation from SharedPreferences
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(BaseApplication.getInstance());
+        if (!sp.getString("continuation", "").isEmpty()) {
+            Log.d(TAG, "get continuation");
+
+            args.setContinuation(sp.getString("continuation", ""));
+            args.setCount(500);
+
+            apiHelper.getStream("", FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID), args, new NetCallback<List<RssItem>>() {
+                @Override
+                public void onSuccess(final List<RssItem> data) {
+                    // success insert to db
+                    rssDao.insert(data);
+
+                    // 如果mCallBack为空，证明还未启动MainActivity，无需update
+                    if (mCallBack != null)
+                        mCallBack.notifyUpdate();
+                }
+
+                @Override
+                public void onFail(String msg) {
+                }
+            });
+        }
+
+    }
+
     // sync data from server
     private void syncOldData(){
         final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         if(!sp.getBoolean("sync_done", false)){
+            Log.d(TAG, "syncOldData");
             // start sync old data
             Thread syncThread = new Thread(){
               @Override
@@ -104,7 +125,18 @@ public class StreamReceiverService extends Service {
                   FeedlyApiArgs args = new FeedlyApiArgs();
                   for(int count = 100; count < 2000; count++){
                       args.setCount(count);
-                      localApiHelper.getStream("", FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID), args, null);
+                      apiHelper.getStream("", FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID), args, new NetCallback<List<RssItem>>() {
+                          @Override
+                          public void onSuccess(List<RssItem> data) {
+                              // insert to db
+                              rssDao.insert(data);
+                          }
+
+                          @Override
+                          public void onFail(String msg) {
+
+                          }
+                      });
                   }
                   // sync done
                   sp.edit().putBoolean("sync_done", true).apply();
