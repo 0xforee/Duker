@@ -79,7 +79,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         localApiHelper = absApiFactory.createApiHelper(LocalApiHelper.class);
 
         if (savedInstanceState == null) {
-            Fragment f = ItemListFragment.newInstance("");
+            Fragment f = ItemListFragment.newInstance(FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID));
             getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
         }
 
