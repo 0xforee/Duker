@@ -147,6 +147,32 @@ public class StreamReceiverService extends Service {
         }
     }
 
+    // mark entries read
+    public void markEntriesRead(){
+        Thread markEntriesThread = new Thread(){
+            @Override
+            public void run() {
+                // find unread=false items
+                final List<RssItem> rssItems = rssDao.find(FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID), false);
+                if (!rssItems.isEmpty()) {
+                    apiHelper.markStream("", rssItems, new NetCallback<String>() {
+                        @Override
+                        public void onSuccess(String data) {
+                            // delete all items
+                            rssDao.deleteSome(rssItems);
+                        }
+
+                        @Override
+                        public void onFail(String msg) {
+
+                        }
+                    });
+                    super.run();
+                }
+            }
+        };
+        markEntriesThread.start();
+    }
 
     // time
     private void timeTrigger(){}

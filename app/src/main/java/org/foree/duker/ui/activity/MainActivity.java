@@ -106,6 +106,8 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         super.onDestroy();
         Log.d(TAG, "onDestroy");
         unbindService(mServiceConnect);
+        mStreamService.unregisterCallBack();
+        mStreamService.markEntriesRead();
     }
 
     private void setUpDrawerLayout(Bundle savedInstanceState){
@@ -284,7 +286,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
             Log.d(TAG, "onServiceDisconnected");
-            mStreamService.unregisterCallBack();
+
         }
     }
 }

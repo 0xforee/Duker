@@ -110,7 +110,6 @@ public class ItemListFragment extends Fragment {
                 bundle.putString("entryUrl", itemList.get(position).getUrl());
                 bundle.putString("entryTitle", itemList.get(position).getTitle());
                 rssDao.update(itemList.get(position).getEntryId(), false);
-                mApiHelper.markAsOneRead("", itemList.get(position), null);
                 intent.putExtras(bundle);
                 startActivity(intent);
             }
