@@ -12,15 +12,11 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import com.mikepenz.materialdrawer.Drawer;
 
 import org.foree.duker.R;
 import org.foree.duker.api.AbsApiFactory;
@@ -34,7 +30,6 @@ import org.foree.duker.rssinfo.RssItem;
 import org.foree.duker.ui.activity.ArticleActivity;
 import org.foree.duker.ui.fragment.ItemListAdapter.OnItemClickListener;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -85,25 +80,19 @@ public class ItemListFragment extends Fragment {
 
         String feedId = getArguments().getString(KEY_FEEDID);
 
-        itemList = (List<RssItem>)getActivity().getIntent().getSerializableExtra("rssItemList");
+        // getItemList
+        localApiHelper.getStream("", feedId, new NetCallback<List<RssItem>>() {
+            @Override
+            public void onSuccess(List<RssItem> data) {
+                itemList = data;
+                initAdapter();
+            }
 
-        if (feedId != "") {
-            // getItemList
-            localApiHelper.getStream("", feedId, new NetCallback<List<RssItem>>() {
-                @Override
-                public void onSuccess(List<RssItem> data) {
-                    itemList = data;
-                    initAdapter();
-                }
+            @Override
+            public void onFail(String msg) {
 
-                @Override
-                public void onFail(String msg) {
-
-                }
-            });
-        } else {
-            initAdapter();
-        }
+            }
+        });
         return linearLayout;
     }
 
