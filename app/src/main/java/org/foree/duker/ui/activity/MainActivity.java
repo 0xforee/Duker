@@ -1,9 +1,12 @@
 package org.foree.duker.ui.activity;
 
 import android.app.Fragment;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -32,16 +35,18 @@ import org.foree.duker.api.ApiFactory;
 import org.foree.duker.api.FeedlyApiHelper;
 import org.foree.duker.api.LocalApiHelper;
 import org.foree.duker.base.BaseActivity;
+import org.foree.duker.base.MyApplication;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssCategory;
 import org.foree.duker.rssinfo.RssFeed;
 import org.foree.duker.rssinfo.RssProfile;
+import org.foree.duker.service.StreamReceiverService;
 import org.foree.duker.ui.fragment.ItemListFragment;
 
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends BaseActivity implements OnDrawerItemClickListener{
+public class MainActivity extends BaseActivity implements OnDrawerItemClickListener, StreamReceiverService.StreamCallBack {
     private static final long PROFILE_SETTING = 100000;
     private static final long CATEGORY_IDENTIFIER = 20000;
     private static final long FEED_IDENTIFIER = 30000;
@@ -50,7 +55,11 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private AccountHeader headerResult = null;
+    private StreamReceiverService.MyBinder mBinder;
+    private StreamReceiverService mStreamService;
+    private ServiceConnection mServiceConnect = new MyServiceConnection();
     private Drawer result = null;
+
     AbsApiHelper apiHelper,localApiHelper;
     FloatingActionButton testFloatingButton;
     List<RssCategory> categoryList;
@@ -74,6 +83,10 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
             getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
         }
 
+        // bind service
+        Intent intent = new Intent(this, StreamReceiverService.class);
+        bindService(intent, mServiceConnect, BIND_AUTO_CREATE);
+
         setUpDrawerLayout(savedInstanceState);
         updateSubscriptions();
 
@@ -87,6 +100,14 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         });
 
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy");
+        unbindService(mServiceConnect);
+    }
+
     private void setUpDrawerLayout(Bundle savedInstanceState){
 
         // Create a few sample profile
@@ -241,5 +262,29 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
             }
         }
         return false;
+    }
+
+    @Override
+    public void notifyUpdate() {
+        Log.d(TAG, "updateUI");
+    }
+
+    private class MyServiceConnection implements ServiceConnection {
+        private final String TAG = MyApplication.class.getSimpleName();
+
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            Log.d(TAG, "onServiceConnected");
+            mBinder = (StreamReceiverService.MyBinder) iBinder;
+            mStreamService = mBinder.getService();
+            mStreamService.registerCallBack(MainActivity.this);
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Log.d(TAG, "onServiceDisconnected");
+            mStreamService.unregisterCallBack();
+        }
     }
 }

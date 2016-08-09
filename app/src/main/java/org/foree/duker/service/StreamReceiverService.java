@@ -2,6 +2,7 @@ package org.foree.duker.service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -18,8 +19,23 @@ import java.util.List;
 public class StreamReceiverService extends Service {
     private static final String TAG = StreamReceiverService.class.getSimpleName();
     AbsApiHelper apiHelper, localApiHelper;
+    private StreamCallBack mCallBack;
+    private MyBinder mBinder = new MyBinder();
 
     public StreamReceiverService() {
+    }
+
+    public class MyBinder extends Binder {
+        public StreamReceiverService getService(){
+            return StreamReceiverService.this;
+        }
+    }
+    public void registerCallBack(StreamCallBack callback){
+        mCallBack = callback;
+    }
+
+    public void unregisterCallBack(){
+        mCallBack = null;
     }
 
     @Override
@@ -43,7 +59,10 @@ public class StreamReceiverService extends Service {
         localApiHelper.getStream("", FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID), new NetCallback<List<RssItem>>() {
             @Override
             public void onSuccess(final List<RssItem> data) {
-                // insert db
+                // success insert
+                // 如果mCallBack为空，证明还未启动MainActivity，无需update
+                if (mCallBack != null)
+                    mCallBack.notifyUpdate();
             }
 
             @Override
@@ -65,8 +84,7 @@ public class StreamReceiverService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-
-        return null;
+        return mBinder;
     }
 
     // sync data from server
@@ -75,4 +93,9 @@ public class StreamReceiverService extends Service {
 
     // time
     private void timeTrigger(){}
+
+    public interface StreamCallBack {
+        // 数据同步结束，更新UI
+        void notifyUpdate();
+    }
 }
