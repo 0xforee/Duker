@@ -22,6 +22,7 @@ import org.foree.duker.R;
 import org.foree.duker.api.AbsApiFactory;
 import org.foree.duker.api.AbsApiHelper;
 import org.foree.duker.api.ApiFactory;
+import org.foree.duker.api.FeedlyApiArgs;
 import org.foree.duker.api.FeedlyApiHelper;
 import org.foree.duker.api.LocalApiHelper;
 import org.foree.duker.dao.RssDao;
@@ -79,9 +80,10 @@ public class ItemListFragment extends Fragment {
                 DividerItemDecoration.VERTICAL_LIST));
 
         String feedId = getArguments().getString(KEY_FEEDID);
+        FeedlyApiArgs args = new FeedlyApiArgs();
 
         // getItemList
-        localApiHelper.getStream("", feedId, new NetCallback<List<RssItem>>() {
+        localApiHelper.getStream("", feedId, args, new NetCallback<List<RssItem>>() {
             @Override
             public void onSuccess(List<RssItem> data) {
                 itemList = data;

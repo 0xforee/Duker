@@ -171,7 +171,7 @@ public class LocalApiHelper extends FeedlyApiHelper {
     }
 
     @Override
-    public void getStream(String token, String streamId, final NetCallback<List<RssItem>> netCallback) {
+    public void getStream(String token, String streamId, FeedlyApiArgs args, final NetCallback<List<RssItem>> netCallback) {
         token = API_TOKEN_TEST;
 
         String url = API_HOST_URL + API_STREAM_CONTENTS_URL.replace(":streamId", streamId);
