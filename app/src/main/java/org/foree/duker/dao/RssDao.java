@@ -15,6 +15,7 @@ import java.util.List;
 /**
  * Created by foree on 2016/8/6.
  * 数据库操作方法
+ * TODO:性能优化，批量操作不使用循环
  */
 public class RssDao {
     private static final String TAG = RssDao.class.getSimpleName();
@@ -119,5 +120,20 @@ public class RssDao {
         int result = db.delete(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, "id=?", new String[]{id});
         db.close();
         return result;
+    }
+
+    /**
+     * 批量删除
+     * @param itemList item列表
+     */
+    public int deleteSome(List<RssItem> itemList){
+        int result = 0;
+        for(RssItem item: itemList) {
+            SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
+            result = db.delete(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, "id=?", new String[]{item.getEntryId()});
+            db.close();
+        }
+        return result;
+
     }
 }

@@ -1,7 +1,5 @@
 package org.foree.duker.api;
 
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.android.volley.Response;
@@ -175,7 +173,7 @@ public class LocalApiHelper extends FeedlyApiHelper {
 
         // only get data from db
         final RssDao rssDao = new RssDao(BaseApplication.getInstance().getApplicationContext());
-        List<RssItem> rssItemList = rssDao.find(streamId);
+        List<RssItem> rssItemList = rssDao.find(streamId, true);
 
         if( netCallback != null) {
             if (!rssItemList.isEmpty()) {
