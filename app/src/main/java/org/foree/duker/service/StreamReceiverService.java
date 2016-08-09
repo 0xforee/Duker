@@ -123,7 +123,8 @@ public class StreamReceiverService extends Service {
               @Override
                 public void run(){
                   FeedlyApiArgs args = new FeedlyApiArgs();
-                  for(int count = 100; count < 2000; count++){
+                  // TODO:可能需要一些原子操作，避免多个线程同时请求网络以及数据库
+                  for(int count = 100; count < 2000; count=count+500){
                       args.setCount(count);
                       apiHelper.getStream("", FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID), args, new NetCallback<List<RssItem>>() {
                           @Override
