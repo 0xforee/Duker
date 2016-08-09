@@ -1,8 +1,11 @@
 package org.foree.duker.ui.activity;
 
 import android.content.Intent;
+import android.content.res.AssetManager;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import org.foree.duker.R;
 import org.foree.duker.base.BaseActivity;
@@ -11,6 +14,7 @@ import org.foree.duker.service.StreamReceiverService;
 
 public class SplashActivity extends BaseActivity{
     private static final String TAG = SplashActivity.class.getSimpleName();
+    TextView tv_speak1, tv_speak2, tv_speak3, tv_speak_author, tv_version, tv_app_name;
     private long WAIT_TIME = 3000;
 
     @Override
@@ -29,6 +33,8 @@ public class SplashActivity extends BaseActivity{
         Intent serviceIntent = new Intent(this, StreamReceiverService.class);
         startService(serviceIntent);
 
+        // set font
+        setFont();
         Thread loadThread = new Thread() {
             @Override
             public void run() {
@@ -48,4 +54,29 @@ public class SplashActivity extends BaseActivity{
         loadThread.start();
     }
 
+    private void setFont() {
+        //找到两种字体
+        AssetManager assetManager = getAssets();
+        Typeface tf_mvboli = Typeface.createFromAsset(assetManager, "fonts/mvboli.ttf");
+        Typeface tf_hobostd = Typeface.createFromAsset(assetManager, "fonts/HoboStd.otf");
+
+        //找到speak
+        tv_speak1 = (TextView) findViewById(R.id.load_tv_speak1);
+        tv_speak2 = (TextView) findViewById(R.id.load_tv_speak2);
+        tv_speak3 = (TextView) findViewById(R.id.load_tv_speak3);
+        tv_speak_author = (TextView) findViewById(R.id.load_tv_speak_author);
+        tv_speak1.setTypeface(tf_mvboli);
+        tv_speak2.setTypeface(tf_mvboli);
+        tv_speak3.setTypeface(tf_mvboli);
+        tv_speak_author.setTypeface(tf_mvboli);
+
+        //找到version,并设置字体
+        tv_version = (TextView) findViewById(R.id.load_tv_version);
+        tv_version.setText(MyApplication.myApplicationVersion);
+        tv_version.setTypeface(tf_hobostd);
+
+        //find app_name, and setTypeface
+        tv_app_name = (TextView) findViewById(R.id.load_tv_app_name);
+        tv_app_name.setTypeface(tf_hobostd);
+    }
 }

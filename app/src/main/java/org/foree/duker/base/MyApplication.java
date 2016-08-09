@@ -1,6 +1,8 @@
 package org.foree.duker.base;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.util.Log;
 
@@ -26,6 +28,12 @@ public class MyApplication extends BaseApplication{
      */
     // 应用程序名称
     public static final String myApplicationName = getInstance().getResources().getString(R.string.app_name);
+    //应用程序版本名称
+    public static String myVersionName;
+    //应用程序版本序号(应用程序用来判断是否升级的,例如:17)
+    public static int myVersionCode;
+    //应用程序版本号(开发者自定义,例如:1.7.3
+    public static String myApplicationVersion;
     // 应用程序包名
     public static final String myApplicationPackageName = getInstance().getPackageName();
     // 应用程序sdcard绝对路径
@@ -62,7 +70,29 @@ public class MyApplication extends BaseApplication{
                     Log.e(TAG, "创建data目录失败");
                 }
         }
+
+        //获取当前应用程序的版本号和版本名称
+        initApplicationVersionInfo(mContext);
+
     Log.v(TAG, "环境变量初始化成功");
 
+    }
+
+    //获取应用程序的版本信息
+    public void initApplicationVersionInfo(Context context) {
+        PackageManager packageManager = context.getPackageManager();
+        PackageInfo packageInfo;
+        try {
+            //获取当前包的信息
+            packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
+            //获取应用程序版本号
+            myApplicationVersion = packageInfo.versionName;
+            //获取版本序号
+            myVersionCode = packageInfo.versionCode;
+            //获取版本名称
+            myVersionName = myApplicationName + " v" + packageInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }
