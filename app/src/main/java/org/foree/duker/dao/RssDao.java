@@ -128,11 +128,11 @@ public class RssDao {
      */
     public int deleteSome(List<RssItem> itemList){
         int result = 0;
+        SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
         for(RssItem item: itemList) {
-            SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
             result = db.delete(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, "id=?", new String[]{item.getEntryId()});
-            db.close();
         }
+        db.close();
         return result;
 
     }

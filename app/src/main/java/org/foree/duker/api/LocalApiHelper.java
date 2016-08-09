@@ -23,6 +23,7 @@ import java.util.Map;
 
 /**
  * Created by foree on 16-7-25.
+ * 缓存操作类，包括数据库与本地文件缓存
  */
 public class LocalApiHelper extends FeedlyApiHelper {
 
