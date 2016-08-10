@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import org.foree.duker.api.AbsApiFactory;
+import org.foree.duker.api.ApiFactory;
 import org.foree.duker.api.FeedlyApiHelper;
 import org.foree.duker.rssinfo.RssItem;
 
@@ -20,9 +22,12 @@ import java.util.List;
 public class RssDao {
     private static final String TAG = RssDao.class.getSimpleName();
     private RssSQLiteOpenHelper rssSQLiteOpenHelper;
+    private FeedlyApiHelper feedlyApiHelper;
 
     public RssDao(Context context){
         rssSQLiteOpenHelper = new RssSQLiteOpenHelper(context);
+        AbsApiFactory apiFactory = new ApiFactory();
+        feedlyApiHelper = apiFactory.createApiHelper(FeedlyApiHelper.class);
     }
 
     public void insert(List<RssItem> itemList){
@@ -61,7 +66,7 @@ public class RssDao {
         Cursor cursor;
         List<RssItem> rssItemList = new ArrayList<>();
         SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
-        if (!feedId.equals(FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID))) {
+        if (!feedId.equals(feedlyApiHelper.getGlobalAllUrl())) {
             cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, new String[]{"id,title,url,published,unread"},
                     "feedId=? AND unread=?", new String[]{feedId, unread?"1":"0"}, null, null, "published DESC");
         } else {

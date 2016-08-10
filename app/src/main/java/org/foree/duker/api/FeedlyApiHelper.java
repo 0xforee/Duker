@@ -40,8 +40,12 @@ public class FeedlyApiHelper extends AbsApiHelper {
     protected static final String API_STREAM_CONTENTS_URL = "/v3/streams/contents?streamId=:streamId";
     protected static final String API_UNREAD_COUNTS_URL = "/v3/markers/counts";
     protected static final String API_MARKERS_URL = "/v3/markers";
-    public static final String USER_ID = "a5a12800-0cc3-4b9e-bc33-9d46f76cc162";
-    public static final String API_GLOBAL_ALL_URL = "user/:userId/category/global.all";
+    protected static final String USER_ID = "a5a12800-0cc3-4b9e-bc33-9d46f76cc162";
+    protected static final String API_GLOBAL_ALL_URL = "user/:userId/category/global.all";
+
+    public String getGlobalAllUrl(){
+        return API_GLOBAL_ALL_URL.replace(":userId", USER_ID);
+    }
 
     @Override
     public void getCategoriesList(String token, final NetCallback<List<RssCategory>> netCallback) {

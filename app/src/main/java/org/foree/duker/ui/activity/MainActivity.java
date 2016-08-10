@@ -32,6 +32,7 @@ import org.foree.duker.R;
 import org.foree.duker.api.AbsApiFactory;
 import org.foree.duker.api.AbsApiHelper;
 import org.foree.duker.api.ApiFactory;
+import org.foree.duker.api.FeedlyApiArgs;
 import org.foree.duker.api.FeedlyApiHelper;
 import org.foree.duker.api.LocalApiHelper;
 import org.foree.duker.base.BaseActivity;
@@ -60,7 +61,8 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     private ServiceConnection mServiceConnect = new MyServiceConnection();
     private Drawer result = null;
 
-    AbsApiHelper apiHelper,localApiHelper;
+    AbsApiHelper localApiHelper;
+    FeedlyApiHelper feedlyApiHelper;
     FloatingActionButton testFloatingButton;
     List<RssCategory> categoryList;
     List<RssFeed> feedList;
@@ -75,11 +77,11 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         setSupportActionBar(toolbar);
 
         AbsApiFactory absApiFactory = new ApiFactory();
-        apiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
+        feedlyApiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
         localApiHelper = absApiFactory.createApiHelper(LocalApiHelper.class);
 
         if (savedInstanceState == null) {
-            Fragment f = ItemListFragment.newInstance(FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID));
+            Fragment f = ItemListFragment.newInstance(feedlyApiHelper.getGlobalAllUrl());
             getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
         }
 
@@ -183,7 +185,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
     private void updateUnreadCounts() {
 
-        apiHelper.getUnreadCounts("", new NetCallback<Map<String, Long>>() {
+        feedlyApiHelper.getUnreadCounts("", new NetCallback<Map<String, Long>>() {
             @Override
             public void onSuccess(Map<String, Long> unReadCountsMap) {
                 initDrawer(unReadCountsMap);
@@ -218,7 +220,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
         // Add Home
         result.addItem(new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIdentifier(1)
-                .withBadge(new StringHolder(unReadCountsMap.get(FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID)) + "")).withBadgeStyle(badgeStyle));
+                .withBadge(new StringHolder(unReadCountsMap.get(feedlyApiHelper.getGlobalAllUrl()) + "")).withBadgeStyle(badgeStyle));
 
 
         // Add Category
@@ -246,7 +248,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
     @Override
     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-
         if (drawerItem != null){
 
             if( FEED_IDENTIFIER <= drawerItem.getIdentifier() && drawerItem.getIdentifier() < OTHER_IDENTIFIER){
@@ -254,7 +255,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                 Fragment f = ItemListFragment.newInstance(feedList.get((int)(drawerItem.getIdentifier()- FEED_IDENTIFIER)).getFeedId());
                 getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
             } else if (drawerItem.getIdentifier() == 1){
-                Fragment f = ItemListFragment.newInstance(FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID));
+                Fragment f = ItemListFragment.newInstance(feedlyApiHelper.getGlobalAllUrl());
                 getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
             } else if (drawerItem.getIdentifier() == 2) {
                 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);

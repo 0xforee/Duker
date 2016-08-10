@@ -23,7 +23,8 @@ import java.util.List;
 
 public class StreamReceiverService extends Service {
     private static final String TAG = StreamReceiverService.class.getSimpleName();
-    AbsApiHelper apiHelper, localApiHelper;
+    AbsApiHelper localApiHelper;
+    FeedlyApiHelper feedlyApiHelper;
     private StreamCallBack mCallBack;
     RssDao rssDao;
     private MyBinder mBinder = new MyBinder();
@@ -50,7 +51,7 @@ public class StreamReceiverService extends Service {
         Log.d(TAG, "onCreate");
 
         AbsApiFactory absApiFactory = new ApiFactory();
-        apiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
+        feedlyApiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
         localApiHelper = absApiFactory.createApiHelper(LocalApiHelper.class);
         rssDao = new RssDao(this);
     }
@@ -94,7 +95,7 @@ public class StreamReceiverService extends Service {
             args.setContinuation(sp.getString("continuation", ""));
             args.setCount(500);
 
-            apiHelper.getStream("", FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID), args, new NetCallback<List<RssItem>>() {
+            feedlyApiHelper.getStream("", feedlyApiHelper.getGlobalAllUrl(), args, new NetCallback<List<RssItem>>() {
                 @Override
                 public void onSuccess(final List<RssItem> data) {
                     // success insert to db
@@ -126,7 +127,7 @@ public class StreamReceiverService extends Service {
                   // TODO:可能需要一些原子操作，避免多个线程同时请求网络以及数据库
                   for(int count = 100; count < 2000; count=count+500){
                       args.setCount(count);
-                      apiHelper.getStream("", FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID), args, new NetCallback<List<RssItem>>() {
+                      feedlyApiHelper.getStream("", feedlyApiHelper.getGlobalAllUrl(), args, new NetCallback<List<RssItem>>() {
                           @Override
                           public void onSuccess(List<RssItem> data) {
                               // insert to db
@@ -154,9 +155,9 @@ public class StreamReceiverService extends Service {
             @Override
             public void run() {
                 // find unread=false items
-                final List<RssItem> rssItems = rssDao.find(FeedlyApiHelper.API_GLOBAL_ALL_URL.replace(":userId", FeedlyApiHelper.USER_ID), false);
+                final List<RssItem> rssItems = rssDao.find(feedlyApiHelper.getGlobalAllUrl(), false);
                 if (!rssItems.isEmpty()) {
-                    apiHelper.markStream("", rssItems, new NetCallback<String>() {
+                    feedlyApiHelper.markStream("", rssItems, new NetCallback<String>() {
                         @Override
                         public void onSuccess(String data) {
                             // delete all items
