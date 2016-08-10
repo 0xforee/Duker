@@ -15,6 +15,7 @@ import org.foree.duker.rssinfo.RssCategory;
 import org.foree.duker.rssinfo.RssFeed;
 import org.foree.duker.rssinfo.RssItem;
 import org.foree.duker.rssinfo.RssProfile;
+import org.foree.duker.utils.FeedlyApiUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,32 +31,15 @@ import java.util.Map;
  */
 public class FeedlyApiHelper extends AbsApiHelper {
     protected static final String TAG = FeedlyApiHelper.class.getSimpleName();
-    protected static final String API_HOST_URL = "http://cloud.feedly.com";
     protected static final String API_TOKEN_TEST = "A3wMXqyNgMOZwCqIoBC5OZoKdSyKemk1IYWp12rk86Kb7KIBHlUBER2Pe2PWaro4Ur_0Rq1h8MiqQBFE_uly7A6GNbjtT5wWbIF5rf6haQetytQcjZj6_FSDSTrkmF3y5CclNtH3q_6UlK1kPPY0i4_CXXIkhIrT7aTJRUTry3b-HGvq_rwWK7JFewguG4PvV7EMozQuosYKOcMrcd3cGwmYsToq8hc:feedlydev";
-    protected static final String API_CATEGORIES_URL = "/v3/categories";
-    protected static final String API_SUBSCRIPTIONS_URL = "/v3/subscriptions";
-    protected static final String API_PROFILE_URL = "/v3/profile";
-    protected static final String API_STREAM_IDS_URL = "/v3/streams/ids?streamId=:streamId";
-    // TODO: 考虑最高请求数目为10000条时，线程的处理逻辑
-    protected static final String API_STREAM_CONTENTS_URL = "/v3/streams/contents?streamId=:streamId";
-    protected static final String API_UNREAD_COUNTS_URL = "/v3/markers/counts";
-    protected static final String API_MARKERS_URL = "/v3/markers";
-    protected static final String USER_ID = "a5a12800-0cc3-4b9e-bc33-9d46f76cc162";
-    protected static final String API_GLOBAL_ALL_URL = "user/:userId/category/global.all";
-
-    public String getGlobalAllUrl(){
-        return API_GLOBAL_ALL_URL.replace(":userId", USER_ID);
-    }
 
     @Override
     public void getCategoriesList(String token, final NetCallback<List<RssCategory>> netCallback) {
         token = API_TOKEN_TEST;
 
-        String url = API_HOST_URL + API_CATEGORIES_URL;
-
         final Map<String,String> headers = new HashMap<>();
         headers.put("Authorization","OAuth " + token);
-        NetWorkApiHelper.newInstance().getRequest(url, headers, new Response.Listener<String>() {
+        NetWorkApiHelper.newInstance().getRequest(FeedlyApiUtils.getApiCategoriesUrl(), headers, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 Log.i(TAG,"onResponse:getCategoriesList " + response);
@@ -79,11 +63,9 @@ public class FeedlyApiHelper extends AbsApiHelper {
     public void getSubscriptions(String token, final NetCallback<List<RssFeed>> netCallback) {
         token = API_TOKEN_TEST;
 
-        String url = API_HOST_URL + API_SUBSCRIPTIONS_URL;
-
         final Map<String,String> headers = new HashMap<>();
         headers.put("Authorization","OAuth " + token);
-        NetWorkApiHelper.newInstance().getRequest(url, headers, new Response.Listener<String>() {
+        NetWorkApiHelper.newInstance().getRequest(FeedlyApiUtils.getApiSubscriptionsUrl(), headers, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 Log.i(TAG,"onResponse:getSubscriptions " + response);
@@ -106,7 +88,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
     public void getStream(String token, String streamId, FeedlyApiArgs args, final NetCallback<List<RssItem>> netCallback){
         token = API_TOKEN_TEST;
 
-        String url = API_HOST_URL + API_STREAM_CONTENTS_URL.replace(":streamId", streamId);
+        String url = FeedlyApiUtils.getApiStreamContentsUrl(streamId);
 
         if(args != null) {
             url = args.generateUrl(url);
@@ -136,18 +118,16 @@ public class FeedlyApiHelper extends AbsApiHelper {
 
     @Override
     public void getStreamGlobalAll(String token, FeedlyApiArgs args, NetCallback<List<RssItem>> netCallback){
-        getStream(token, getGlobalAllUrl(), args, netCallback);
+        getStream(token, FeedlyApiUtils.getApiGlobalAllUrl(), args, netCallback);
     }
 
     @Override
     public void getProfile(String token, final NetCallback<RssProfile> netCallback) {
         token = API_TOKEN_TEST;
 
-        String url = API_HOST_URL + API_PROFILE_URL;
-
         final Map<String,String> headers = new HashMap<>();
         headers.put("Authorization","OAuth " + token);
-        NetWorkApiHelper.newInstance().getRequest(url, headers, new Response.Listener<String>() {
+        NetWorkApiHelper.newInstance().getRequest(FeedlyApiUtils.getApiProfileUrl(), headers, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 Log.i(TAG,"onResponse:getProfile " + response);
@@ -171,11 +151,9 @@ public class FeedlyApiHelper extends AbsApiHelper {
     public void getUnreadCounts(String token, final NetCallback<Map<String, Long>> netCallback) {
         token = API_TOKEN_TEST;
 
-        String url = API_HOST_URL + API_UNREAD_COUNTS_URL;
-
         final Map<String,String> headers = new HashMap<>();
         headers.put("Authorization","OAuth " + token);
-        NetWorkApiHelper.newInstance().getRequest(url, headers, new Response.Listener<String>() {
+        NetWorkApiHelper.newInstance().getRequest(FeedlyApiUtils.getApiUnreadCountsUrl(), headers, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 Log.i(TAG,"onResponse:getUnreadCounts " + response);
@@ -205,7 +183,6 @@ public class FeedlyApiHelper extends AbsApiHelper {
     @Override
     public void markStream(String token, final List<RssItem> rssItems, final NetCallback<String> netCallback){
         token = API_TOKEN_TEST;
-        String url = API_HOST_URL + API_MARKERS_URL;
 
         final Map<String,String> headers = new HashMap<>();
         headers.put("Authorization","OAuth " + token);
@@ -213,7 +190,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
         // generate JsonObject params
         JSONObject params = generateJsonParams(rssItems);
 
-        NetWorkApiHelper.newInstance().postRequest(url, params, headers, new Response.Listener<String>() {
+        NetWorkApiHelper.newInstance().postRequest(FeedlyApiUtils.getApiMarkersUrl(), params, headers, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 Log.d(TAG, "setArticleRead: " + rssItems.size() + " StatusCode: " + NetWorkApiHelper.newInstance().getStatusCode());

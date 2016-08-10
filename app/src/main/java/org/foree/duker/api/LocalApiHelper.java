@@ -13,6 +13,7 @@ import org.foree.duker.rssinfo.RssCategory;
 import org.foree.duker.rssinfo.RssFeed;
 import org.foree.duker.rssinfo.RssItem;
 import org.foree.duker.rssinfo.RssProfile;
+import org.foree.duker.utils.FeedlyApiUtils;
 import org.foree.duker.utils.FileUtils;
 
 import java.io.File;
@@ -33,7 +34,6 @@ public class LocalApiHelper extends FeedlyApiHelper {
     public void getCategoriesList(String token, final NetCallback<List<RssCategory>> netCallback) {
         token = API_TOKEN_TEST;
 
-        String url = API_HOST_URL + API_CATEGORIES_URL;
         String localCategories = "";
 
         final File categories_json = new File(MyApplication.myApplicationDirPath +
@@ -48,7 +48,7 @@ public class LocalApiHelper extends FeedlyApiHelper {
         if (localCategories.isEmpty()) {
             final Map<String, String> headers = new HashMap<>();
             headers.put("Authorization", "OAuth " + token);
-            NetWorkApiHelper.newInstance().getRequest(url, headers, new Response.Listener<String>() {
+            NetWorkApiHelper.newInstance().getRequest(FeedlyApiUtils.getApiCategoriesUrl(), headers, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     Log.i(TAG, "onResponse:getCategoriesList " + response);
@@ -82,9 +82,6 @@ public class LocalApiHelper extends FeedlyApiHelper {
         token = API_TOKEN_TEST;
         String localProfile = "";
 
-        String url = API_HOST_URL + API_PROFILE_URL;
-
-
         final File profile_json = new File(MyApplication.myApplicationDirPath + File.separator + MyApplication.myApplicationDataName + File.separator + "profile.json");
 
         try {
@@ -97,7 +94,7 @@ public class LocalApiHelper extends FeedlyApiHelper {
             final Map<String,String> headers = new HashMap<>();
             headers.put("Authorization","OAuth " + token);
 
-            NetWorkApiHelper.newInstance().getRequest(url, headers, new Response.Listener<String>() {
+            NetWorkApiHelper.newInstance().getRequest(FeedlyApiUtils.getApiProfileUrl(), headers, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     Log.i(TAG,"onResponse:getProfile " + response);
@@ -130,8 +127,6 @@ public class LocalApiHelper extends FeedlyApiHelper {
         String localSubscriptions = "";
         final File subscriptions_json = new File(MyApplication.myApplicationDirPath + File.separator + MyApplication.myApplicationDataName + File.separator + "subscriptions.json");
 
-        String url = API_HOST_URL + API_SUBSCRIPTIONS_URL;
-
         try {
             localSubscriptions = FileUtils.readFile(subscriptions_json);
         } catch (IOException e) {
@@ -141,7 +136,7 @@ public class LocalApiHelper extends FeedlyApiHelper {
         if (localSubscriptions.isEmpty()){
         final Map<String,String> headers = new HashMap<>();
         headers.put("Authorization","OAuth " + token);
-        NetWorkApiHelper.newInstance().getRequest(url, headers, new Response.Listener<String>() {
+        NetWorkApiHelper.newInstance().getRequest(FeedlyApiUtils.getApiSubscriptionsUrl(), headers, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 Log.i(TAG,"onResponse:getSubscriptions " + response);

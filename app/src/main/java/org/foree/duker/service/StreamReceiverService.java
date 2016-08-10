@@ -18,6 +18,7 @@ import org.foree.duker.base.BaseApplication;
 import org.foree.duker.dao.RssDao;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssItem;
+import org.foree.duker.utils.FeedlyApiUtils;
 
 import java.util.List;
 
@@ -154,7 +155,7 @@ public class StreamReceiverService extends Service {
             @Override
             public void run() {
                 // find unread=false items
-                final List<RssItem> rssItems = rssDao.find(((FeedlyApiHelper)feedlyApiHelper).getGlobalAllUrl(), false);
+                final List<RssItem> rssItems = rssDao.find(FeedlyApiUtils.getApiGlobalAllUrl(), false);
                 if (!rssItems.isEmpty()) {
                     feedlyApiHelper.markStream("", rssItems, new NetCallback<String>() {
                         @Override
