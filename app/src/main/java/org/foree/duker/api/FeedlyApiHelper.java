@@ -133,6 +133,12 @@ public class FeedlyApiHelper extends AbsApiHelper {
             }
         });
     }
+
+    @Override
+    public void getStreamGlobalAll(String token, FeedlyApiArgs args, NetCallback<List<RssItem>> netCallback){
+        getStream(token, getGlobalAllUrl(), args, netCallback);
+    }
+
     @Override
     public void getProfile(String token, final NetCallback<RssProfile> netCallback) {
         token = API_TOKEN_TEST;
