@@ -27,6 +27,7 @@ public class StreamReceiverService extends Service {
     AbsApiHelper localApiHelper, feedlyApiHelper;
     private StreamCallBack mCallBack;
     RssDao rssDao;
+    int syncTime = 4;
     private MyBinder mBinder = new MyBinder();
 
     public StreamReceiverService() {
@@ -93,7 +94,7 @@ public class StreamReceiverService extends Service {
             Log.d(TAG, "get continuation");
 
             args.setContinuation(sp.getString("continuation", ""));
-            args.setCount(500);
+            //args.setCount(500);
 
             feedlyApiHelper.getStreamGlobalAll("", args, new NetCallback<List<RssItem>>() {
                 @Override
@@ -117,35 +118,38 @@ public class StreamReceiverService extends Service {
     // sync data from server
     private void syncOldData(){
         final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        if(!sp.getBoolean("sync_done", false)){
+        if(!sp.getBoolean("sync_done", false)) {
             Log.d(TAG, "syncOldData");
             // start sync old data
-            Thread syncThread = new Thread(){
-              @Override
-                public void run(){
-                  FeedlyApiArgs args = new FeedlyApiArgs();
-                  // TODO:可能需要一些原子操作，避免多个线程同时请求网络以及数据库
-                  for(int count = 100; count < 2000; count=count+500){
-                      args.setCount(count);
-                      feedlyApiHelper.getStreamGlobalAll("", args, new NetCallback<List<RssItem>>() {
-                          @Override
-                          public void onSuccess(List<RssItem> data) {
-                              // insert to db
-                              rssDao.insert(data);
-                          }
+            Thread syncThread = new Thread() {
+                @Override
+                public void run() {
+                    FeedlyApiArgs args = new FeedlyApiArgs();
+                    // TODO:可能需要一些原子操作，避免多个线程同时请求网络以及数据库
+                    for (int count = 100; count <= 2000; count = count + 500) {
+                        args.setCount(count);
+                        feedlyApiHelper.getStreamGlobalAll("", args, new NetCallback<List<RssItem>>() {
+                            @Override
+                            public void onSuccess(List<RssItem> data) {
+                                // insert to db
+                                rssDao.insert(data);
+                                syncTime--;
 
-                          @Override
-                          public void onFail(String msg) {
+                                if( syncTime == 0)
+                                    // sync done
+                                    sp.edit().putBoolean("sync_done", true).apply();
+                            }
 
-                          }
-                      });
-                  }
-                  // sync done
-                  sp.edit().putBoolean("sync_done", true).apply();
-              }
+                            @Override
+                            public void onFail(String msg) {
+
+                            }
+                        });
+                    }
+                }
+
             };
             syncThread.start();
-
         }
     }
 
