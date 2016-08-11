@@ -27,12 +27,12 @@ import java.util.List;
 public class StreamReceiverService extends Service {
     private static final String TAG = StreamReceiverService.class.getSimpleName();
     private final int MSG_SYNC_OLD_DATA = 0;
+    private final int MSG_SYNC_NEW_DATA = 1;
     AbsApiHelper localApiHelper, feedlyApiHelper;
     private StreamCallBack mCallBack;
     RssDao rssDao;
     Handler myHandler;
     SharedPreferences sp;
-    int syncTime = 4;
     private MyBinder mBinder = new MyBinder();
 
     public StreamReceiverService() {
@@ -72,7 +72,13 @@ public class StreamReceiverService extends Service {
                         } else{
                             // sync done
                             sp.edit().putBoolean("sync_done", true).apply();
+                            myHandler.sendEmptyMessage(MSG_SYNC_NEW_DATA);
                         }
+                        break;
+                    case MSG_SYNC_NEW_DATA:
+                        syncNewData();
+                        break;
+
                 }
                 super.handleMessage(msg);
             }
@@ -86,10 +92,6 @@ public class StreamReceiverService extends Service {
         // stage 1, sync old data
         syncOldData(100);
 
-        // stage 2, get new data
-        syncNewData();
-
-        // stage 3, time trigger
         timeTrigger();
 
         return super.onStartCommand(intent, flags, startId);
@@ -108,6 +110,7 @@ public class StreamReceiverService extends Service {
 
     // sync new data
     private void syncNewData(){
+        Log.d(TAG, "syncNewData");
         FeedlyApiArgs args = new FeedlyApiArgs();
 
         //get continuation from SharedPreferences
@@ -158,6 +161,11 @@ public class StreamReceiverService extends Service {
                             msg.arg1 = counts;
 
                             myHandler.sendMessage(msg);
+
+                            // updateUI
+                            // 如果mCallBack为空，证明还未启动MainActivity，无需update
+                            if (mCallBack != null)
+                                mCallBack.notifyUpdate();
                         }
 
                         @Override
@@ -168,6 +176,8 @@ public class StreamReceiverService extends Service {
                 }
             };
             syncThread.start();
+        } else {
+            syncNewData();
         }
     }
 
@@ -199,7 +209,9 @@ public class StreamReceiverService extends Service {
     }
 
     // time
-    private void timeTrigger(){}
+    private void timeTrigger(){
+        Log.d(TAG, "timeTrigger");
+    }
 
     public interface StreamCallBack {
         // 数据同步结束，更新UI
