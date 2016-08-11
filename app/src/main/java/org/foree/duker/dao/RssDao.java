@@ -26,30 +26,35 @@ public class RssDao {
     }
 
     public void insert(List<RssItem> itemList){
-        Log.d(TAG, "insert rssItems to db");
-        SQLiteDatabase db = rssSQLiteOpenHelper.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        Cursor cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, null,
-                null, null, null, null, null);
+        synchronized (this) {
+            // TODO:一次事务只能插入1000条数据
+            Log.d(TAG, "insert rssItems to db");
+            SQLiteDatabase db = rssSQLiteOpenHelper.getWritableDatabase();
+            db.beginTransaction();
+            ContentValues contentValues = new ContentValues();
 
-        for(RssItem item: itemList) {
-            // 内容不重复
-            cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, null,
-                    "id=?", new String[]{item.getEntryId()}, null, null, null);
-            if ( cursor.getCount() == 0 ) {
-                contentValues.put("id", item.getEntryId());
-                contentValues.put("title", item.getTitle());
-                contentValues.put("url", item.getUrl());
-                contentValues.put("feedId", item.getFeedId());
-                contentValues.put("published", item.getPublished());
-                contentValues.put("unread", item.isUnread());
-                if( db.insert(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, null, contentValues) == -1 ){
-                    Log.e(TAG, "Database insert id: " + item.getEntryId() + " error");
+            for (RssItem item : itemList) {
+                // 内容不重复
+                Cursor cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, new String[]{"id"},
+                        "id=?", new String[]{item.getEntryId()}, null, null, null);
+                if (cursor.getCount() == 0) {
+                    contentValues.put("id", item.getEntryId());
+                    contentValues.put("title", item.getTitle());
+                    contentValues.put("url", item.getUrl());
+                    contentValues.put("feedId", item.getFeedId());
+                    contentValues.put("published", item.getPublished());
+                    contentValues.put("unread", item.isUnread());
+                    if (db.insert(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, null, contentValues) == -1) {
+                        Log.e(TAG, "Database insert id: " + item.getEntryId() + " error");
+                    }
                 }
+                cursor.close();
+
             }
+            db.setTransactionSuccessful();
+            db.endTransaction();
+            db.close();
         }
-        cursor.close();
-        db.close();
     }
 
     /**
