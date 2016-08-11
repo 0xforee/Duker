@@ -4,7 +4,9 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -24,9 +26,12 @@ import java.util.List;
 
 public class StreamReceiverService extends Service {
     private static final String TAG = StreamReceiverService.class.getSimpleName();
+    private final int MSG_SYNC_OLD_DATA = 0;
     AbsApiHelper localApiHelper, feedlyApiHelper;
     private StreamCallBack mCallBack;
     RssDao rssDao;
+    Handler myHandler;
+    SharedPreferences sp;
     int syncTime = 4;
     private MyBinder mBinder = new MyBinder();
 
@@ -55,6 +60,23 @@ public class StreamReceiverService extends Service {
         feedlyApiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
         localApiHelper = absApiFactory.createApiHelper(LocalApiHelper.class);
         rssDao = new RssDao(this);
+        sp = PreferenceManager.getDefaultSharedPreferences(BaseApplication.getInstance());
+
+        myHandler = new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+                switch (msg.what){
+                    case MSG_SYNC_OLD_DATA:
+                        if( msg.arg1 < 2000 ){
+                            syncOldData(msg.arg1 + 500);
+                        } else{
+                            // sync done
+                            sp.edit().putBoolean("sync_done", true).apply();
+                        }
+                }
+                super.handleMessage(msg);
+            }
+        };
     }
 
     @Override
@@ -62,7 +84,7 @@ public class StreamReceiverService extends Service {
         Log.d(TAG, "onStartCommand");
 
         // stage 1, sync old data
-        syncOldData();
+        syncOldData(100);
 
         // stage 2, get new data
         syncNewData();
@@ -89,7 +111,6 @@ public class StreamReceiverService extends Service {
         FeedlyApiArgs args = new FeedlyApiArgs();
 
         //get continuation from SharedPreferences
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(BaseApplication.getInstance());
         if (!sp.getString("continuation", "").isEmpty()) {
             Log.d(TAG, "get continuation");
 
@@ -116,38 +137,35 @@ public class StreamReceiverService extends Service {
     }
 
     // sync data from server
-    private void syncOldData(){
-        final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        if(!sp.getBoolean("sync_done", false)) {
+    private void syncOldData(final int counts) {
+        if (!sp.getBoolean("sync_done", false)) {
             Log.d(TAG, "syncOldData");
             // start sync old data
             Thread syncThread = new Thread() {
                 @Override
                 public void run() {
                     FeedlyApiArgs args = new FeedlyApiArgs();
-                    // TODO:可能需要一些原子操作，避免多个线程同时请求网络以及数据库
-                    for (int count = 100; count <= 2000; count = count + 500) {
-                        args.setCount(count);
-                        feedlyApiHelper.getStreamGlobalAll("", args, new NetCallback<List<RssItem>>() {
-                            @Override
-                            public void onSuccess(List<RssItem> data) {
-                                // insert to db
-                                rssDao.insert(data);
-                                syncTime--;
+                    args.setCount(counts);
+                    feedlyApiHelper.getStreamGlobalAll("", args, new NetCallback<List<RssItem>>() {
+                        @Override
+                        public void onSuccess(List<RssItem> data) {
+                            // insert to db
+                            rssDao.insert(data);
 
-                                if( syncTime == 0)
-                                    // sync done
-                                    sp.edit().putBoolean("sync_done", true).apply();
-                            }
+                            // post sync done
+                            Message msg = new Message();
+                            msg.what = MSG_SYNC_OLD_DATA;
+                            msg.arg1 = counts;
 
-                            @Override
-                            public void onFail(String msg) {
+                            myHandler.sendMessage(msg);
+                        }
 
-                            }
-                        });
-                    }
+                        @Override
+                        public void onFail(String msg) {
+
+                        }
+                    });
                 }
-
             };
             syncThread.start();
         }
