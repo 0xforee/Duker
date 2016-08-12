@@ -27,13 +27,14 @@ public class RssDao {
 
     public void insert(List<RssItem> itemList){
         synchronized (this) {
+            int tmp = 1;
             Log.d(TAG, "insert rssItems.size= " + itemList.size() + " to db");
             // 拆分itemList，dataBase 一次事务只能插入1000条数据
-            while(itemList.size()>1000){
-                insertInternal(itemList.subList(0,1000));
-                itemList.removeAll(itemList.subList(0,1000));
+            while(itemList.size()>(1000*tmp)){
+                insertInternal(itemList.subList(1000*(tmp-1),1000*tmp));
+                tmp++;
             }
-            insertInternal(itemList);
+            insertInternal(itemList.subList(1000*(tmp-1), itemList.size()));
         }
     }
 
