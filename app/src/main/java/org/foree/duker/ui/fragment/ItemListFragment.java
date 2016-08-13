@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,7 @@ import org.foree.duker.api.LocalApiHelper;
 import org.foree.duker.dao.RssDao;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssItem;
+import org.foree.duker.service.StreamReceiverService;
 import org.foree.duker.ui.activity.ArticleActivity;
 import org.foree.duker.ui.fragment.ItemListAdapter.OnItemClickListener;
 
@@ -36,7 +38,7 @@ import java.util.List;
 /**
  * Created by foree on 16-7-20.
  */
-public class ItemListFragment extends Fragment {
+public class ItemListFragment extends Fragment implements StreamReceiverService.StreamCallBack{
     private static final String KEY_FEEDID = "feedId";
     private static final String TAG = ItemListFragment.class.getSimpleName();
 
@@ -44,6 +46,7 @@ public class ItemListFragment extends Fragment {
     private ItemListAdapter mAdapter;
     private AbsApiHelper mApiHelper, localApiHelper;
     private List<RssItem> itemList;
+    private ActionMode actionMode;
     RssDao rssDao;
 
     public ItemListFragment() {
@@ -79,22 +82,8 @@ public class ItemListFragment extends Fragment {
         mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
                 DividerItemDecoration.VERTICAL_LIST));
 
-        String feedId = getArguments().getString(KEY_FEEDID);
-        FeedlyApiArgs args = new FeedlyApiArgs();
+        syncDate();
 
-        // getItemList
-        localApiHelper.getStream("", feedId, args, new NetCallback<List<RssItem>>() {
-            @Override
-            public void onSuccess(List<RssItem> data) {
-                itemList = data;
-                initAdapter();
-            }
-
-            @Override
-            public void onFail(String msg) {
-
-            }
-        });
         return linearLayout;
     }
 
@@ -119,6 +108,29 @@ public class ItemListFragment extends Fragment {
 
             }
         });
+    }
+
+    private void syncDate(){
+
+        String feedId = getArguments().getString(KEY_FEEDID);
+        FeedlyApiArgs args = new FeedlyApiArgs();
+        // getItemList
+        localApiHelper.getStream("", feedId, args, new NetCallback<List<RssItem>>() {
+            @Override
+            public void onSuccess(List<RssItem> data) {
+                itemList = data;
+                initAdapter();
+            }
+
+            @Override
+            public void onFail(String msg) {
+
+            }
+        });
+    }
+    @Override
+    public void notifyUpdate() {
+        syncDate();
     }
 
     class DividerItemDecoration extends RecyclerView.ItemDecoration {
