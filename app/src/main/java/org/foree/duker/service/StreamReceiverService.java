@@ -211,6 +211,20 @@ public class StreamReceiverService extends Service {
     // time
     private void timeTrigger(){
         Log.d(TAG, "timeTrigger");
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    synchronized (this) {
+                        wait(1000 * 60 * 60);
+                        myHandler.sendEmptyMessage(MSG_SYNC_NEW_DATA);
+                        timeTrigger();
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     public interface StreamCallBack {
