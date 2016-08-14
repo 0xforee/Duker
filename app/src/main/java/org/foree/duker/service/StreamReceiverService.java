@@ -67,13 +67,7 @@ public class StreamReceiverService extends Service {
             public void handleMessage(Message msg) {
                 switch (msg.what){
                     case MSG_SYNC_OLD_DATA:
-                        if( msg.arg1 < 2000 ){
-                            syncOldData(msg.arg1 + 500);
-                        } else{
-                            // sync done
-                            sp.edit().putBoolean("sync_done", true).apply();
-                            myHandler.sendEmptyMessage(MSG_SYNC_NEW_DATA);
-                        }
+                        syncOldData();
                         break;
                     case MSG_SYNC_NEW_DATA:
                         syncNewData();
@@ -89,9 +83,7 @@ public class StreamReceiverService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
 
-        // stage 1, sync old data
-        syncOldData(100);
-
+        syncNewData();
         timeTrigger();
 
         return super.onStartCommand(intent, flags, startId);
@@ -109,75 +101,75 @@ public class StreamReceiverService extends Service {
     }
 
     // sync new data
-    private void syncNewData(){
+    private void syncNewData() {
         Log.d(TAG, "syncNewData");
+
         FeedlyApiArgs args = new FeedlyApiArgs();
+        args.setCount(100);
 
-        //get continuation from SharedPreferences
-        if (!sp.getString("continuation", "").isEmpty()) {
-            Log.d(TAG, "get continuation");
-
-            args.setContinuation(sp.getString("continuation", ""));
-            //args.setCount(500);
-
-            feedlyApiHelper.getStreamGlobalAll("", args, new NetCallback<List<RssItem>>() {
-                @Override
-                public void onSuccess(final List<RssItem> data) {
-                    // success insertEntries to db
-                    rssDao.insertEntries(data);
-
-                    // 如果mCallBack为空，证明还未启动MainActivity，无需update
-                    if (mCallBack != null)
-                        mCallBack.notifyUpdate();
-                }
-
-                @Override
-                public void onFail(String msg) {
-                }
-            });
+        if (sp.getLong("updated", 0) > 0) {
+            args.setNewerThan(sp.getLong("updated", 0));
         }
+
+        feedlyApiHelper.getStreamGlobalAll("", args, new NetCallback<List<RssItem>>() {
+            @Override
+            public void onSuccess(final List<RssItem> data) {
+                // success insertEntries to db
+                rssDao.insertEntries(data);
+
+                myHandler.sendEmptyMessage(MSG_SYNC_OLD_DATA);
+                // 如果mCallBack为空，证明还未启动MainActivity，无需update
+                if (mCallBack != null)
+                    mCallBack.notifyUpdate();
+            }
+
+            @Override
+            public void onFail(String msg) {
+            }
+        });
 
     }
 
     // sync data from server
-    private void syncOldData(final int counts) {
+    private void syncOldData() {
+        // 100 continuation
         if (!sp.getBoolean("sync_done", false)) {
             Log.d(TAG, "syncOldData");
             // start sync old data
             Thread syncThread = new Thread() {
                 @Override
                 public void run() {
-                    FeedlyApiArgs args = new FeedlyApiArgs();
-                    args.setCount(counts);
-                    feedlyApiHelper.getStreamGlobalAll("", args, new NetCallback<List<RssItem>>() {
-                        @Override
-                        public void onSuccess(List<RssItem> data) {
-                            // insertEntries to db
-                            rssDao.insertEntries(data);
+                    if (!sp.getString("continuation", "").isEmpty()) {
+                        Log.d(TAG, "get continuation");
+                        FeedlyApiArgs args = new FeedlyApiArgs();
+                        args.setCount(100);
+                        args.setContinuation(sp.getString("continuation", ""));
+                        feedlyApiHelper.getStreamGlobalAll("", args, new NetCallback<List<RssItem>>() {
+                            @Override
+                            public void onSuccess(List<RssItem> data) {
+                                // insertEntries to db
+                                rssDao.insertEntries(data);
 
-                            // post sync done
-                            Message msg = new Message();
-                            msg.what = MSG_SYNC_OLD_DATA;
-                            msg.arg1 = counts;
+                                myHandler.sendEmptyMessage(MSG_SYNC_OLD_DATA);
 
-                            myHandler.sendMessage(msg);
+                                // updateUI
+                                // 如果mCallBack为空，证明还未启动MainActivity，无需update
+                                if (mCallBack != null)
+                                    mCallBack.notifyUpdate();
+                            }
 
-                            // updateUI
-                            // 如果mCallBack为空，证明还未启动MainActivity，无需update
-                            if (mCallBack != null)
-                                mCallBack.notifyUpdate();
-                        }
+                            @Override
+                            public void onFail(String msg) {
 
-                        @Override
-                        public void onFail(String msg) {
+                            }
+                        });
+                    }else{
+                        sp.edit().putBoolean("sync_done", true).apply();
+                    }
 
-                        }
-                    });
                 }
             };
             syncThread.start();
-        } else {
-            syncNewData();
         }
     }
 

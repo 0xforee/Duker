@@ -266,16 +266,20 @@ public class FeedlyApiHelper extends AbsApiHelper {
         List<RssItem> rssItems = new ArrayList<>();
         try {
             JSONObject jsonObject = new JSONObject(data);
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(BaseApplication.getInstance());
 
+            // write continuation
             if (jsonObject.has("continuation")){
-                // write continuation
-                SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(BaseApplication.getInstance());
-                SharedPreferences.Editor editor = sp.edit();
-                editor.putString("continuation", jsonObject.getString("continuation"));
-                editor.apply();
+                sp.edit().putString("continuation", jsonObject.getString("continuation")).apply();
                 Log.d(TAG, "write continuation");
+            }else{
+                sp.edit().putString("continuation", "").apply();
             }
 
+            // write updated
+            sp.edit().putLong("updated", jsonObject.getLong("updated")).apply();
+
+            // write items
             JSONArray jsonArray = jsonObject.getJSONArray("items");
             for(int item_i=0; item_i<jsonArray.length(); item_i++){
                 JSONObject itemObject = jsonArray.getJSONObject(item_i);
