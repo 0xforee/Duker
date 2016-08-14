@@ -54,9 +54,9 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     private static final long CATEGORY_IDENTIFIER = 20000;
     private static final long FEED_IDENTIFIER = 30000;
     private static final long OTHER_IDENTIFIER = 40000;
-    private static final long DRAWITEM_HOME = 1;
-    private static final long DRAWITEM_SETTINGS = 2;
-    private static final long DRAWITEM_OPEN_SOURCE = 3;
+    private static final long DRAW_ITEM_HOME = 1;
+    private static final long DRAW_ITEM_SETTINGS = 2;
+    private static final long DRAW_ITEM_OPEN_SOURCE = 3;
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -94,8 +94,8 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         Intent intent = new Intent(this, StreamReceiverService.class);
         bindService(intent, mServiceConnect, BIND_AUTO_CREATE);
 
-        setUpDrawerLayout(savedInstanceState);
-        updateSubscriptions();
+        initDraw(savedInstanceState);
+        initSubscriptions();
 
         // get FloatActionButton
         testFloatingButton = (FloatingActionButton)findViewById(R.id.fab);
@@ -117,7 +117,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         mStreamService.markEntriesRead();
     }
 
-    private void setUpDrawerLayout(Bundle savedInstanceState){
+    private void initDraw(Bundle savedInstanceState){
 
         // Create a few sample profile
         // NOTE you have to define the loader logic too. See the CustomApplication for more details
@@ -149,18 +149,18 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
     }
 
-    private void updateSubscriptions(){
+    private void initSubscriptions(){
 
         updateProfile();
-        updateCategories();
+        initCategories();
     }
 
-    private void updateCategories() {
+    private void initCategories() {
         localApiHelper.getCategoriesList("", new NetCallback<List<RssCategory>>() {
             @Override
             public void onSuccess(final List<RssCategory> data) {
                 categoryList = data;
-                updateFeeds();
+                initFeeds();
             }
 
             @Override
@@ -171,13 +171,13 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         });
     }
 
-    private void updateFeeds() {
+    private void initFeeds() {
 
         localApiHelper.getSubscriptions("", new NetCallback<List<RssFeed>>() {
             @Override
             public void onSuccess(List<RssFeed> data) {
                 feedList = data;
-                initDrawer();
+                addDrawItems();
                 mHandler.sendEmptyMessage(H.MSG_START_SYNC_UNREAD);
             }
             @Override
@@ -193,7 +193,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         feedlyApiHelper.getUnreadCounts("", new NetCallback<Map<String, Long>>() {
             @Override
             public void onSuccess(Map<String, Long> unReadCountsMap) {
-                updateUnread(unReadCountsMap);
+                updateDrawUnreadCounts(unReadCountsMap);
             }
             @Override
             public void onFail(String msg) {
@@ -203,7 +203,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         });
     }
 
-    private void updateUnread(Map<String, Long> unReadCountsMap) {
+    private void updateDrawUnreadCounts(Map<String, Long> unReadCountsMap) {
         for (int i = 0; i < categoryList.size(); i++) {
             List<SecondaryDrawerItem> secondaryDrawerItems = ((IExpandable) result.getDrawerItem(CATEGORY_IDENTIFIER+i)).getSubItems();
             for (SecondaryDrawerItem secondaryDrawerItem : secondaryDrawerItems) {
@@ -229,12 +229,12 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         });
     }
 
-    private void initDrawer() {
+    private void addDrawItems() {
 
         BadgeStyle badgeStyle = new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.red);
 
         // Add Home
-        result.addItem(new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIdentifier(DRAWITEM_HOME)
+        result.addItem(new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIdentifier(DRAW_ITEM_HOME)
                 .withBadgeStyle(badgeStyle));
 
         // Add Category
@@ -255,8 +255,8 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         }
 
         // Add Settings and OpenSource
-        result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_settings).withIdentifier(DRAWITEM_SETTINGS));
-        result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_open_source).withIdentifier(DRAWITEM_OPEN_SOURCE));
+        result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_settings).withIdentifier(DRAW_ITEM_SETTINGS));
+        result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_open_source).withIdentifier(DRAW_ITEM_OPEN_SOURCE));
 
     }
 
@@ -268,13 +268,13 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                 Log.d(TAG, "feedId = " + feedList.get((int)(drawerItem.getIdentifier()- FEED_IDENTIFIER)).getFeedId());
                 Fragment f = ItemListFragment.newInstance(feedList.get((int)(drawerItem.getIdentifier()- FEED_IDENTIFIER)).getFeedId());
                 getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
-            } else if (drawerItem.getIdentifier() == DRAWITEM_HOME){
+            } else if (drawerItem.getIdentifier() == DRAW_ITEM_HOME){
                 Fragment f = ItemListFragment.newInstance(FeedlyApiUtils.getApiGlobalAllUrl());
                 getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
-            } else if (drawerItem.getIdentifier() == DRAWITEM_SETTINGS) {
+            } else if (drawerItem.getIdentifier() == DRAW_ITEM_SETTINGS) {
                 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(intent);
-            } else if (drawerItem.getIdentifier() == DRAWITEM_OPEN_SOURCE) {
+            } else if (drawerItem.getIdentifier() == DRAW_ITEM_OPEN_SOURCE) {
 
             }
         }
