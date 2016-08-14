@@ -169,7 +169,7 @@ public class LocalApiHelper extends FeedlyApiHelper {
 
         // only get data from db
         final RssDao rssDao = new RssDao(BaseApplication.getInstance().getApplicationContext());
-        List<RssItem> rssItemList = rssDao.find(streamId, true);
+        List<RssItem> rssItemList = rssDao.findUnreadByFeedId(streamId, true);
 
         if( netCallback != null) {
             if (!rssItemList.isEmpty()) {

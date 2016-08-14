@@ -52,6 +52,9 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     private static final long CATEGORY_IDENTIFIER = 20000;
     private static final long FEED_IDENTIFIER = 30000;
     private static final long OTHER_IDENTIFIER = 40000;
+    private static final long DRAWITEM_HOME = 1;
+    private static final long DRAWITEM_SETTINGS = 2;
+    private static final long DRAWITEM_OPEN_SOURCE = 3;
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -182,6 +185,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         });
     }
 
+    //TODO:解耦unread状态更新
     private void updateUnreadCounts() {
 
         feedlyApiHelper.getUnreadCounts("", new NetCallback<Map<String, Long>>() {
@@ -218,7 +222,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         BadgeStyle badgeStyle = new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.red);
 
         // Add Home
-        result.addItem(new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIdentifier(1)
+        result.addItem(new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIdentifier(DRAWITEM_HOME)
                 .withBadge(new StringHolder(unReadCountsMap.get(FeedlyApiUtils.getApiGlobalAllUrl()) + "")).withBadgeStyle(badgeStyle));
 
 
@@ -240,8 +244,8 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         }
 
         // Add Settings and OpenSource
-        result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_settings).withIdentifier(2));
-        result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_open_source).withIdentifier(3));
+        result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_settings).withIdentifier(DRAWITEM_SETTINGS));
+        result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_open_source).withIdentifier(DRAWITEM_OPEN_SOURCE));
 
     }
 
@@ -253,13 +257,13 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                 Log.d(TAG, "feedId = " + feedList.get((int)(drawerItem.getIdentifier()- FEED_IDENTIFIER)).getFeedId());
                 Fragment f = ItemListFragment.newInstance(feedList.get((int)(drawerItem.getIdentifier()- FEED_IDENTIFIER)).getFeedId());
                 getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
-            } else if (drawerItem.getIdentifier() == 1){
+            } else if (drawerItem.getIdentifier() == DRAWITEM_HOME){
                 Fragment f = ItemListFragment.newInstance(FeedlyApiUtils.getApiGlobalAllUrl());
                 getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
-            } else if (drawerItem.getIdentifier() == 2) {
+            } else if (drawerItem.getIdentifier() == DRAWITEM_SETTINGS) {
                 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(intent);
-            } else if (drawerItem.getIdentifier() == 3) {
+            } else if (drawerItem.getIdentifier() == DRAWITEM_OPEN_SOURCE) {
 
             }
         }

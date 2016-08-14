@@ -123,8 +123,8 @@ public class StreamReceiverService extends Service {
             feedlyApiHelper.getStreamGlobalAll("", args, new NetCallback<List<RssItem>>() {
                 @Override
                 public void onSuccess(final List<RssItem> data) {
-                    // success insert to db
-                    rssDao.insert(data);
+                    // success insertEntries to db
+                    rssDao.insertEntries(data);
 
                     // 如果mCallBack为空，证明还未启动MainActivity，无需update
                     if (mCallBack != null)
@@ -152,8 +152,8 @@ public class StreamReceiverService extends Service {
                     feedlyApiHelper.getStreamGlobalAll("", args, new NetCallback<List<RssItem>>() {
                         @Override
                         public void onSuccess(List<RssItem> data) {
-                            // insert to db
-                            rssDao.insert(data);
+                            // insertEntries to db
+                            rssDao.insertEntries(data);
 
                             // post sync done
                             Message msg = new Message();
@@ -186,14 +186,14 @@ public class StreamReceiverService extends Service {
         Thread markEntriesThread = new Thread(){
             @Override
             public void run() {
-                // find unread=false items
-                final List<RssItem> rssItems = rssDao.find(FeedlyApiUtils.getApiGlobalAllUrl(), false);
+                // findUnreadByFeedId unread=false items
+                final List<RssItem> rssItems = rssDao.findUnreadByFeedId(FeedlyApiUtils.getApiGlobalAllUrl(), false);
                 if (!rssItems.isEmpty()) {
                     feedlyApiHelper.markStream("", rssItems, new NetCallback<String>() {
                         @Override
                         public void onSuccess(String data) {
                             // delete all items
-                            rssDao.deleteSome(rssItems);
+                            rssDao.deleteEntries(rssItems);
                         }
 
                         @Override

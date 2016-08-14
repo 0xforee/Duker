@@ -25,10 +25,10 @@ public class RssDao {
         rssSQLiteOpenHelper = new RssSQLiteOpenHelper(context);
     }
 
-    public void insert(List<RssItem> itemList){
+    public void insertEntries(List<RssItem> itemList){
         synchronized (this) {
             int tmp = 1;
-            Log.d(TAG, "insert rssItems.size= " + itemList.size() + " to db");
+            Log.d(TAG, "insert " + itemList.size() + " entries to db");
             // 拆分itemList，dataBase 一次事务只能插入1000条数据
             while(itemList.size()>(1000*tmp)){
                 insertInternal(itemList.subList(1000*(tmp-1),1000*tmp));
@@ -54,7 +54,7 @@ public class RssDao {
                 contentValues.put("published", item.getPublished());
                 contentValues.put("unread", item.isUnread());
                 if (db.insert(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, null, contentValues) == -1) {
-                    Log.e(TAG, "Database insert id: " + item.getEntryId() + " error");
+                    Log.e(TAG, "Database insertEntries id: " + item.getEntryId() + " error");
                 }
             }
             cursor.close();
@@ -67,23 +67,26 @@ public class RssDao {
      * 根据feedId, unread状态来查询文章
      * @return 符合要求的rssItemList
      */
-    public List<RssItem> find(String feedId, boolean unread){
-        Log.d(TAG, "get rssItems from db");
-        Cursor cursor;
+    public List<RssItem> findUnreadByFeedId(String feedId, boolean unread) {
+        Log.d(TAG, "get unread = " + unread + " rssItems from db");
+        String selection;
+        String[] selectionArgs;
         List<RssItem> rssItemList = new ArrayList<>();
         SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
-        if (!feedId.equals(FeedlyApiUtils.getApiGlobalAllUrl())) {
-            cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, new String[]{"id,title,url,published,unread"},
-                    "feedId=? AND unread=?", new String[]{feedId, unread?"1":"0"}, null, null, "published DESC");
+        if (FeedlyApiUtils.isGlobalAllUrl(feedId)) {
+            selection = "unread=?";
+            selectionArgs = new String[]{unread ? "1" : "0"};
         } else {
-            cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, new String[]{"id,title,url,published,unread"},
-                    "unread=?", new String[]{unread?"1":"0"}, null, null, "published DESC");
+            selection = "feedId=? AND unread=?";
+            selectionArgs = new String[]{feedId, unread ? "1" : "0"};
         }
-        while(cursor.moveToNext()){
+        Cursor cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, new String[]{"id,title,url,published,unread"},
+                selection, selectionArgs, null, null, "published DESC");
+        while (cursor.moveToNext()) {
             String id = cursor.getString(cursor.getColumnIndex("id"));
             String title = cursor.getString(cursor.getColumnIndex("title"));
             String url = cursor.getString(cursor.getColumnIndex("url"));
-            boolean local_unread = cursor.getInt(cursor.getColumnIndex("unread"))>0;
+            boolean local_unread = cursor.getInt(cursor.getColumnIndex("unread")) > 0;
             long published = cursor.getLong(cursor.getColumnIndex("published"));
             RssItem rssItem = new RssItem(id, title, url, local_unread, published);
 
@@ -108,7 +111,7 @@ public class RssDao {
     /**
      * 更新rssItem的unread字段
      */
-    public int update(String id, boolean newValue){
+    public int updateUnreadByEntryId(String id, boolean newValue){
 
         SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -137,7 +140,7 @@ public class RssDao {
      * 批量删除
      * @param itemList item列表
      */
-    public int deleteSome(List<RssItem> itemList){
+    public int deleteEntries(List<RssItem> itemList){
         int result = 0;
         SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
         for(RssItem item: itemList) {

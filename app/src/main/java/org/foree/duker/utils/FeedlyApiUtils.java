@@ -43,4 +43,8 @@ public class FeedlyApiUtils {
     public static String getApiGlobalAllUrl(){
         return API_GLOBAL_ALL_URL.replace(":userId", USER_ID);
     }
+
+    public static boolean isGlobalAllUrl(String feedId){
+        return feedId.equals(getApiGlobalAllUrl());
+    }
 }
