@@ -38,31 +38,27 @@ public class RssDao {
         }
     }
 
-    private void insertInternal(List<RssItem> subItemList){
+    private void insertInternal(List<RssItem> subItemList) {
         SQLiteDatabase db = rssSQLiteOpenHelper.getWritableDatabase();
         db.beginTransaction();
         ContentValues contentValues = new ContentValues();
         for (RssItem item : subItemList) {
+            contentValues.put("id", item.getEntryId());
+            contentValues.put("title", item.getTitle());
+            contentValues.put("url", item.getUrl());
+            contentValues.put("feedId", item.getFeedId());
+            contentValues.put("published", item.getPublished());
+            contentValues.put("unread", item.isUnread());
             // 内容不重复
-            Cursor cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, new String[]{"id"},
-                    "id=?", new String[]{item.getEntryId()}, null, null, null);
-            if (cursor.getCount() == 0) {
-                contentValues.put("id", item.getEntryId());
-                contentValues.put("title", item.getTitle());
-                contentValues.put("url", item.getUrl());
-                contentValues.put("feedId", item.getFeedId());
-                contentValues.put("published", item.getPublished());
-                contentValues.put("unread", item.isUnread());
-                if (db.insert(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, null, contentValues) == -1) {
-                    Log.e(TAG, "Database insertEntries id: " + item.getEntryId() + " error");
-                }
+            if (db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1) {
+                Log.e(TAG, "Database insertEntries id: " + item.getEntryId() + " error");
             }
-            cursor.close();
         }
         db.setTransactionSuccessful();
         db.endTransaction();
         db.close();
     }
+
     /**
      * 根据feedId, unread状态来查询文章
      * @return 符合要求的rssItemList
