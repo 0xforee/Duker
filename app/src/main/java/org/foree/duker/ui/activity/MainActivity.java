@@ -22,6 +22,7 @@ import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.Drawer.OnDrawerItemClickListener;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.holder.BadgeStyle;
+import com.mikepenz.materialdrawer.holder.StringHolder;
 import com.mikepenz.materialdrawer.model.ExpandableDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
@@ -204,10 +205,15 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     }
 
     private void updateDrawUnreadCounts(Map<String, Long> unReadCountsMap) {
+        // update All unreadCounts
+        ((PrimaryDrawerItem)result.getDrawerItem(DRAW_ITEM_HOME)).withBadge(new StringHolder(unReadCountsMap.get(result.getDrawerItem(DRAW_ITEM_HOME).getTag() + "") + ""));
+        result.getAdapter().notifyAdapterItemChanged(result.getPosition(DRAW_ITEM_HOME));
+
+        // update feed unreadCounts
         for (int i = 0; i < categoryList.size(); i++) {
             List<SecondaryDrawerItem> secondaryDrawerItems = ((IExpandable) result.getDrawerItem(CATEGORY_IDENTIFIER+i)).getSubItems();
             for (SecondaryDrawerItem secondaryDrawerItem : secondaryDrawerItems) {
-                secondaryDrawerItem.withBadge(unReadCountsMap.get(secondaryDrawerItem.getTag() + "") + "");
+                secondaryDrawerItem.withBadge(new StringHolder(unReadCountsMap.get(secondaryDrawerItem.getTag() + "") + ""));
             }
             result.getAdapter().notifyAdapterSubItemsChanged(result.getPosition(CATEGORY_IDENTIFIER));
         }
@@ -235,7 +241,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
         // Add Home
         result.addItem(new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIdentifier(DRAW_ITEM_HOME)
-                .withBadgeStyle(badgeStyle));
+                .withBadgeStyle(badgeStyle).withTag(FeedlyApiUtils.getApiGlobalAllUrl()));
 
         // Add Category
         for (int cate_i = 0; cate_i < categoryList.size(); cate_i++) {
