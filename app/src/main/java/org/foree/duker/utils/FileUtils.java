@@ -11,32 +11,38 @@ import java.io.IOException;
 
 /**
  * Created by foree on 16-7-25.
+ * 文件读写工具类
  */
 public class FileUtils {
     private static final String TAG = FileUtils.class.getSimpleName();
     //读取文件
-    //TODO 添加文件为空的处理
+    //TODO 优化文件的读写操作流程
     public static String readFile(File file) throws IOException {
-        Log.d(TAG, "readFile: " + file.toString());
-        FileReader in = null;
-        BufferedReader bufferedReader = null;
-        StringBuffer stringBuffer = new StringBuffer();
-        String temp;
-        try {
-            in = new FileReader(file);
-            bufferedReader = new BufferedReader(in);
-            while ((temp = bufferedReader.readLine()) != null) {
-                stringBuffer.append(temp).append("\r\n");
+        if( file.exists()) {
+            Log.d(TAG, "readFile: " + file.toString());
+            FileReader in = null;
+            BufferedReader bufferedReader = null;
+            StringBuffer stringBuffer = new StringBuffer();
+            String temp;
+            try {
+                in = new FileReader(file);
+                bufferedReader = new BufferedReader(in);
+                while ((temp = bufferedReader.readLine()) != null) {
+                    stringBuffer.append(temp).append("\r\n");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (bufferedReader != null)
+                    bufferedReader.close();
+                if (in != null)
+                    in.close();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (bufferedReader != null)
-                bufferedReader.close();
-            if (in != null)
-                in.close();
+            return stringBuffer.toString();
+        } else {
+            Log.e(TAG, "file not exists");
+            return "";
         }
-        return stringBuffer.toString();
     }
 
     //写入文件
