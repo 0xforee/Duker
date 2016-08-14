@@ -13,13 +13,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.mikepenz.fastadapter.IExpandable;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.Drawer.OnDrawerItemClickListener;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.holder.BadgeStyle;
-import com.mikepenz.materialdrawer.holder.StringHolder;
 import com.mikepenz.materialdrawer.model.ExpandableDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
@@ -174,7 +174,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
             @Override
             public void onSuccess(List<RssFeed> data) {
                 feedList = data;
-                updateUnreadCounts();
+                initDrawer();
 
             }
             @Override
@@ -185,13 +185,12 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         });
     }
 
-    //TODO:解耦unread状态更新
     private void updateUnreadCounts() {
 
         feedlyApiHelper.getUnreadCounts("", new NetCallback<Map<String, Long>>() {
             @Override
             public void onSuccess(Map<String, Long> unReadCountsMap) {
-                initDrawer(unReadCountsMap);
+                updateUnread(unReadCountsMap);
             }
             @Override
             public void onFail(String msg) {
@@ -199,6 +198,16 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                 Log.e(TAG,"getUnreadCounts " + msg);
             }
         });
+    }
+
+    private void updateUnread(Map<String, Long> unReadCountsMap) {
+        for (int i = 0; i < categoryList.size(); i++) {
+            List<SecondaryDrawerItem> secondaryDrawerItems = ((IExpandable) result.getDrawerItem(CATEGORY_IDENTIFIER+i)).getSubItems();
+            for (SecondaryDrawerItem secondaryDrawerItem : secondaryDrawerItems) {
+                secondaryDrawerItem.withBadge(unReadCountsMap.get(secondaryDrawerItem.getTag() + "") + "");
+            }
+            result.getAdapter().notifyAdapterSubItemsChanged(result.getPosition(CATEGORY_IDENTIFIER));
+        }
     }
 
     private void updateProfile() {
@@ -217,19 +226,18 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         });
     }
 
-    private void initDrawer(Map<String, Long> unReadCountsMap) {
+    private void initDrawer() {
 
         BadgeStyle badgeStyle = new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.red);
 
         // Add Home
         result.addItem(new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIdentifier(DRAWITEM_HOME)
-                .withBadge(new StringHolder(unReadCountsMap.get(FeedlyApiUtils.getApiGlobalAllUrl()) + "")).withBadgeStyle(badgeStyle));
-
+                .withBadgeStyle(badgeStyle));
 
         // Add Category
         for (int cate_i = 0; cate_i < categoryList.size(); cate_i++) {
             ExpandableDrawerItem expandableDrawerItem = new ExpandableDrawerItem()
-                    .withName(categoryList.get(cate_i).getLabel()).withIdentifier(CATEGORY_IDENTIFIER +cate_i).withSelectable(false);
+                    .withName(categoryList.get(cate_i).getLabel()).withIdentifier(CATEGORY_IDENTIFIER +cate_i).withSelectable(false).withTag(categoryList.get(cate_i).getCategoryId());
             result.addItem(expandableDrawerItem);
 
             for (int feed_i = 0; feed_i < feedList.size(); feed_i++) {
@@ -237,7 +245,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
                     if( feedList.get(feed_i).getCategories().get(feed_cate_id).equals(categoryList.get(cate_i))) {
                         expandableDrawerItem.withSubItems(new SecondaryDrawerItem().withName(feedList.get(feed_i).getName())
-                                .withBadge(new StringHolder(unReadCountsMap.get(feedList.get(feed_i).getFeedId()) + "")).withIdentifier(FEED_IDENTIFIER + feed_i).withLevel(2).withBadgeStyle(badgeStyle));
+                                .withIdentifier(FEED_IDENTIFIER + feed_i).withLevel(2).withBadgeStyle(badgeStyle).withTag(feedList.get(feed_i).getFeedId()));
                     }
                 }
             }
@@ -246,6 +254,8 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         // Add Settings and OpenSource
         result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_settings).withIdentifier(DRAWITEM_SETTINGS));
         result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_open_source).withIdentifier(DRAWITEM_OPEN_SOURCE));
+
+        updateUnreadCounts();
 
     }
 
