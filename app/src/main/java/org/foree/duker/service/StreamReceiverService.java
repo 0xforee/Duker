@@ -32,6 +32,7 @@ public class StreamReceiverService extends Service {
     private StreamCallBack mCallBack;
     RssDao rssDao;
     Handler myHandler;
+    Thread timeTriggerThread;
     SharedPreferences sp;
     private MyBinder mBinder = new MyBinder();
 
@@ -202,21 +203,26 @@ public class StreamReceiverService extends Service {
 
     // time
     private void timeTrigger(){
-        Log.d(TAG, "timeTrigger");
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    synchronized (this) {
-                        wait(1000 * 60 * 60);
-                        myHandler.sendEmptyMessage(MSG_SYNC_NEW_DATA);
-                        timeTrigger();
+        if(timeTriggerThread == null) {
+            Log.d(TAG, "create timeTrigger Thread");
+            timeTriggerThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        synchronized (this) {
+                            wait(1000 * 60 * 60);
+                            myHandler.sendEmptyMessage(MSG_SYNC_NEW_DATA);
+                            timeTrigger();
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
-            }
-        }).start();
+            });
+        }
+
+        if( timeTriggerThread.getState().equals(Thread.State.TERMINATED))
+            timeTriggerThread.start();
     }
 
     public interface StreamCallBack {
