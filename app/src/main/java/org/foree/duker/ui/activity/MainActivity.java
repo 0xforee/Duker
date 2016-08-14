@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -63,6 +65,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     private StreamReceiverService mStreamService;
     private ServiceConnection mServiceConnect = new MyServiceConnection();
     private Drawer result = null;
+    private Handler mHandler = new H();
 
     AbsApiHelper localApiHelper, feedlyApiHelper;
     FloatingActionButton testFloatingButton;
@@ -175,7 +178,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
             public void onSuccess(List<RssFeed> data) {
                 feedList = data;
                 initDrawer();
-
+                mHandler.sendEmptyMessage(H.MSG_START_SYNC_UNREAD);
             }
             @Override
             public void onFail(String msg) {
@@ -185,7 +188,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         });
     }
 
-    private void updateUnreadCounts() {
+    private void startSyncUnreadCounts() {
 
         feedlyApiHelper.getUnreadCounts("", new NetCallback<Map<String, Long>>() {
             @Override
@@ -255,8 +258,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_settings).withIdentifier(DRAWITEM_SETTINGS));
         result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_open_source).withIdentifier(DRAWITEM_OPEN_SOURCE));
 
-        updateUnreadCounts();
-
     }
 
     @Override
@@ -301,6 +302,24 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         public void onServiceDisconnected(ComponentName componentName) {
             Log.d(TAG, "onServiceDisconnected");
 
+        }
+    }
+
+    private class H extends Handler{
+        private static final int MSG_START_SYNC_UNREAD = 0;
+        private static final int MSG_START_SYNC_FEEDS = 1;
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+                case MSG_START_SYNC_UNREAD:
+                    startSyncUnreadCounts();
+                    break;
+                case MSG_START_SYNC_FEEDS:
+                    break;
+
+            }
+            super.handleMessage(msg);
         }
     }
 }
