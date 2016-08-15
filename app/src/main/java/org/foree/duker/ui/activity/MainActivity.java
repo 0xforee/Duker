@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -50,7 +51,7 @@ import org.foree.duker.utils.FeedlyApiUtils;
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends BaseActivity implements OnDrawerItemClickListener, StreamReceiverService.StreamCallBack {
+public class MainActivity extends BaseActivity implements OnDrawerItemClickListener, StreamReceiverService.StreamCallBack, SwipeRefreshLayout.OnRefreshListener {
     private static final long PROFILE_SETTING = 100000;
     private static final long CATEGORY_IDENTIFIER = 20000;
     private static final long FEED_IDENTIFIER = 30000;
@@ -73,6 +74,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     List<RssCategory> categoryList;
     List<RssFeed> feedList;
     Toolbar toolbar;
+    SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +83,9 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_ly);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
 
         AbsApiFactory absApiFactory = new ApiFactory();
         feedlyApiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
@@ -290,8 +295,15 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     @Override
     public void notifyUpdate() {
         Log.d(TAG, "updateUI");
+        // sync done
+        mHandler.sendEmptyMessage(H.MSG_SYNC_COMPLETE);
     }
-
+    @Override
+    public void onRefresh() {
+        if ( mStreamService != null){
+            mStreamService.syncNewData();
+        }
+    }
     private class MyServiceConnection implements ServiceConnection {
         private final String TAG = MyApplication.class.getSimpleName();
 
@@ -314,6 +326,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     private class H extends Handler{
         private static final int MSG_START_SYNC_UNREAD = 0;
         private static final int MSG_START_SYNC_FEEDS = 1;
+        private static final int MSG_SYNC_COMPLETE = 2;
 
         @Override
         public void handleMessage(Message msg) {
@@ -323,6 +336,8 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                     break;
                 case MSG_START_SYNC_FEEDS:
                     break;
+                case MSG_SYNC_COMPLETE:
+                    mSwipeRefreshLayout.setRefreshing(false);
 
             }
             super.handleMessage(msg);

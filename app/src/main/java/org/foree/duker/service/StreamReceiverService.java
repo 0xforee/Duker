@@ -102,7 +102,7 @@ public class StreamReceiverService extends Service {
     }
 
     // sync new data
-    private void syncNewData() {
+    public void syncNewData() {
         Log.d(TAG, "syncNewData");
 
         FeedlyApiArgs args = new FeedlyApiArgs();
