@@ -7,7 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.ActionMode;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,7 +41,6 @@ public class ItemListFragment extends Fragment implements StreamReceiverService.
     private ItemListAdapter mAdapter;
     private AbsApiHelper mApiHelper, localApiHelper;
     private List<RssItem> itemList;
-    private ActionMode actionMode;
     RssDao rssDao;
 
     public ItemListFragment() {
@@ -125,6 +124,7 @@ public class ItemListFragment extends Fragment implements StreamReceiverService.
     }
     @Override
     public void notifyUpdate() {
+        Log.d(TAG, "recycleView update");
         syncDate();
     }
 

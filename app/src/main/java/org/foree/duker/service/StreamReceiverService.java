@@ -22,6 +22,7 @@ import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssItem;
 import org.foree.duker.utils.FeedlyApiUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class StreamReceiverService extends Service {
@@ -29,7 +30,7 @@ public class StreamReceiverService extends Service {
     private final int MSG_SYNC_OLD_DATA = 0;
     private final int MSG_SYNC_NEW_DATA = 1;
     AbsApiHelper localApiHelper, feedlyApiHelper;
-    private StreamCallBack mCallBack;
+    private List<StreamCallBack> mCallBacks = new ArrayList<>();
     RssDao rssDao;
     Handler myHandler;
     Thread timeTriggerThread;
@@ -45,11 +46,12 @@ public class StreamReceiverService extends Service {
         }
     }
     public void registerCallBack(StreamCallBack callback){
-        mCallBack = callback;
+        if(!mCallBacks.contains(callback))
+            mCallBacks.add(callback);
     }
 
-    public void unregisterCallBack(){
-        mCallBack = null;
+    public void unregisterCallBack(StreamCallBack callback){
+        mCallBacks.remove(callback);
     }
 
     @Override
@@ -119,9 +121,8 @@ public class StreamReceiverService extends Service {
                 rssDao.insertEntries(data);
 
                 myHandler.sendEmptyMessage(MSG_SYNC_OLD_DATA);
-                // 如果mCallBack为空，证明还未启动MainActivity，无需update
-                if (mCallBack != null)
-                    mCallBack.notifyUpdate();
+
+                notifyCallbackUpdate();
             }
 
             @Override
@@ -154,9 +155,7 @@ public class StreamReceiverService extends Service {
                                 myHandler.sendEmptyMessage(MSG_SYNC_OLD_DATA);
 
                                 // updateUI
-                                // 如果mCallBack为空，证明还未启动MainActivity，无需update
-                                if (mCallBack != null)
-                                    mCallBack.notifyUpdate();
+                                notifyCallbackUpdate();
                             }
 
                             @Override
@@ -223,6 +222,15 @@ public class StreamReceiverService extends Service {
 
         if( timeTriggerThread.getState().equals(Thread.State.TERMINATED))
             timeTriggerThread.start();
+    }
+
+    private void notifyCallbackUpdate(){
+        // 如果mCallBack为空，证明还未启动MainActivity，无需update
+        if(mCallBacks != null && mCallBacks.size() > 0) {
+            for (StreamCallBack callBack : mCallBacks) {
+                callBack.notifyUpdate();
+            }
+        }
     }
 
     public interface StreamCallBack {

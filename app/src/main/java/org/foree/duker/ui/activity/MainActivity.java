@@ -119,7 +119,8 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         super.onDestroy();
         Log.d(TAG, "onDestroy");
         unbindService(mServiceConnect);
-        mStreamService.unregisterCallBack();
+        mStreamService.unregisterCallBack(this);
+        mStreamService.unregisterCallBack(ItemListFragment.newInstance(""));
         mStreamService.markEntriesRead();
     }
 
@@ -313,6 +314,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
             mBinder = (StreamReceiverService.MyBinder) iBinder;
             mStreamService = mBinder.getService();
             mStreamService.registerCallBack(MainActivity.this);
+            mStreamService.registerCallBack(ItemListFragment.newInstance(""));
 
         }
 
