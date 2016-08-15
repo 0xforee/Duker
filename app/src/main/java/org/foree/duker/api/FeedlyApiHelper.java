@@ -294,6 +294,7 @@ public class FeedlyApiHelper extends AbsApiHelper {
                 rssItem.setEntryId(itemObject.getString("id"));
                 rssItem.setTitle(itemObject.getString("title"));
                 rssItem.setFeedId(itemObject.getJSONObject("origin").getString("streamId"));
+                rssItem.setFeedName(itemObject.getJSONObject("origin").getString("title"));
 
                 List<RssCategory> categoryList = new Gson().fromJson(itemObject.getJSONArray("categories").toString(), new TypeToken<List<RssCategory>>(){}.getType());
                 rssItem.setCategories(categoryList);

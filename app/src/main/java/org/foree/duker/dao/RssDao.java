@@ -47,6 +47,7 @@ public class RssDao {
             contentValues.put("title", item.getTitle());
             contentValues.put("url", item.getUrl());
             contentValues.put("feedId", item.getFeedId());
+            contentValues.put("feedName", item.getFeedName());
             contentValues.put("published", item.getPublished());
             contentValues.put("unread", item.isUnread());
             // 内容不重复
@@ -76,7 +77,7 @@ public class RssDao {
             selection = "feedId=? AND unread=?";
             selectionArgs = new String[]{feedId, unread ? "1" : "0"};
         }
-        Cursor cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, new String[]{"id,title,url,published,unread"},
+        Cursor cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, new String[]{"id,title,url,published,unread,feedName"},
                 selection, selectionArgs, null, null, "published DESC");
         while (cursor.moveToNext()) {
             String id = cursor.getString(cursor.getColumnIndex("id"));
@@ -84,7 +85,8 @@ public class RssDao {
             String url = cursor.getString(cursor.getColumnIndex("url"));
             boolean local_unread = cursor.getInt(cursor.getColumnIndex("unread")) > 0;
             long published = cursor.getLong(cursor.getColumnIndex("published"));
-            RssItem rssItem = new RssItem(id, title, url, local_unread, published);
+            String feedName = cursor.getString(cursor.getColumnIndex("feedName"));
+            RssItem rssItem = new RssItem(id, title, url, feedName, local_unread, published);
 
             rssItemList.add(rssItem);
 

@@ -22,17 +22,29 @@ public class RssItem implements Serializable{
     private String url;
     // Item categories
     private List<RssCategory> categories;
+
+    public String getFeedName() {
+        return feedName;
+    }
+
+    public void setFeedName(String feedName) {
+        this.feedName = feedName;
+    }
+
+    // Item feedName
+    private String feedName;
     // Item unread;
     private boolean unread;
 
     public RssItem (){}
 
-    public RssItem (String entryId, String title, String url, boolean unread, long published){
+    public RssItem (String entryId, String title, String url, String feedName, boolean unread, long published){
         this.entryId = entryId;
         this.title = title;
         this.url = url;
         this.unread = unread;
         this.published = published;
+        this.feedName = feedName;
     }
 
 

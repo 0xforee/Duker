@@ -48,7 +48,7 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.MyView
     public void onBindViewHolder(final ItemListAdapter.MyViewHolder holder, int position) {
         holder.tvTitle.setText(mItemList.get(position).getTitle());
         // TODO:数据库中添加对category的处理
-        //holder.tvCategory.setText(mItemList.get(position).getCategories().get(0).getLabel());
+        holder.tvCategory.setText(mItemList.get(position).getFeedName());
         holder.tvPublished.setText(new Date(mItemList.get(position).getPublished()).toString());
 
         // 如果设置了回调，则设置点击事件
