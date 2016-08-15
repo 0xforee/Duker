@@ -47,10 +47,8 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.MyView
     @Override
     public void onBindViewHolder(final ItemListAdapter.MyViewHolder holder, int position) {
         holder.tvTitle.setText(mItemList.get(position).getTitle());
-        if (mItemList.get(position).getSummary() != null) {
-            holder.tvSummary.setVisibility(View.VISIBLE);
-            holder.tvSummary.setText(mItemList.get(position).getSummary());
-        }
+        // TODO:数据库中添加对category的处理
+        //holder.tvCategory.setText(mItemList.get(position).getCategories().get(0).getLabel());
         holder.tvPublished.setText(new Date(mItemList.get(position).getPublished()).toString());
 
         // 如果设置了回调，则设置点击事件
@@ -85,13 +83,13 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.MyView
 
     class MyViewHolder extends RecyclerView.ViewHolder{
         TextView tvTitle;
-        TextView tvSummary;
+        TextView tvCategory;
         TextView tvPublished;
 
         public MyViewHolder(View view){
             super(view);
             tvTitle = (TextView)view.findViewById(R.id.tv_item_title);
-            tvSummary = (TextView)view.findViewById(R.id.tv_item_summary);
+            tvCategory = (TextView)view.findViewById(R.id.tv_item_category);
             tvPublished = (TextView)view.findViewById(R.id.tv_item_published);
         }
     }
