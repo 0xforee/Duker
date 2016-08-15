@@ -86,7 +86,10 @@ public class StreamReceiverService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
 
-        syncNewData();
+        if (sp.getBoolean("start_sync", false)) {
+            syncNewData();
+        }
+
         timeTrigger();
 
         return super.onStartCommand(intent, flags, startId);

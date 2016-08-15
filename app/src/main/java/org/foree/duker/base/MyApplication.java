@@ -1,9 +1,11 @@
 package org.foree.duker.base;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.foree.duker.R;
@@ -74,6 +76,9 @@ public class MyApplication extends BaseApplication{
         //获取当前应用程序的版本号和版本名称
         initApplicationVersionInfo(mContext);
 
+        // 初始化app默认设置项
+        initDefaultConfigs(mContext);
+
     Log.v(TAG, "环境变量初始化成功");
 
     }
@@ -94,5 +99,13 @@ public class MyApplication extends BaseApplication{
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    public void initDefaultConfigs(Context context){
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sp.edit();
+        // 启动时同步数据
+        editor.putBoolean("start_sync", false);
+        editor.apply();
     }
 }
