@@ -298,6 +298,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         Log.d(TAG, "updateUI");
         // sync done
         mHandler.sendEmptyMessage(H.MSG_SYNC_COMPLETE);
+        ((ItemListFragment)f).getHandler().sendEmptyMessage(ItemListFragment.MSG_SYNC_START);
     }
     @Override
     public void onRefresh() {
@@ -314,7 +315,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
             mBinder = (StreamReceiverService.MyBinder) iBinder;
             mStreamService = mBinder.getService();
             mStreamService.registerCallBack(MainActivity.this);
-            mStreamService.registerCallBack((ItemListFragment)f);
 
         }
 

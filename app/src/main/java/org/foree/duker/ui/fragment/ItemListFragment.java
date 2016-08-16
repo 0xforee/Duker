@@ -4,6 +4,8 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -25,7 +27,6 @@ import org.foree.duker.api.LocalApiHelper;
 import org.foree.duker.dao.RssDao;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssItem;
-import org.foree.duker.service.StreamReceiverService;
 import org.foree.duker.ui.activity.ArticleActivity;
 import org.foree.duker.ui.fragment.ItemListAdapter.OnItemClickListener;
 
@@ -35,7 +36,7 @@ import java.util.List;
 /**
  * Created by foree on 16-7-20.
  */
-public class ItemListFragment extends Fragment implements StreamReceiverService.StreamCallBack{
+public class ItemListFragment extends Fragment{
     private static final String KEY_FEEDID = "feedId";
     private static final String TAG = ItemListFragment.class.getSimpleName();
 
@@ -45,6 +46,21 @@ public class ItemListFragment extends Fragment implements StreamReceiverService.
     private List<RssItem> itemList = new ArrayList<>();
     RssDao rssDao;
 
+    private Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what){
+                case MSG_SYNC_START:
+                    Log.d(TAG, "update recycle view");
+                    syncDate();
+            }
+        }
+    };
+    public static final int MSG_SYNC_START = 0;
+    public Handler getHandler(){
+        return mHandler;
+    }
     public ItemListFragment() {
         // Required empty public constructor
     }
@@ -151,10 +167,4 @@ public class ItemListFragment extends Fragment implements StreamReceiverService.
             }
         });
     }
-    @Override
-    public void notifyUpdate() {
-        Log.d(TAG, "recycleView update");
-        syncDate();
-    }
-
 }
