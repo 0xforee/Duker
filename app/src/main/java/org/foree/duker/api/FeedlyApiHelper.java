@@ -291,6 +291,12 @@ public class FeedlyApiHelper extends AbsApiHelper {
                 String summary = itemObject.getJSONObject("summary").getString("content");
                 rssItem.setSummary(summary);
 
+                // visual
+                if( itemObject.getJSONObject("visual").getString("url") != null) {
+                    String visual = itemObject.getJSONObject("visual").getString("url");
+                    rssItem.setVisual(visual);
+                }
+
                 rssItem.setEntryId(itemObject.getString("id"));
                 rssItem.setTitle(itemObject.getString("title"));
                 rssItem.setFeedId(itemObject.getJSONObject("origin").getString("streamId"));

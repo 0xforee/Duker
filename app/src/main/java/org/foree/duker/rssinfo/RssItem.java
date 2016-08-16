@@ -18,6 +18,17 @@ public class RssItem implements Serializable{
     private String entryId;
     // Item feedId
     private String feedId;
+
+    public String getVisual() {
+        return visual;
+    }
+
+    public void setVisual(String visual) {
+        this.visual = visual;
+    }
+
+    // Item visual
+    private String visual;
     // Item 链接
     private String url;
     // Item categories

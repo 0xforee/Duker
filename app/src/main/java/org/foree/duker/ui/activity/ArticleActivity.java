@@ -38,6 +38,7 @@ public class ArticleActivity extends BaseActivity {
         String title = getIntent().getStringExtra("entryTitle");
         String summary = getIntent().getStringExtra("entryContent");
 
+
         CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         collapsingToolbarLayout.setTitle(title);
 
@@ -64,7 +65,7 @@ public class ArticleActivity extends BaseActivity {
 
     private void loadBackdrop() {
         final ImageView imageView = (ImageView) findViewById(R.id.backdrop);
-        Glide.with(this).load("https://unsplash.it/600/300/?random").centerCrop().into(imageView);
+        Glide.with(this).load(getIntent().getStringExtra("entryVisual")).centerCrop().into(imageView);
     }
 
     private void fillFab() {
