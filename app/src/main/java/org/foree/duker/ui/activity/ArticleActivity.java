@@ -1,11 +1,19 @@
 package org.foree.duker.ui.activity;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageView;
+
+import com.bumptech.glide.Glide;
+import com.mikepenz.google_material_typeface_library.GoogleMaterial;
+import com.mikepenz.iconics.IconicsDrawable;
 
 import org.foree.duker.R;
 import org.foree.duker.base.BaseActivity;
@@ -21,17 +29,21 @@ public class ArticleActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article);
 
-        wb_article = (WebView)findViewById(R.id.wb_article);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-
-        String Url = getIntent().getStringExtra("entryUrl");
-        String Title = getIntent().getStringExtra("entryTitle");
-
-        toolbar.setTitle(Title);
         setSupportActionBar(toolbar);
+
+        String url = getIntent().getStringExtra("entryUrl");
+        String title = getIntent().getStringExtra("entryTitle");
+
+        CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        collapsingToolbarLayout.setTitle(title);
+
+
+        wb_article = (WebView)findViewById(R.id.wb_article);
+
         wb_article.getSettings().setJavaScriptEnabled(true);
 
-        Log.d(TAG, Url);
+        Log.d(TAG, url);
         wb_article.setWebViewClient(new WebViewClient(){
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url){
@@ -39,6 +51,19 @@ public class ArticleActivity extends BaseActivity {
                 return true;
             }
         });
-        wb_article.loadUrl(Url);
+        wb_article.loadUrl(url);
+
+        fillFab();
+        loadBackdrop();
+    }
+
+    private void loadBackdrop() {
+        final ImageView imageView = (ImageView) findViewById(R.id.backdrop);
+        Glide.with(this).load("https://unsplash.it/600/300/?random").centerCrop().into(imageView);
+    }
+
+    private void fillFab() {
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.floating_action_button);
+        fab.setImageDrawable(new IconicsDrawable(this, GoogleMaterial.Icon.gmd_share).actionBar().color(Color.WHITE));
     }
 }
