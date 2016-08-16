@@ -303,7 +303,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     @Override
     public void onRefresh() {
         if ( mStreamService != null){
-            mStreamService.syncNewData();
+            mStreamService.syncSubscriptions();
         }
     }
     private class MyServiceConnection implements ServiceConnection {

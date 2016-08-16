@@ -73,7 +73,7 @@ public class StreamReceiverService extends Service {
                         syncOldData();
                         break;
                     case MSG_SYNC_NEW_DATA:
-                        syncNewData();
+                        syncSubscriptions();
                         break;
 
                 }
@@ -87,7 +87,7 @@ public class StreamReceiverService extends Service {
         Log.d(TAG, "onStartCommand");
 
         if (sp.getBoolean("start_sync", false)) {
-            syncNewData();
+            syncSubscriptions();
         }
 
         timeTrigger();
@@ -108,8 +108,8 @@ public class StreamReceiverService extends Service {
     }
 
     // sync new data
-    public void syncNewData() {
-        Log.d(TAG, "syncNewData");
+    public void syncSubscriptions() {
+        Log.d(TAG, "syncSubscriptions");
 
         FeedlyApiArgs args = new FeedlyApiArgs();
         args.setCount(100);

@@ -65,7 +65,7 @@ public class RssDao {
      * @return 符合要求的rssItemList
      */
     public List<RssItem> findUnreadByFeedId(String feedId, boolean unread) {
-        Log.d(TAG, "get unread = " + unread + " rssItems from db");
+        Log.d(TAG, "get feedId = " + feedId + " unread = " + unread + " rssItems from db");
         String selection;
         String[] selectionArgs;
         List<RssItem> rssItemList = new ArrayList<>();
