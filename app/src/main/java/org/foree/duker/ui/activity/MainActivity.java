@@ -118,10 +118,9 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
-        unbindService(mServiceConnect);
         mStreamService.unregisterCallBack(this);
-        mStreamService.unregisterCallBack(ItemListFragment.newInstance(""));
         mStreamService.markEntriesRead();
+        unbindService(mServiceConnect);
     }
 
     private void initDraw(Bundle savedInstanceState){

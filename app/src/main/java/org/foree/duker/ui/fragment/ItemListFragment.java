@@ -1,6 +1,7 @@
 package org.foree.duker.ui.fragment;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -58,17 +59,27 @@ public class ItemListFragment extends Fragment implements StreamReceiverService.
         return (f);
     }
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        LinearLayout linearLayout = (LinearLayout)inflater.inflate(R.layout.fragment_itemlist, container, false);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         AbsApiFactory absApiFactory = new ApiFactory();
         mApiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
         localApiHelper = absApiFactory.createApiHelper(LocalApiHelper.class);
 
-        // database
-        rssDao = new RssDao(getActivity());
+        Log.d(TAG, "onCreate");
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView" );
+        LinearLayout linearLayout = (LinearLayout)inflater.inflate(R.layout.fragment_itemlist, container, false);
 
         mRecyclerView = (RecyclerView) linearLayout.findViewById(R.id.rv_item_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this.getActivity()));
@@ -79,6 +90,18 @@ public class ItemListFragment extends Fragment implements StreamReceiverService.
         syncDate();
 
         return linearLayout;
+    }
+
+    @Override
+    public void onPause() {
+        Log.d(TAG, "onPause");
+        super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d(TAG, "onDestroy");
+        super.onDestroy();
     }
 
     private void initAdapter() {
