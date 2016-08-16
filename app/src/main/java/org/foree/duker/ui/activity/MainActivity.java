@@ -67,6 +67,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     private StreamReceiverService mStreamService;
     private ServiceConnection mServiceConnect = new MyServiceConnection();
     private Drawer result = null;
+    private Fragment f;
     private Handler mHandler = new H();
 
     AbsApiHelper localApiHelper, feedlyApiHelper;
@@ -92,7 +93,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         localApiHelper = absApiFactory.createApiHelper(LocalApiHelper.class);
 
         if (savedInstanceState == null) {
-            Fragment f = ItemListFragment.newInstance(FeedlyApiUtils.getApiGlobalAllUrl());
+            f = ItemListFragment.newInstance(FeedlyApiUtils.getApiGlobalAllUrl());
             getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
         }
 
@@ -277,10 +278,10 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
             if( FEED_IDENTIFIER <= drawerItem.getIdentifier() && drawerItem.getIdentifier() < OTHER_IDENTIFIER){
                 Log.d(TAG, "feedId = " + feedList.get((int)(drawerItem.getIdentifier()- FEED_IDENTIFIER)).getFeedId());
-                Fragment f = ItemListFragment.newInstance(feedList.get((int)(drawerItem.getIdentifier()- FEED_IDENTIFIER)).getFeedId());
+                f = ItemListFragment.newInstance(feedList.get((int)(drawerItem.getIdentifier()- FEED_IDENTIFIER)).getFeedId());
                 getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
             } else if (drawerItem.getIdentifier() == DRAW_ITEM_HOME){
-                Fragment f = ItemListFragment.newInstance(FeedlyApiUtils.getApiGlobalAllUrl());
+                f = ItemListFragment.newInstance(FeedlyApiUtils.getApiGlobalAllUrl());
                 getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
             } else if (drawerItem.getIdentifier() == DRAW_ITEM_SETTINGS) {
                 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
@@ -313,7 +314,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
             mBinder = (StreamReceiverService.MyBinder) iBinder;
             mStreamService = mBinder.getService();
             mStreamService.registerCallBack(MainActivity.this);
-            mStreamService.registerCallBack(ItemListFragment.newInstance(""));
+            mStreamService.registerCallBack((ItemListFragment)f);
 
         }
 

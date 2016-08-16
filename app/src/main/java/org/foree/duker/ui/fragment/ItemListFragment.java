@@ -29,6 +29,7 @@ import org.foree.duker.service.StreamReceiverService;
 import org.foree.duker.ui.activity.ArticleActivity;
 import org.foree.duker.ui.fragment.ItemListAdapter.OnItemClickListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,7 +42,7 @@ public class ItemListFragment extends Fragment implements StreamReceiverService.
     private RecyclerView mRecyclerView;
     private ItemListAdapter mAdapter;
     private AbsApiHelper mApiHelper, localApiHelper;
-    private List<RssItem> itemList;
+    private List<RssItem> itemList = new ArrayList<>();
     RssDao rssDao;
 
     public ItemListFragment() {
@@ -86,6 +87,10 @@ public class ItemListFragment extends Fragment implements StreamReceiverService.
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
                 DividerItemDecoration.VERTICAL_LIST));
+
+        rssDao = new RssDao(getActivity());
+
+        initAdapter();
 
         syncDate();
 
@@ -135,8 +140,9 @@ public class ItemListFragment extends Fragment implements StreamReceiverService.
         localApiHelper.getStream("", feedId, args, new NetCallback<List<RssItem>>() {
             @Override
             public void onSuccess(List<RssItem> data) {
-                itemList = data;
-                initAdapter();
+                itemList.clear();
+                itemList.addAll(data);
+                mAdapter.notifyDataSetChanged();
             }
 
             @Override
