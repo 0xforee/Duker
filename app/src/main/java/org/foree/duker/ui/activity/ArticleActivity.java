@@ -36,6 +36,7 @@ public class ArticleActivity extends BaseActivity {
 
         String url = getIntent().getStringExtra("entryUrl");
         String title = getIntent().getStringExtra("entryTitle");
+        String summary = getIntent().getStringExtra("entryContent");
 
         CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         collapsingToolbarLayout.setTitle(title);
@@ -46,15 +47,17 @@ public class ArticleActivity extends BaseActivity {
         wb_article.getSettings().setJavaScriptEnabled(true);
 
         Log.d(TAG, url);
-        wb_article.setWebViewClient(new WebViewClient(){
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url){
-                view.loadUrl(url);
-                return true;
-            }
-        });
-        wb_article.loadUrl(url);
-
+//        wb_article.setWebViewClient(new WebViewClient(){
+//            @Override
+//            public boolean shouldOverrideUrlLoading(WebView view, String url){
+//                view.loadUrl(url);
+//                return true;
+//            }
+//        });
+        //wb_article.loadUrl(url);
+        wb_article.getSettings().setDefaultTextEncodingName("UTF-8");
+        wb_article.getSettings().setUseWideViewPort(true);
+        wb_article.loadDataWithBaseURL(null, summary,"text/html","utf-8",null);
         fillFab();
         loadBackdrop();
     }

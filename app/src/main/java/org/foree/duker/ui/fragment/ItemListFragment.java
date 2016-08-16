@@ -136,6 +136,7 @@ public class ItemListFragment extends Fragment{
                 Bundle bundle = new Bundle();
                 bundle.putString("entryUrl", itemList.get(position).getUrl());
                 bundle.putString("entryTitle", itemList.get(position).getTitle());
+                bundle.putString("entryContent", itemList.get(position).getSummary());
                 rssDao.updateUnreadByEntryId(itemList.get(position).getEntryId(), false);
                 intent.putExtras(bundle);
                 startActivity(intent);
@@ -153,7 +154,8 @@ public class ItemListFragment extends Fragment{
         String feedId = getArguments().getString(KEY_FEEDID);
         FeedlyApiArgs args = new FeedlyApiArgs();
         // getItemList
-        localApiHelper.getStream("", feedId, args, new NetCallback<List<RssItem>>() {
+        // TODO:总是使用feedlyapi获取网络数据，等summary缓存处理完毕之后，修正
+        mApiHelper.getStream("", feedId, args, new NetCallback<List<RssItem>>() {
             @Override
             public void onSuccess(List<RssItem> data) {
                 itemList.clear();
