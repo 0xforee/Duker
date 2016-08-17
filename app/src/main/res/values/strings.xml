@@ -4,12 +4,12 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Settings</string>
+    <string name="action_settings" translatable="false">Settings</string>
 
     <!-- Drawer string -->
-    <string name="drawer_item_home">Home</string>
-    <string name="drawer_item_settings">Settings</string>
-    <string name="drawer_item_open_source">Open Source</string>
+    <string name="drawer_item_home" translatable="false">Home</string>
+    <string name="drawer_item_settings" translatable="false">Settings</string>
+    <string name="drawer_item_open_source" translatable="false">Open Source</string>
 
     <!-- load string -->
     <string name="copyright" translatable="false">Copyright(&#169;) 2014&#8211;2015 Foree Inc.</string>
@@ -19,7 +19,7 @@
     <string name="load_tv_app_name">DUKER</string>
     <string name="load_speak1" translatable="false">The only way of finding the limits of the</string>
     <string name="general">General</string>
-    <string name="theme_setting">Theme</string>
+    <string name="theme_setting">Them</string>
     <string name="dark_theme">Dark</string>
     <string name="offline_wifi_only">Cache on Wifi only</string>
     <string name="offline_wifi_only_summary">Cache articles only when a Wifi connection is available.</string>

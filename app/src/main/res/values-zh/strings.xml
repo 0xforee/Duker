@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">读客</string>
+    <string name="about">关于</string>
+    <string name="dark_theme">夜间模式</string>
+    <string name="general">常规</string>
+    <string name="offline_when_charging">仅在充电时缓存</string>
+    <string name="offline_when_charging_summary">当设备在充电时缓存文章</string>
+    <string name="offline_wifi_only">仅在Wifi时缓存</string>
+    <string name="offline_wifi_only_summary">仅当Wifi连接可用时缓存文章</string>
+    <string name="refresh_on_launch">启动时刷新</string>
+    <string name="refresh_on_launch_summary">当应用启动时自动获取新的文章</string>
+    <string name="refresh_wifi_only">在Wifi下刷新</string>
+    <string name="refresh_wifi_only_summary">仅当Wifi连接时刷新</string>
+    <string name="theme_setting">主题</string>
+</resources>
