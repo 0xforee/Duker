@@ -50,7 +50,7 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.MyView
         holder.tvTitle.setText(mItemList.get(position).getTitle());
         holder.tvFeedName.setText(mItemList.get(position).getFeedName());
         holder.tvPublished.setText(new Date(mItemList.get(position).getPublished()).toString());
-        if(!mItemList.get(position).getVisual().isEmpty()) {
+        if(mItemList.get(position).getVisual()!= null && !mItemList.get(position).getVisual().isEmpty()) {
             holder.imageView.setVisibility(View.VISIBLE);
         }
         // 如果设置了回调，则设置点击事件
