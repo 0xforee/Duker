@@ -10,7 +10,7 @@ import android.widget.TextView;
 import org.foree.duker.R;
 import org.foree.duker.base.BaseActivity;
 import org.foree.duker.base.MyApplication;
-import org.foree.duker.service.StreamReceiverService;
+import org.foree.duker.service.RefreshService;
 
 public class SplashActivity extends BaseActivity{
     private static final String TAG = SplashActivity.class.getSimpleName();
@@ -30,7 +30,7 @@ public class SplashActivity extends BaseActivity{
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         // start service
-        Intent serviceIntent = new Intent(this, StreamReceiverService.class);
+        Intent serviceIntent = new Intent(this, RefreshService.class);
         startService(serviceIntent);
 
         // set font

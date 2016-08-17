@@ -25,32 +25,32 @@ import org.foree.duker.utils.FeedlyApiUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StreamReceiverService extends Service {
-    private static final String TAG = StreamReceiverService.class.getSimpleName();
+public class RefreshService extends Service {
+    private static final String TAG = RefreshService.class.getSimpleName();
     private final int MSG_SYNC_OLD_DATA = 0;
     private final int MSG_SYNC_NEW_DATA = 1;
     AbsApiHelper localApiHelper, feedlyApiHelper;
-    private List<StreamCallBack> mCallBacks = new ArrayList<>();
+    private List<RefreshCallBack> mCallBacks = new ArrayList<>();
     RssDao rssDao;
     Handler myHandler;
     Thread timeTriggerThread;
     SharedPreferences sp;
     private MyBinder mBinder = new MyBinder();
 
-    public StreamReceiverService() {
+    public RefreshService() {
     }
 
     public class MyBinder extends Binder {
-        public StreamReceiverService getService(){
-            return StreamReceiverService.this;
+        public RefreshService getService(){
+            return RefreshService.this;
         }
     }
-    public void registerCallBack(StreamCallBack callback){
+    public void registerCallBack(RefreshCallBack callback){
         if(!mCallBacks.contains(callback))
             mCallBacks.add(callback);
     }
 
-    public void unregisterCallBack(StreamCallBack callback){
+    public void unregisterCallBack(RefreshCallBack callback){
         mCallBacks.remove(callback);
     }
 
@@ -231,13 +231,13 @@ public class StreamReceiverService extends Service {
     private void notifyCallbackUpdate(){
         // 如果mCallBack为空，证明还未启动MainActivity，无需update
         if(mCallBacks != null && mCallBacks.size() > 0) {
-            for (StreamCallBack callBack : mCallBacks) {
+            for (RefreshCallBack callBack : mCallBacks) {
                 callBack.notifyUpdate();
             }
         }
     }
 
-    public interface StreamCallBack {
+    public interface RefreshCallBack {
         // 数据同步结束，更新UI
         void notifyUpdate();
     }

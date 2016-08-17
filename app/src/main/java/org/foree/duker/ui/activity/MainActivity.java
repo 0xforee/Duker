@@ -44,14 +44,14 @@ import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssCategory;
 import org.foree.duker.rssinfo.RssFeed;
 import org.foree.duker.rssinfo.RssProfile;
-import org.foree.duker.service.StreamReceiverService;
+import org.foree.duker.service.RefreshService;
 import org.foree.duker.ui.fragment.ItemListFragment;
 import org.foree.duker.utils.FeedlyApiUtils;
 
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends BaseActivity implements OnDrawerItemClickListener, StreamReceiverService.StreamCallBack, SwipeRefreshLayout.OnRefreshListener {
+public class MainActivity extends BaseActivity implements OnDrawerItemClickListener, RefreshService.RefreshCallBack, SwipeRefreshLayout.OnRefreshListener {
     private static final long PROFILE_SETTING = 100000;
     private static final long CATEGORY_IDENTIFIER = 20000;
     private static final long FEED_IDENTIFIER = 30000;
@@ -63,8 +63,8 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private AccountHeader headerResult = null;
-    private StreamReceiverService.MyBinder mBinder;
-    private StreamReceiverService mStreamService;
+    private RefreshService.MyBinder mBinder;
+    private RefreshService mStreamService;
     private ServiceConnection mServiceConnect = new MyServiceConnection();
     private Drawer result = null;
     private Fragment f;
@@ -98,8 +98,8 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         }
 
         // bind service
-        Intent intent = new Intent(this, StreamReceiverService.class);
-        bindService(intent, mServiceConnect, BIND_AUTO_CREATE);
+        Intent refreshService = new Intent(this, RefreshService.class);
+        bindService(refreshService, mServiceConnect, BIND_AUTO_CREATE);
 
         initDraw(savedInstanceState);
         initSubscriptions();
@@ -312,7 +312,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             Log.d(TAG, "onServiceConnected");
-            mBinder = (StreamReceiverService.MyBinder) iBinder;
+            mBinder = (RefreshService.MyBinder) iBinder;
             mStreamService = mBinder.getService();
             mStreamService.registerCallBack(MainActivity.this);
 

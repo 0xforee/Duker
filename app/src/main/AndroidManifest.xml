@@ -36,7 +36,7 @@
         <activity android:name=".ui.activity.SettingsActivity"/>
 
         <service
-            android:name=".service.StreamReceiverService"
+            android:name=".service.RefreshService"
             android:enabled="true"
             android:exported="false"></service>
     </application>
