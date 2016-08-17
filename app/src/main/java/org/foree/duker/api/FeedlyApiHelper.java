@@ -281,18 +281,28 @@ public class FeedlyApiHelper extends AbsApiHelper {
 
             // write items
             JSONArray jsonArray = jsonObject.getJSONArray("items");
-            for(int item_i=0; item_i<jsonArray.length(); item_i++){
+            for(int item_i=0; item_i<jsonArray.length(); item_i++) {
                 JSONObject itemObject = jsonArray.getJSONObject(item_i);
                 RssItem rssItem = new RssItem();
 
                 rssItem.setPublished(itemObject.getLong("published"));
                 rssItem.setUrl(itemObject.getJSONArray("alternate").getJSONObject(0).getString("href"));
                 // TODO:summary需要更好的过滤
-                String summary = itemObject.getJSONObject("summary").getString("content");
-                rssItem.setSummary(summary);
+                String summary = "";
+                if (itemObject.has("summary")) {
+                    summary = itemObject.getJSONObject("summary").getString("content");
+                    rssItem.setSummary(summary);
+                }
+                // if content exits
+                if (itemObject.has("content")) {
+                    String content = itemObject.getJSONObject("content").getString("content");
+                    rssItem.setContent(content);
+                } else if (!summary.isEmpty()){
+                    rssItem.setContent(summary);
+                }
 
                 // visual
-                if( itemObject.getJSONObject("visual").getString("url") != null) {
+                if( itemObject.has("visual")) {
                     String visual = itemObject.getJSONObject("visual").getString("url");
                     rssItem.setVisual(visual);
                 }

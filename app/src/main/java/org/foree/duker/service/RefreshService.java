@@ -80,7 +80,7 @@ public class RefreshService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
 
-        if (sp.getBoolean("start_sync", false)) {
+        if (sp.getBoolean("start_sync", true)) {
             syncSubscriptions();
         }
 
@@ -228,10 +228,12 @@ public class RefreshService extends Service {
     private void notifyUpdateUI(){
         Message msg = new Message();
         msg.what = MainActivity.MSG_SYNC_COMPLETE;
-        try {
-            mainActivityMessenger.send(msg);
-        } catch (RemoteException e) {
-            e.printStackTrace();
+        if( mainActivityMessenger != null) {
+            try {
+                mainActivityMessenger.send(msg);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

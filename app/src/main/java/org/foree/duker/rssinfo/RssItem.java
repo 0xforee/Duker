@@ -12,12 +12,46 @@ public class RssItem implements Serializable{
     private String title;
     // Item 概览
     private String summary;
+    // Item 内容
+    private String content;
     // Item 发布时间
     private long published;
     // Item ID
     private String entryId;
     // Item feedId
     private String feedId;
+    // Item visual
+    private String visual;
+    // Item 链接
+    private String url;
+    // Item categories
+    private List<RssCategory> categories;
+    // Item feedName
+    private String feedName;
+    // Item unread;
+    private boolean unread;
+
+    public RssItem (){}
+
+    public RssItem (String entryId, String title, String url, String feedName, String content, String visual, boolean unread, long published){
+        this.entryId = entryId;
+        this.title = title;
+        this.url = url;
+        this.unread = unread;
+        this.published = published;
+        this.feedName = feedName;
+        this.content = content;
+        this.visual = visual;
+    }
+
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
 
     public String getVisual() {
         return visual;
@@ -27,13 +61,6 @@ public class RssItem implements Serializable{
         this.visual = visual;
     }
 
-    // Item visual
-    private String visual;
-    // Item 链接
-    private String url;
-    // Item categories
-    private List<RssCategory> categories;
-
     public String getFeedName() {
         return feedName;
     }
@@ -41,23 +68,6 @@ public class RssItem implements Serializable{
     public void setFeedName(String feedName) {
         this.feedName = feedName;
     }
-
-    // Item feedName
-    private String feedName;
-    // Item unread;
-    private boolean unread;
-
-    public RssItem (){}
-
-    public RssItem (String entryId, String title, String url, String feedName, boolean unread, long published){
-        this.entryId = entryId;
-        this.title = title;
-        this.url = url;
-        this.unread = unread;
-        this.published = published;
-        this.feedName = feedName;
-    }
-
 
     public String getFeedId() {
         return feedId;

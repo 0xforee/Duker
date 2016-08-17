@@ -136,7 +136,7 @@ public class ItemListFragment extends Fragment implements SyncState {
                 Bundle bundle = new Bundle();
                 bundle.putString("entryUrl", itemList.get(position).getUrl());
                 bundle.putString("entryTitle", itemList.get(position).getTitle());
-                bundle.putString("entryContent", itemList.get(position).getSummary());
+                bundle.putString("entryContent", itemList.get(position).getContent());
                 bundle.putString("entryVisual", itemList.get(position).getVisual());
                 rssDao.updateUnreadByEntryId(itemList.get(position).getEntryId(), false);
                 intent.putExtras(bundle);

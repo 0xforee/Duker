@@ -48,9 +48,11 @@ public class RssSQLiteOpenHelper extends SQLiteOpenHelper{
         db.execSQL("create table entries(" +
                 "id varchar(255) primary key," +
                 "feedId varchar(255), " +
-                "category varchar(255), " +
                 "feedName varchar(255)," +
                 "unread integer, " +
+                "visual varchar(255), " +
+                "summary varchar," +
+                "content varchar," +
                 "url varchar(255), " +
                 "published integer," +
                 "title varchar(255)" +
