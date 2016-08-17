@@ -10,6 +10,10 @@
             android:key="dark_theme"
             android:title="@string/dark_theme"/>
         <CheckBoxPreference
+            android:key="refresh_wifi_only"
+            android:title="@string/refresh_wifi_only"
+            android:summary="@string/refresh_wifi_only_summary"/>
+        <CheckBoxPreference
             android:key="refresh_on_launch"
             android:title="@string/refresh_on_launch"
             android:summary="@string/refresh_on_launch_summary"/>
@@ -19,9 +23,19 @@
         android:layout="@layout/my_preference_category"
         android:title="@string/offline">
         <CheckBoxPreference
+            android:key="enable_offline"
+            android:title="@string/enable_offline"
+            android:summary="@string/enable_offline_summary"/>
+        <CheckBoxPreference
             android:key="offline_wifi_only"
+            android:dependency="enable_offline"
             android:title="@string/offline_wifi_only"
             android:summary="@string/offline_wifi_only_summary"/>
+        <CheckBoxPreference
+            android:key="offline_when_charging"
+            android:dependency="enable_offline"
+            android:title="@string/offline_when_charging"
+            android:summary="@string/offline_when_charging_summary"/>
     </PreferenceCategory>
 
     <PreferenceCategory

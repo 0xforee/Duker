@@ -21,12 +21,17 @@
     <string name="general">General</string>
     <string name="theme_setting">Theme</string>
     <string name="dark_theme">Dark</string>
-    <string name="enable_offline">Enable offline mode</string>
-    <string name="enable_offline_summary">When enabled images and content will be automatically retrieved</string>
     <string name="offline_wifi_only">Cache on Wifi only</string>
     <string name="offline_wifi_only_summary">Cache articles only when a Wifi connection is available.</string>
     <string name="refresh_on_launch">Refresh on launch</string>
     <string name="refresh_on_launch_summary">Launch a full refresh when the app is launched</string>
+    <string name="refresh_wifi_only">Refresh on Wifi only</string>
+    <string name="refresh_wifi_only_summary">Refresh articles only when a Wifi connection is available.</string>
+    <string name="enable_offline">Enable offline mode</string>
+    <string name="enable_offline_summary">When enabled images and content will be automatically retrieved</string>
     <string name="about">About</string>
     <string name="offline">Offline</string>
+    <string name="offline_caching">Offline caching: %s</string>
+    <string name="offline_when_charging">Cache when charging only</string>
+    <string name="offline_when_charging_summary">Cache articles only when a the device is charging.</string>
 </resources>

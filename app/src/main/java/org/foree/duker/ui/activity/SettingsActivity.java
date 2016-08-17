@@ -23,9 +23,10 @@ public class SettingsActivity extends BaseActivity{
     public static final String KEY_THEME_SETTING = "theme_setting";
     // key: dark theme
     public static final String KEY_DARK_THEME = "dark_theme";
+    public static final String KEY_REFRESH_WIFI_ONLY = "refresh_wifi_only";
     // key: refresh on launch
     public static final String KEY_REFRESH_ON_LAUNCH = "refresh_on_launch";
-    // key: offline wifi only
+    public static final String KEY_ENABLE_OFFLINE = "enable_offline";
     public static final String KEY_OFFLINE_WIFI_ONLY = "offline_wifi_only";
 
 
