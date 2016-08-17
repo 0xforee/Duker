@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.foree.duker.R;
@@ -47,10 +48,11 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.MyView
     @Override
     public void onBindViewHolder(final ItemListAdapter.MyViewHolder holder, int position) {
         holder.tvTitle.setText(mItemList.get(position).getTitle());
-        // TODO:数据库中添加对category的处理
-        holder.tvCategory.setText(mItemList.get(position).getFeedName());
+        holder.tvFeedName.setText(mItemList.get(position).getFeedName());
         holder.tvPublished.setText(new Date(mItemList.get(position).getPublished()).toString());
-
+        if(!mItemList.get(position).getVisual().isEmpty()) {
+            holder.imageView.setVisibility(View.VISIBLE);
+        }
         // 如果设置了回调，则设置点击事件
         if (mOnItemClickListener != null)
         {
@@ -83,14 +85,16 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.MyView
 
     class MyViewHolder extends RecyclerView.ViewHolder{
         TextView tvTitle;
-        TextView tvCategory;
+        TextView tvFeedName;
         TextView tvPublished;
+        ImageView imageView;
 
         public MyViewHolder(View view){
             super(view);
             tvTitle = (TextView)view.findViewById(R.id.tv_item_title);
-            tvCategory = (TextView)view.findViewById(R.id.tv_item_category);
+            tvFeedName = (TextView)view.findViewById(R.id.tv_item_feed_name);
             tvPublished = (TextView)view.findViewById(R.id.tv_item_published);
+            imageView = (ImageView)view.findViewById(R.id.iv_item_image);
         }
     }
 }

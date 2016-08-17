@@ -89,7 +89,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                     Log.d(TAG, "sync done, update UI");
                     mSwipeRefreshLayout.setRefreshing(false);
                     ((SyncState)f).updateUI();
-                    //((ItemListFragment)f).getHandler().sendEmptyMessage(ItemListFragment.MSG_SYNC_START);
 
             }
             super.handleMessage(msg);

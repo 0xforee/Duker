@@ -24,7 +24,7 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
             android:layout_below="@id/tv_item_title"
-            android:id="@+id/tv_item_category"
+            android:id="@+id/tv_item_feed_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
         <!-- // TODO:考虑没有图片的时候，显示summary
@@ -36,14 +36,16 @@
          -->
         <TextView
             android:textSize="12sp"
-            android:layout_below="@id/tv_item_category"
+            android:layout_below="@id/tv_item_feed_name"
             android:id="@+id/tv_item_published"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </RelativeLayout>
 
     <ImageView
+        android:id="@+id/iv_item_image"
         android:scaleType="fitXY"
+        android:visibility="gone"
         android:src="@drawable/placeholder"
         android:layout_width="0dp"
         android:layout_height="match_parent"
