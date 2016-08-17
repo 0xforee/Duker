@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.Messenger;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
@@ -51,7 +52,7 @@ import org.foree.duker.utils.FeedlyApiUtils;
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends BaseActivity implements OnDrawerItemClickListener, RefreshService.RefreshCallBack, SwipeRefreshLayout.OnRefreshListener {
+public class MainActivity extends BaseActivity implements OnDrawerItemClickListener, SwipeRefreshLayout.OnRefreshListener {
     private static final long PROFILE_SETTING = 100000;
     private static final long CATEGORY_IDENTIFIER = 20000;
     private static final long FEED_IDENTIFIER = 30000;
@@ -69,6 +70,29 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     private Drawer result = null;
     private Fragment f;
     private Handler mHandler = new H();
+
+    public static final int MSG_START_SYNC_UNREAD = 0;
+    public static final int MSG_START_SYNC_FEEDS = 1;
+    public static final int MSG_SYNC_COMPLETE = 2;
+
+    private class H extends Handler{
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+                case MSG_START_SYNC_UNREAD:
+                    startSyncUnreadCounts();
+                    break;
+                case MSG_START_SYNC_FEEDS:
+                    break;
+                case MSG_SYNC_COMPLETE:
+                    Log.d(TAG, "sync done, update UI");
+                    mSwipeRefreshLayout.setRefreshing(false);
+                    ((ItemListFragment)f).getHandler().sendEmptyMessage(ItemListFragment.MSG_SYNC_START);
+
+            }
+            super.handleMessage(msg);
+        }
+    }
 
     AbsApiHelper localApiHelper, feedlyApiHelper;
     FloatingActionButton testFloatingButton;
@@ -99,6 +123,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
         // bind service
         Intent refreshService = new Intent(this, RefreshService.class);
+        refreshService.putExtra("handler", new Messenger(mHandler));
         bindService(refreshService, mServiceConnect, BIND_AUTO_CREATE);
 
         initDraw(savedInstanceState);
@@ -119,7 +144,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
-        mStreamService.unregisterCallBack(this);
         mStreamService.markEntriesRead();
         unbindService(mServiceConnect);
     }
@@ -185,7 +209,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
             public void onSuccess(List<RssFeed> data) {
                 feedList = data;
                 addDrawItems();
-                mHandler.sendEmptyMessage(H.MSG_START_SYNC_UNREAD);
+                mHandler.sendEmptyMessage(MSG_START_SYNC_UNREAD);
             }
             @Override
             public void onFail(String msg) {
@@ -294,13 +318,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     }
 
     @Override
-    public void notifyUpdate() {
-        Log.d(TAG, "updateUI");
-        // sync done
-        mHandler.sendEmptyMessage(H.MSG_SYNC_COMPLETE);
-        ((ItemListFragment)f).getHandler().sendEmptyMessage(ItemListFragment.MSG_SYNC_START);
-    }
-    @Override
     public void onRefresh() {
         if ( mStreamService != null){
             mStreamService.syncSubscriptions();
@@ -314,7 +331,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
             Log.d(TAG, "onServiceConnected");
             mBinder = (RefreshService.MyBinder) iBinder;
             mStreamService = mBinder.getService();
-            mStreamService.registerCallBack(MainActivity.this);
 
         }
 
@@ -325,24 +341,4 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         }
     }
 
-    private class H extends Handler{
-        private static final int MSG_START_SYNC_UNREAD = 0;
-        private static final int MSG_START_SYNC_FEEDS = 1;
-        private static final int MSG_SYNC_COMPLETE = 2;
-
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what){
-                case MSG_START_SYNC_UNREAD:
-                    startSyncUnreadCounts();
-                    break;
-                case MSG_START_SYNC_FEEDS:
-                    break;
-                case MSG_SYNC_COMPLETE:
-                    mSwipeRefreshLayout.setRefreshing(false);
-
-            }
-            super.handleMessage(msg);
-        }
-    }
 }

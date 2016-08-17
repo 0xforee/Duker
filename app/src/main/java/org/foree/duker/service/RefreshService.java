@@ -7,6 +7,8 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -20,6 +22,7 @@ import org.foree.duker.base.BaseApplication;
 import org.foree.duker.dao.RssDao;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssItem;
+import org.foree.duker.ui.activity.MainActivity;
 import org.foree.duker.utils.FeedlyApiUtils;
 
 import java.util.ArrayList;
@@ -30,9 +33,9 @@ public class RefreshService extends Service {
     private final int MSG_SYNC_OLD_DATA = 0;
     private final int MSG_SYNC_NEW_DATA = 1;
     AbsApiHelper localApiHelper, feedlyApiHelper;
-    private List<RefreshCallBack> mCallBacks = new ArrayList<>();
     RssDao rssDao;
     Handler myHandler;
+    Messenger mainActivityMessenger;
     Thread timeTriggerThread;
     SharedPreferences sp;
     private MyBinder mBinder = new MyBinder();
@@ -44,14 +47,6 @@ public class RefreshService extends Service {
         public RefreshService getService(){
             return RefreshService.this;
         }
-    }
-    public void registerCallBack(RefreshCallBack callback){
-        if(!mCallBacks.contains(callback))
-            mCallBacks.add(callback);
-    }
-
-    public void unregisterCallBack(RefreshCallBack callback){
-        mCallBacks.remove(callback);
     }
 
     @Override
@@ -104,6 +99,7 @@ public class RefreshService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        mainActivityMessenger = (Messenger)intent.getExtras().get("handler");
         return mBinder;
     }
 
@@ -126,7 +122,8 @@ public class RefreshService extends Service {
 
                 myHandler.sendEmptyMessage(MSG_SYNC_OLD_DATA);
 
-                notifyCallbackUpdate();
+                notifyUpdateUI();
+
             }
 
             @Override
@@ -159,7 +156,7 @@ public class RefreshService extends Service {
                                 myHandler.sendEmptyMessage(MSG_SYNC_OLD_DATA);
 
                                 // updateUI
-                                notifyCallbackUpdate();
+                                notifyUpdateUI();
                             }
 
                             @Override
@@ -228,17 +225,14 @@ public class RefreshService extends Service {
             timeTriggerThread.start();
     }
 
-    private void notifyCallbackUpdate(){
-        // 如果mCallBack为空，证明还未启动MainActivity，无需update
-        if(mCallBacks != null && mCallBacks.size() > 0) {
-            for (RefreshCallBack callBack : mCallBacks) {
-                callBack.notifyUpdate();
-            }
+    // notifyUpdateUI
+    private void notifyUpdateUI(){
+        Message msg = new Message();
+        msg.what = MainActivity.MSG_SYNC_COMPLETE;
+        try {
+            mainActivityMessenger.send(msg);
+        } catch (RemoteException e) {
+            e.printStackTrace();
         }
-    }
-
-    public interface RefreshCallBack {
-        // 数据同步结束，更新UI
-        void notifyUpdate();
     }
 }
