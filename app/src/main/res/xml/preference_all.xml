@@ -4,31 +4,30 @@
         android:layout="@layout/my_preference_category"
         android:title="@string/general">
         <Preference
-            android:key="pf_change_theme"
-            android:layout="@layout/my_preference"
-            android:title="@string/change_theme" />
+            android:key="theme_setting"
+            android:title="@string/theme_setting" />
         <CheckBoxPreference
-            android:key="lp_dark_theme"
-            android:layout="@layout/my_preference"
-            android:title="@string/dark_theme"
-            android:widgetLayout="@layout/my_preference_widget_checkbox" />
+            android:key="dark_theme"
+            android:title="@string/dark_theme"/>
+        <CheckBoxPreference
+            android:key="refresh_on_launch"
+            android:title="@string/refresh_on_launch"
+            android:summary="@string/refresh_on_launch_summary"/>
     </PreferenceCategory>
 
     <PreferenceCategory
         android:layout="@layout/my_preference_category"
         android:title="@string/offline">
         <CheckBoxPreference
-            android:key="lp_download_only_wifi"
-            android:layout="@layout/my_preference"
-            android:title="@string/download_only_wifi"
-            android:widgetLayout="@layout/my_preference_widget_checkbox" />
+            android:key="offline_wifi_only"
+            android:title="@string/offline_wifi_only"
+            android:summary="@string/offline_wifi_only_summary"/>
     </PreferenceCategory>
 
     <PreferenceCategory
         android:layout="@layout/my_preference_category"
         android:title="@string/about">
         <Preference
-            android:layout="@layout/my_preference"
             android:title="@string/about">
             <intent android:action=".AboutActivity" />
         </Preference>

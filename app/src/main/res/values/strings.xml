@@ -19,9 +19,14 @@
     <string name="load_tv_app_name">DUKER</string>
     <string name="load_speak1" translatable="false">The only way of finding the limits of the</string>
     <string name="general">General</string>
-    <string name="change_theme">Theme</string>
-    <string name="dark_theme">Dark Theme</string>
-    <string name="offline">Offline</string>
-    <string name="download_only_wifi">Download only wifi</string>
+    <string name="theme_setting">Theme</string>
+    <string name="dark_theme">Dark</string>
+    <string name="enable_offline">Enable offline mode</string>
+    <string name="enable_offline_summary">When enabled images and content will be automatically retrieved</string>
+    <string name="offline_wifi_only">Cache on Wifi only</string>
+    <string name="offline_wifi_only_summary">Cache articles only when a Wifi connection is available.</string>
+    <string name="refresh_on_launch">Refresh on launch</string>
+    <string name="refresh_on_launch_summary">Launch a full refresh when the app is launched</string>
     <string name="about">About</string>
+    <string name="offline">Offline</string>
 </resources>

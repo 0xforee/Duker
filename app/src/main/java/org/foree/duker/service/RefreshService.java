@@ -23,6 +23,7 @@ import org.foree.duker.dao.RssDao;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssItem;
 import org.foree.duker.ui.activity.MainActivity;
+import org.foree.duker.ui.activity.SettingsActivity;
 import org.foree.duker.utils.FeedlyApiUtils;
 
 import java.util.List;
@@ -80,7 +81,7 @@ public class RefreshService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
 
-        if (sp.getBoolean("start_sync", true)) {
+        if (sp.getBoolean(SettingsActivity.KEY_REFRESH_ON_LAUNCH, true)) {
             syncSubscriptions();
         }
 
@@ -135,7 +136,7 @@ public class RefreshService extends Service {
     // first import data from server
     private void firstImport() {
         // 100 continuation
-        if (!sp.getBoolean("sync_done", false)) {
+        if (sp.getBoolean(SettingsActivity.KEY_FIRST_LAUNCH, true)) {
             Log.d(TAG, "first import...");
             // start sync old data
             Thread syncThread = new Thread() {
@@ -164,7 +165,7 @@ public class RefreshService extends Service {
                             }
                         });
                     }else{
-                        sp.edit().putBoolean("sync_done", true).apply();
+                        sp.edit().putBoolean(SettingsActivity.KEY_FIRST_LAUNCH, false).apply();
                     }
 
                 }

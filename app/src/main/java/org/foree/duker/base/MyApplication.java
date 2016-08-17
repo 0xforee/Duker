@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.foree.duker.R;
+import org.foree.duker.ui.activity.SettingsActivity;
 
 import java.io.File;
 
@@ -77,7 +78,7 @@ public class MyApplication extends BaseApplication{
         initApplicationVersionInfo(mContext);
 
         // 初始化app默认设置项
-        //initDefaultConfigs(mContext);
+        initDefaultConfigs(mContext);
 
     Log.v(TAG, "环境变量初始化成功");
 
@@ -103,9 +104,12 @@ public class MyApplication extends BaseApplication{
 
     public void initDefaultConfigs(Context context){
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = sp.edit();
-        // 启动时同步数据
-        editor.putBoolean("start_sync", false);
-        editor.apply();
+
+        // 第一次启动时初始化设置项
+        if (sp.getBoolean(SettingsActivity.KEY_FIRST_LAUNCH, true)) {
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putBoolean(SettingsActivity.KEY_REFRESH_ON_LAUNCH, true);
+            editor.apply();
+        }
     }
 }

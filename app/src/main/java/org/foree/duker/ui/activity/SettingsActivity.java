@@ -9,6 +9,7 @@ import org.foree.duker.ui.fragment.SettingsFragment;
 
 /**
  * Created by foree on 16-7-28.
+ * 设置界面
  */
 public class SettingsActivity extends BaseActivity{
     private static final String TAG = SettingsActivity.class.getSimpleName();
@@ -16,12 +17,16 @@ public class SettingsActivity extends BaseActivity{
     /**
      * keys for Application preference
      */
-    //key: change theme
-    public static final String KEY_CHANGE_THEME = "pf_change_theme";
-    //key: dark theme
-    public static final String KEY_DARK_THEME = "lp_dark_theme";
-    //key: download only on wifi
-    public static final String KEY_DOWNLOAD_ON_WIFI = "lp_download_only_wifi";
+    // key: first launch
+    public static final String KEY_FIRST_LAUNCH = "first_launch";
+    // key: change theme
+    public static final String KEY_THEME_SETTING = "theme_setting";
+    // key: dark theme
+    public static final String KEY_DARK_THEME = "dark_theme";
+    // key: refresh on launch
+    public static final String KEY_REFRESH_ON_LAUNCH = "refresh_on_launch";
+    // key: offline wifi only
+    public static final String KEY_OFFLINE_WIFI_ONLY = "offline_wifi_only";
 
 
     @Override

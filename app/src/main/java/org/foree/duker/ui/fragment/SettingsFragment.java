@@ -7,6 +7,7 @@ import org.foree.duker.R;
 
 /**
  * Created by foree on 16-7-28.
+ * 设置界面的内部实现
  */
 public class SettingsFragment extends PreferenceFragment {
     @Override
