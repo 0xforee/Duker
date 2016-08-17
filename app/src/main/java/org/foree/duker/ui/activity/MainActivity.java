@@ -146,7 +146,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
-        mStreamService.markEntriesRead();
+        mStreamService.markEntriesAsRead();
         unbindService(mServiceConnect);
     }
 

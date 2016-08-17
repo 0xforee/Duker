@@ -156,7 +156,7 @@ public class ItemListFragment extends Fragment implements SyncState {
         FeedlyApiArgs args = new FeedlyApiArgs();
         // getItemList
         // TODO:总是使用feedlyapi获取网络数据，等summary缓存处理完毕之后，修正
-        mApiHelper.getStream("", feedId, args, new NetCallback<List<RssItem>>() {
+        localApiHelper.getStream("", feedId, args, new NetCallback<List<RssItem>>() {
             @Override
             public void onSuccess(List<RssItem> data) {
                 itemList.clear();

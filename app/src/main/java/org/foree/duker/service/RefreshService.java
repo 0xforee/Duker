@@ -25,12 +25,11 @@ import org.foree.duker.rssinfo.RssItem;
 import org.foree.duker.ui.activity.MainActivity;
 import org.foree.duker.utils.FeedlyApiUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class RefreshService extends Service {
     private static final String TAG = RefreshService.class.getSimpleName();
-    private final int MSG_SYNC_OLD_DATA = 0;
+    private final int MSG_FIRST_IMPORT = 0;
     private final int MSG_SYNC_NEW_DATA = 1;
     AbsApiHelper localApiHelper, feedlyApiHelper;
     RssDao rssDao;
@@ -64,8 +63,8 @@ public class RefreshService extends Service {
             @Override
             public void handleMessage(Message msg) {
                 switch (msg.what){
-                    case MSG_SYNC_OLD_DATA:
-                        syncOldData();
+                    case MSG_FIRST_IMPORT:
+                        firstImport();
                         break;
                     case MSG_SYNC_NEW_DATA:
                         syncSubscriptions();
@@ -120,7 +119,7 @@ public class RefreshService extends Service {
                 // success insertEntries to db
                 rssDao.insertEntries(data);
 
-                myHandler.sendEmptyMessage(MSG_SYNC_OLD_DATA);
+                myHandler.sendEmptyMessage(MSG_FIRST_IMPORT);
 
                 notifyUpdateUI();
 
@@ -133,11 +132,11 @@ public class RefreshService extends Service {
 
     }
 
-    // sync data from server
-    private void syncOldData() {
+    // first import data from server
+    private void firstImport() {
         // 100 continuation
         if (!sp.getBoolean("sync_done", false)) {
-            Log.d(TAG, "syncOldData");
+            Log.d(TAG, "first import...");
             // start sync old data
             Thread syncThread = new Thread() {
                 @Override
@@ -153,7 +152,7 @@ public class RefreshService extends Service {
                                 // insertEntries to db
                                 rssDao.insertEntries(data);
 
-                                myHandler.sendEmptyMessage(MSG_SYNC_OLD_DATA);
+                                myHandler.sendEmptyMessage(MSG_FIRST_IMPORT);
 
                                 // updateUI
                                 notifyUpdateUI();
@@ -175,7 +174,7 @@ public class RefreshService extends Service {
     }
 
     // mark entries read
-    public void markEntriesRead(){
+    public void markEntriesAsRead(){
         Thread markEntriesThread = new Thread(){
             @Override
             public void run() {
