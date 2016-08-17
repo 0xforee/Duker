@@ -77,7 +77,7 @@ public class MyApplication extends BaseApplication{
         initApplicationVersionInfo(mContext);
 
         // 初始化app默认设置项
-        initDefaultConfigs(mContext);
+        //initDefaultConfigs(mContext);
 
     Log.v(TAG, "环境变量初始化成功");
 
