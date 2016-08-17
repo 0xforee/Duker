@@ -87,13 +87,16 @@ public class ArticleActivity extends BaseActivity {
     }
 
     private void imgReset() {
+        // margin:上右下左
         wb_article.loadUrl("javascript:(function(){" +
                 "var objs = document.getElementsByTagName('img'); " +
                 "for(var i=0;i<objs.length;i++)  " +
                 "{"
                 + "var img = objs[i];   " +
-                "    img.style.maxWidth = '100%';   " +
+                "    img.style.maxWidth = 'none';   " +
                 "    img.style.height ='auto'; " +
+                "    img.style.width = '100vw';" +
+                "    img.style.margin= \"10px 0px 10px -8px\" ;" +
                 "}" +
                 "})()");
     }
