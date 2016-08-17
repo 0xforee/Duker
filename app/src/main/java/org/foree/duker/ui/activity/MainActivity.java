@@ -42,6 +42,7 @@ import org.foree.duker.api.LocalApiHelper;
 import org.foree.duker.base.BaseActivity;
 import org.foree.duker.base.MyApplication;
 import org.foree.duker.net.NetCallback;
+import org.foree.duker.net.SyncState;
 import org.foree.duker.rssinfo.RssCategory;
 import org.foree.duker.rssinfo.RssFeed;
 import org.foree.duker.rssinfo.RssProfile;
@@ -87,7 +88,8 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                 case MSG_SYNC_COMPLETE:
                     Log.d(TAG, "sync done, update UI");
                     mSwipeRefreshLayout.setRefreshing(false);
-                    ((ItemListFragment)f).getHandler().sendEmptyMessage(ItemListFragment.MSG_SYNC_START);
+                    ((SyncState)f).updateUI();
+                    //((ItemListFragment)f).getHandler().sendEmptyMessage(ItemListFragment.MSG_SYNC_START);
 
             }
             super.handleMessage(msg);

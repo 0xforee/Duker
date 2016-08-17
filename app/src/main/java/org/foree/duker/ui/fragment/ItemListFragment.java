@@ -26,6 +26,7 @@ import org.foree.duker.api.FeedlyApiHelper;
 import org.foree.duker.api.LocalApiHelper;
 import org.foree.duker.dao.RssDao;
 import org.foree.duker.net.NetCallback;
+import org.foree.duker.net.SyncState;
 import org.foree.duker.rssinfo.RssItem;
 import org.foree.duker.ui.activity.ArticleActivity;
 import org.foree.duker.ui.fragment.ItemListAdapter.OnItemClickListener;
@@ -36,7 +37,7 @@ import java.util.List;
 /**
  * Created by foree on 16-7-20.
  */
-public class ItemListFragment extends Fragment{
+public class ItemListFragment extends Fragment implements SyncState {
     private static final String KEY_FEEDID = "feedId";
     private static final String TAG = ItemListFragment.class.getSimpleName();
 
@@ -54,13 +55,12 @@ public class ItemListFragment extends Fragment{
                 case MSG_SYNC_START:
                     Log.d(TAG, "update recycle view");
                     syncDate();
+                    break;
             }
         }
     };
-    public static final int MSG_SYNC_START = 0;
-    public Handler getHandler(){
-        return mHandler;
-    }
+    private static final int MSG_SYNC_START = 0;
+
     public ItemListFragment() {
         // Required empty public constructor
     }
@@ -169,5 +169,10 @@ public class ItemListFragment extends Fragment{
 
             }
         });
+    }
+
+    @Override
+    public void updateUI() {
+        mHandler.sendEmptyMessage(MSG_SYNC_START);
     }
 }
