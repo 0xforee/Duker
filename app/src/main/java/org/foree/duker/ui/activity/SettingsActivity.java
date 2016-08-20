@@ -2,6 +2,7 @@ package org.foree.duker.ui.activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.Toolbar;
 
 import org.foree.duker.R;
 import org.foree.duker.base.BaseActivity;
@@ -35,9 +36,11 @@ public class SettingsActivity extends BaseActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         getFragmentManager().beginTransaction()
-                .replace(R.id.fr_settings, new SettingsFragment())
+                .replace(R.id.content_main, new SettingsFragment())
                 .commit();
 
     }

@@ -4,4 +4,14 @@
     android:id="@+id/fr_settings"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <include layout="@layout/view_toolbar"/>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:id="@+id/content_main"
+        android:layout_height="wrap_content">
+
+    </LinearLayout>
 </LinearLayout>
