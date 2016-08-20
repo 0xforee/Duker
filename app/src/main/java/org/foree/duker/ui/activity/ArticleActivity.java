@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -42,7 +43,16 @@ public class ArticleActivity extends BaseActivity {
         CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         collapsingToolbarLayout.setTitle(title);
 
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar != null)
+           actionBar.setDisplayHomeAsUpEnabled(true);
 
+        setUpWebView(url, content);
+        fillFab();
+        loadBackdrop();
+    }
+
+    private void setUpWebView(String url, String content) {
         wb_article = (WebView)findViewById(R.id.wb_article);
 
         wb_article.getSettings().setJavaScriptEnabled(true);
@@ -63,8 +73,6 @@ public class ArticleActivity extends BaseActivity {
         });
         wb_article.getSettings().setDefaultTextEncodingName("UTF-8");
         wb_article.loadDataWithBaseURL(null, content,"text/html","utf-8",null);
-        fillFab();
-        loadBackdrop();
     }
 
     private void loadBackdrop() {
