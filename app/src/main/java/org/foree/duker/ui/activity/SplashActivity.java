@@ -15,7 +15,7 @@ import org.foree.duker.service.RefreshService;
 public class SplashActivity extends BaseActivity{
     private static final String TAG = SplashActivity.class.getSimpleName();
     TextView tv_speak1, tv_speak2, tv_speak3, tv_speak_author, tv_version, tv_app_name;
-    private long WAIT_TIME = 3000;
+    private long WAIT_TIME = 300;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
