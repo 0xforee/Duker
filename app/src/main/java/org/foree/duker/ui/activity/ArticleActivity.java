@@ -21,6 +21,7 @@ import com.mikepenz.iconics.IconicsDrawable;
 import org.foree.duker.R;
 import org.foree.duker.base.BaseActivity;
 import org.foree.duker.rssinfo.RssItem;
+import org.foree.duker.utils.LogUtils;
 
 /**
  * Created by foree on 16-7-22.
@@ -74,6 +75,7 @@ public class ArticleActivity extends BaseActivity {
 
             }
         });
+        LogUtils.log(rssItem.getContent());
         wbArticleContent.getSettings().setDefaultTextEncodingName("UTF-8");
         wbArticleContent.loadDataWithBaseURL(null, rssItem.getContent(),"text/html","utf-8",null);
     }

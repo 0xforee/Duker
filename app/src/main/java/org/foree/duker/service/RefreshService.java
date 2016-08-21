@@ -122,7 +122,7 @@ public class RefreshService extends Service {
 
                 myHandler.sendEmptyMessage(MSG_FIRST_IMPORT);
 
-                notifyUpdateUI();
+                sendToMainActivityEmptyMessage(MainActivity.MSG_SYNC_COMPLETE);
 
             }
 
@@ -156,7 +156,7 @@ public class RefreshService extends Service {
                                 myHandler.sendEmptyMessage(MSG_FIRST_IMPORT);
 
                                 // updateUI
-                                notifyUpdateUI();
+                                sendToMainActivityEmptyMessage(MainActivity.MSG_SYNC_COMPLETE);
                             }
 
                             @Override
@@ -191,7 +191,6 @@ public class RefreshService extends Service {
 
                         @Override
                         public void onFail(String msg) {
-
                         }
                     });
                     super.run();
@@ -225,10 +224,10 @@ public class RefreshService extends Service {
             timeTriggerThread.start();
     }
 
-    // notifyUpdateUI
-    private void notifyUpdateUI(){
+    // sendToMainActivityEmptyMessage
+    private void sendToMainActivityEmptyMessage(int what){
         Message msg = new Message();
-        msg.what = MainActivity.MSG_SYNC_COMPLETE;
+        msg.what = what;
         if( mainActivityMessenger != null) {
             try {
                 mainActivityMessenger.send(msg);
