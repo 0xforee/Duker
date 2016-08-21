@@ -54,6 +54,15 @@ public class FileUtils {
         out.close();
     }
 
+    // 追加文件
+    public static void appendFile(File file, String string) throws IOException {
+        FileWriter out = new FileWriter(file,true);
+        BufferedWriter bufferedWriter = new BufferedWriter(out);
+        bufferedWriter.write(string);
+        bufferedWriter.close();
+        out.close();
+    }
+
     // url encode
     public static String encodeUrl(String url){
         return url.replaceAll("/", "_");
