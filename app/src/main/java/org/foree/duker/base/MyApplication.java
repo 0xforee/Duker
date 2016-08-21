@@ -30,7 +30,7 @@ public class MyApplication extends BaseApplication{
      * 应用程序信息
      */
     // 应用程序名称
-    public static final String myApplicationName = getInstance().getResources().getString(R.string.app_name);
+    public static final String myApplicationName = getInstance().getResources().getString(R.string.app_dir_name);
     //应用程序版本名称
     public static String myVersionName;
     //应用程序版本序号(应用程序用来判断是否升级的,例如:17)
