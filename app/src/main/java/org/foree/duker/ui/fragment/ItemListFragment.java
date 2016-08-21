@@ -133,13 +133,8 @@ public class ItemListFragment extends Fragment implements SyncState {
             public void onItemClick(View view, int position) {
                 Toast.makeText(getActivity(), position + "", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getActivity(), ArticleActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putString("entryUrl", itemList.get(position).getUrl());
-                bundle.putString("entryTitle", itemList.get(position).getTitle());
-                bundle.putString("entryContent", itemList.get(position).getContent());
-                bundle.putString("entryVisual", itemList.get(position).getVisual());
+                intent.putExtra("entry", itemList.get(position));
                 rssDao.updateUnreadByEntryId(itemList.get(position).getEntryId(), false);
-                intent.putExtras(bundle);
                 startActivity(intent);
             }
 
