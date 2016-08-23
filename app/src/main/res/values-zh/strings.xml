@@ -13,4 +13,6 @@
     <string name="refresh_wifi_only">在Wifi下刷新</string>
     <string name="refresh_wifi_only_summary">仅当Wifi连接时刷新</string>
     <string name="theme_setting">主题</string>
+    <string name="enable_offline">离线模式</string>
+    <string name="enable_offline_summary">打开时，内容和图片将会自动下载</string>
 </resources>
