@@ -69,7 +69,7 @@ public class RssDao {
         SQLiteDatabase db = rssSQLiteOpenHelper.getWritableDatabase();
         db.beginTransaction();
         ContentValues contentValues = new ContentValues();
-        contentValues.put("user_id", profile.getId());
+        contentValues.put("user_id", profile.getUserId());
         contentValues.put("locale", profile.getLocale());
         contentValues.put("gender", profile.getGender());
         contentValues.put("given_name", profile.getGivenName());
@@ -80,7 +80,7 @@ public class RssDao {
 
         // 内容不重复
         if (db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_PROFILE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1) {
-            Log.e(TAG, "Database insertUserProfile id: " + profile.getId() + " error");
+            Log.e(TAG, "Database insertUserProfile id: " + profile.getUserId() + " error");
         }
         db.setTransactionSuccessful();
         db.endTransaction();

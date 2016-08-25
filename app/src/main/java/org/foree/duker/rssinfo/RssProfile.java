@@ -1,5 +1,7 @@
 package org.foree.duker.rssinfo;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by foree on 16-7-23.
  */
@@ -9,7 +11,8 @@ public class RssProfile {
     private String givenName;
     private String familyName;
     private String fullName;
-    private String id;
+    @SerializedName("id")
+    private String userId;
     private String picture;
     private String email;
 
@@ -29,8 +32,8 @@ public class RssProfile {
         this.familyName = familyName;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setUserId(String UserId) {
+        this.userId = UserId;
     }
 
     public void setEmail(String email) {
@@ -65,8 +68,8 @@ public class RssProfile {
         return familyName;
     }
 
-    public String getId() {
-        return id;
+    public String getUserId() {
+        return userId;
     }
 
     public String getPicture() {
