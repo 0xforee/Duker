@@ -6,7 +6,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import org.foree.duker.rssinfo.RssCategory;
+import org.foree.duker.rssinfo.RssFeed;
 import org.foree.duker.rssinfo.RssItem;
+import org.foree.duker.rssinfo.RssProfile;
 import org.foree.duker.utils.FeedlyApiUtils;
 
 import java.util.ArrayList;
@@ -55,6 +58,65 @@ public class RssDao {
             // 内容不重复
             if (db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_ENTRY, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1) {
                 Log.e(TAG, "Database insertEntries id: " + item.getEntryId() + " error");
+            }
+        }
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();
+    }
+
+    private void insertProfile(RssProfile profile) {
+        SQLiteDatabase db = rssSQLiteOpenHelper.getWritableDatabase();
+        db.beginTransaction();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("user_id", profile.getId());
+        contentValues.put("locale", profile.getLocale());
+        contentValues.put("gender", profile.getGender());
+        contentValues.put("given_name", profile.getGivenName());
+        contentValues.put("family_name", profile.getFamilyName());
+        contentValues.put("full_name", profile.getFullName());
+        contentValues.put("picture", profile.getPicture());
+        contentValues.put("email", profile.getEmail());
+
+        // 内容不重复
+        if (db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_PROFILE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1) {
+            Log.e(TAG, "Database insertUserProfile id: " + profile.getId() + " error");
+        }
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();
+    }
+
+    private void insertCategory(List<RssCategory> categoryList) {
+        SQLiteDatabase db = rssSQLiteOpenHelper.getWritableDatabase();
+        db.beginTransaction();
+        ContentValues contentValues = new ContentValues();
+        for (RssCategory category : categoryList) {
+            contentValues.put("category_id", category.getCategoryId());
+            contentValues.put("label", category.getLabel());
+            contentValues.put("description", category.getDescription());
+            // 内容不重复
+            if (db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_CATEGORY, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1) {
+                Log.e(TAG, "Database insertCategory id: " + category.getLabel() + " error");
+            }
+        }
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();
+    }
+
+    private void insertSubscription(List<RssFeed> rssFeedList) {
+        SQLiteDatabase db = rssSQLiteOpenHelper.getWritableDatabase();
+        db.beginTransaction();
+        ContentValues contentValues = new ContentValues();
+        for (RssFeed rssFeed : rssFeedList) {
+            contentValues.put("feed_id", rssFeed.getFeedId());
+            contentValues.put("title", rssFeed.getName());
+            contentValues.put("website", rssFeed.getUrl());
+            //contentValues.put("icon_url", rssFeed.get());
+            // 内容不重复
+            if (db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_FEED, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1) {
+                Log.e(TAG, "Database insertFeed id: " + rssFeed.getFeedId() + " error");
             }
         }
         db.setTransactionSuccessful();
