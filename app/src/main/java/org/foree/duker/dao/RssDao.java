@@ -31,29 +31,29 @@ public class RssDao {
             Log.d(TAG, "insert " + itemList.size() + " entries to db");
             // 拆分itemList，dataBase 一次事务只能插入1000条数据
             while(itemList.size()>(1000*tmp)){
-                insertInternal(itemList.subList(1000*(tmp-1),1000*tmp));
+                insertEntryInternal(itemList.subList(1000*(tmp-1),1000*tmp));
                 tmp++;
             }
-            insertInternal(itemList.subList(1000*(tmp-1), itemList.size()));
+            insertEntryInternal(itemList.subList(1000*(tmp-1), itemList.size()));
         }
     }
 
-    private void insertInternal(List<RssItem> subItemList) {
+    private void insertEntryInternal(List<RssItem> subItemList) {
         SQLiteDatabase db = rssSQLiteOpenHelper.getWritableDatabase();
         db.beginTransaction();
         ContentValues contentValues = new ContentValues();
         for (RssItem item : subItemList) {
-            contentValues.put("id", item.getEntryId());
-            contentValues.put("title", item.getTitle());
-            contentValues.put("url", item.getUrl());
-            contentValues.put("feedId", item.getFeedId());
-            contentValues.put("content", item.getContent());
-            contentValues.put("visual", item.getVisual());
-            contentValues.put("feedName", item.getFeedName());
-            contentValues.put("published", item.getPublished());
+            contentValues.put("entry_id", item.getEntryId());
+            contentValues.put("feed_id", item.getFeedId());
+            contentValues.put("feed_name", item.getFeedName());
             contentValues.put("unread", item.isUnread());
+            contentValues.put("visual", item.getVisual());
+            contentValues.put("content", item.getContent());
+            contentValues.put("url", item.getUrl());
+            contentValues.put("published", item.getPublished());
+            contentValues.put("title", item.getTitle());
             // 内容不重复
-            if (db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1) {
+            if (db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_ENTRY, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1) {
                 Log.e(TAG, "Database insertEntries id: " + item.getEntryId() + " error");
             }
         }
@@ -76,18 +76,18 @@ public class RssDao {
             selection = "unread=?";
             selectionArgs = new String[]{unread ? "1" : "0"};
         } else {
-            selection = "feedId=? AND unread=?";
+            selection = "feed_id=? AND unread=?";
             selectionArgs = new String[]{feedId, unread ? "1" : "0"};
         }
-        Cursor cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, new String[]{"id,title,url,published,unread,feedName,content,visual"},
+        Cursor cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRY, new String[]{"entry_id,title,url,published,unread,feed_name,content,visual"},
                 selection, selectionArgs, null, null, "published DESC");
         while (cursor.moveToNext()) {
-            String id = cursor.getString(cursor.getColumnIndex("id"));
+            String id = cursor.getString(cursor.getColumnIndex("entry_id"));
             String title = cursor.getString(cursor.getColumnIndex("title"));
             String url = cursor.getString(cursor.getColumnIndex("url"));
             boolean local_unread = cursor.getInt(cursor.getColumnIndex("unread")) > 0;
             long published = cursor.getLong(cursor.getColumnIndex("published"));
-            String feedName = cursor.getString(cursor.getColumnIndex("feedName"));
+            String feedName = cursor.getString(cursor.getColumnIndex("feed_name"));
             String content = cursor.getString(cursor.getColumnIndex("content"));
             String visual = cursor.getString(cursor.getColumnIndex("visual"));
             RssItem rssItem = new RssItem(id, title, url, feedName, content, visual, local_unread, published);
@@ -119,7 +119,7 @@ public class RssDao {
         ContentValues contentValues = new ContentValues();
         contentValues.put("unread", newValue);
 
-        int result = db.update(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, contentValues, "id=?", new String[]{id});
+        int result = db.update(RssSQLiteOpenHelper.DB_TABLE_ENTRY, contentValues, "entry_id=?", new String[]{id});
 
         db.close();
 
@@ -133,7 +133,7 @@ public class RssDao {
     public int delete(String id){
 
         SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
-        int result = db.delete(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, "id=?", new String[]{id});
+        int result = db.delete(RssSQLiteOpenHelper.DB_TABLE_ENTRY, "entry_id=?", new String[]{id});
         db.close();
         return result;
     }
@@ -146,7 +146,7 @@ public class RssDao {
         int result = 0;
         SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
         for(RssItem item: itemList) {
-            result = db.delete(RssSQLiteOpenHelper.DB_TABLE_ENTRIES, "id=?", new String[]{item.getEntryId()});
+            result = db.delete(RssSQLiteOpenHelper.DB_TABLE_ENTRY, "entry_id=?", new String[]{item.getEntryId()});
         }
         db.close();
         return result;

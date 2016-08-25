@@ -13,7 +13,10 @@ public class RssSQLiteOpenHelper extends SQLiteOpenHelper{
     private static final String TAG = RssSQLiteOpenHelper.class.getSimpleName();
     public static final int DB_VERSION = 1;
     public static final String DB_NAME = "duker.db";
-    public static final String DB_TABLE_ENTRIES = "entries";
+    public static final String DB_TABLE_ENTRY = "entry";
+    public static final String DB_TABLE_PROFILE = "profile";
+    public static final String DB_TABLE_CATEGORY = "category";
+    public static final String DB_TABLE_FEED = "feed";
 
     public RssSQLiteOpenHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -36,26 +39,66 @@ public class RssSQLiteOpenHelper extends SQLiteOpenHelper{
     private void onUpgradeTo(SQLiteDatabase db, int version) {
         switch (version) {
             case 1:
-                createEntriesTable(db);
+                createProfileTable(db);
+                createCategoryTable(db);
+                createSubscriptionTable(db);
+                createEntryTable(db);
                 break;
             default:
                 throw new IllegalStateException("Don't known to upgrade to " + version);
         }
     }
 
-    private void createEntriesTable(SQLiteDatabase db) {
-        // id, category, unread, url, published, title
-        db.execSQL("create table entries(" +
-                "id varchar(255) primary key," +
-                "feedId varchar(255), " +
-                "feedName varchar(255)," +
+    private void createSubscriptionTable(SQLiteDatabase db){
+        // feed_id title website icon_url
+        db.execSQL("create table subscription( " +
+                "feed_id varchar primary key, " +
+                "title varchar, " +
+                "website varchar, " +
+                "icon_url varchar " +
+                ")"
+        );
+
+    }
+
+    private void createCategoryTable(SQLiteDatabase db) {
+        // category_id label description
+        db.execSQL("create table category(" +
+                "category_id varchar primary key," +
+                "label varchar, " +
+                "description varchar" +
+                ")"
+        );
+    }
+
+    private void createProfileTable(SQLiteDatabase db) {
+        // user_id locale gender given_name family_name full_name picture email
+        db.execSQL("create table profile(" +
+                "user_id varchar primary key," +
+                "locale varchar, " +
+                "gender varchar," +
+                "given_name varchar, " +
+                "family_name varchar, " +
+                "full_name varchar," +
+                "picture varchar," +
+                "email varchar " +
+                ")"
+        );
+    }
+
+    private void createEntryTable(SQLiteDatabase db) {
+        // entry_id feed_id feed_name unread visual summary content url published title
+        db.execSQL("create table entry(" +
+                "entry_id varchar primary key," +
+                "feed_id varchar, " +
+                "feed_name varchar," +
                 "unread integer, " +
-                "visual varchar(255), " +
+                "visual varchar, " +
                 "summary varchar," +
                 "content varchar," +
-                "url varchar(255), " +
+                "url varchar, " +
                 "published integer," +
-                "title varchar(255)" +
+                "title varchar" +
                 ")"
         );
     }
