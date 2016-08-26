@@ -76,47 +76,18 @@ public class LocalApiHelper extends FeedlyApiHelper {
         }
 
     }
+
     @Override
     public void getProfile(String token, final NetCallback<RssProfile> netCallback) {
 
-        token = API_TOKEN_TEST;
-        String localProfile = "";
+        RssDao rssDao = new RssDao(BaseApplication.getInstance().getApplicationContext());
+        RssProfile rssProfile = rssDao.readProfile();
 
-        final File profile_json = new File(MyApplication.myApplicationDirPath + File.separator + MyApplication.myApplicationDataName + File.separator + "profile.json");
-
-        try {
-            localProfile = FileUtils.readFile(profile_json);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if (localProfile.isEmpty()){
-            final Map<String,String> headers = new HashMap<>();
-            headers.put("Authorization","OAuth " + token);
-
-            NetWorkApiHelper.newInstance().getRequest(FeedlyApiUtils.getApiProfileUrl(), headers, new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    Log.i(TAG,"onResponse:getProfile " + response);
-
-                    try {
-                        FileUtils.writeFile(profile_json, response);
-                        if ( netCallback != null){
-                            netCallback.onSuccess(parseProfile(response));
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.e(TAG,"onErrorResponse:getProfile " + error.getMessage());
-
-                }
-            });
-        } else if ( netCallback != null){
-                netCallback.onSuccess(parseProfile(localProfile));
+        if(netCallback != null){
+            if( rssProfile != null)
+                netCallback.onSuccess(rssProfile);
+            else
+                netCallback.onFail("rssProfile is null from db");
         }
 
     }

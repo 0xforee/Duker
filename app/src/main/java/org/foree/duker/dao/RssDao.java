@@ -65,7 +65,7 @@ public class RssDao {
         db.close();
     }
 
-    private void insertProfile(RssProfile profile) {
+    public void insertProfile(RssProfile profile) {
         SQLiteDatabase db = rssSQLiteOpenHelper.getWritableDatabase();
         db.beginTransaction();
         ContentValues contentValues = new ContentValues();
@@ -160,6 +160,35 @@ public class RssDao {
         cursor.close();
         db.close();
         return rssItemList;
+    }
+
+    /**
+     * 读取profile表中内容
+     */
+    public RssProfile readProfile() {
+        SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
+        db.beginTransaction();
+        RssProfile rssProfile = null;
+        Cursor cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_PROFILE, new String[]{"user_id,locale,gender,given_name,family_name,full_name,picture,email"},
+                null, null, null, null, null);
+        while (cursor.moveToNext()) {
+            String userId = cursor.getString(cursor.getColumnIndex("user_id"));
+            String locale = cursor.getString(cursor.getColumnIndex("locale"));
+            String gender = cursor.getString(cursor.getColumnIndex("gender"));
+            String givenName = cursor.getString(cursor.getColumnIndex("given_name"));
+            String familyName = cursor.getString(cursor.getColumnIndex("family_name"));
+            String fullName = cursor.getString(cursor.getColumnIndex("full_name"));
+            String picture = cursor.getString(cursor.getColumnIndex("picture"));
+            String email = cursor.getString(cursor.getColumnIndex("email"));
+            rssProfile = new RssProfile(locale, gender, givenName, familyName,
+                    fullName, userId, picture, email);
+        }
+        cursor.close();
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();
+
+        return rssProfile;
     }
 
     /**

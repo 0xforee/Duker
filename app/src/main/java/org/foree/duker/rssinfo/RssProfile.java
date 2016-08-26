@@ -16,6 +16,17 @@ public class RssProfile {
     private String picture;
     private String email;
 
+    public RssProfile(String locale, String gender, String givenName, String familyName, String fullName, String userId, String picture, String email) {
+        this.locale = locale;
+        this.gender = gender;
+        this.givenName = givenName;
+        this.familyName = familyName;
+        this.fullName = fullName;
+        this.userId = userId;
+        this.picture = picture;
+        this.email = email;
+    }
+
     public String getFullName() {
         return fullName;
     }

@@ -22,6 +22,7 @@ import org.foree.duker.base.BaseApplication;
 import org.foree.duker.dao.RssDao;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssItem;
+import org.foree.duker.rssinfo.RssProfile;
 import org.foree.duker.ui.activity.MainActivity;
 import org.foree.duker.ui.activity.SettingsActivity;
 import org.foree.duker.utils.FeedlyApiUtils;
@@ -81,6 +82,10 @@ public class RefreshService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
 
+        // sync profile
+        syncProfile();
+
+        // sync subscriptions
         if (sp.getBoolean(SettingsActivity.KEY_REFRESH_ON_LAUNCH, true)) {
             syncSubscriptions();
         }
@@ -101,6 +106,28 @@ public class RefreshService extends Service {
     public IBinder onBind(Intent intent) {
         mainActivityMessenger = (Messenger)intent.getExtras().get("handler");
         return mBinder;
+    }
+
+    // sync profile
+    private void syncProfile(){
+        new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                feedlyApiHelper.getProfile("", new NetCallback<RssProfile>() {
+                    @Override
+                    public void onSuccess(RssProfile data) {
+                        rssDao.insertProfile(data);
+                        sendToMainActivityEmptyMessage(MainActivity.MSG_UPDATE_PROFILE);
+                    }
+
+                    @Override
+                    public void onFail(String msg) {
+                        Log.e(TAG, "getProfileFail: " + msg);
+                    }
+                });
+            }
+        }.start();
     }
 
     // sync new data

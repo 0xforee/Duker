@@ -75,6 +75,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     public static final int MSG_START_SYNC_UNREAD = 0;
     public static final int MSG_START_SYNC_FEEDS = 1;
     public static final int MSG_SYNC_COMPLETE = 2;
+    public static final int MSG_UPDATE_PROFILE = 3;
 
     private class H extends Handler{
         @Override
@@ -90,6 +91,8 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                     mSwipeRefreshLayout.setRefreshing(false);
                     ((SyncState)f).updateUI();
                     break;
+                case MSG_UPDATE_PROFILE:
+                    updateProfile();
 
             }
             super.handleMessage(msg);
@@ -152,8 +155,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
     private void initDraw(Bundle savedInstanceState){
 
-        // Create a few sample profile
-        // NOTE you have to define the loader logic too. See the CustomApplication for more details
         final IProfile profile = new ProfileDrawerItem().withName("").withEmail("").withIcon("").withIdentifier(100);
 
         // Create the AccountHeader
@@ -253,7 +254,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
     private void updateProfile() {
 
-        // getProfile from Network
+        // getProfile from db
         localApiHelper.getProfile("", new NetCallback<RssProfile>() {
             @Override
             public void onSuccess(RssProfile data) {
@@ -262,7 +263,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
             }
             @Override
             public void onFail(String msg) {
-
+                Log.e(TAG, "updateProfile:" + msg);
             }
         });
     }
