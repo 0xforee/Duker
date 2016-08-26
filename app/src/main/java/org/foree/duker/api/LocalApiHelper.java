@@ -32,49 +32,16 @@ public class LocalApiHelper extends FeedlyApiHelper {
 
     @Override
     public void getCategoriesList(String token, final NetCallback<List<RssCategory>> netCallback) {
-        token = API_TOKEN_TEST;
 
-        String localCategories = "";
+        RssDao rssDao = new RssDao(BaseApplication.getInstance().getApplicationContext());
+        List<RssCategory> rssCategories = rssDao.readCategory();
 
-        final File categories_json = new File(MyApplication.myApplicationDirPath +
-                File.separator + MyApplication.myApplicationDataName + File.separator + "categories.json");
-
-        try {
-            localCategories = FileUtils.readFile(categories_json);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(netCallback != null){
+            if( !rssCategories.isEmpty())
+                netCallback.onSuccess(rssCategories);
+            else
+                netCallback.onFail("rssCategories is null from db");
         }
-
-        if (localCategories.isEmpty()) {
-            final Map<String, String> headers = new HashMap<>();
-            headers.put("Authorization", "OAuth " + token);
-            NetWorkApiHelper.newInstance().getRequest(FeedlyApiUtils.getApiCategoriesUrl(), headers, new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    Log.i(TAG, "onResponse:getCategoriesList " + response);
-                    try {
-                        FileUtils.writeFile(categories_json, response);
-                        if (netCallback != null) {
-                            netCallback.onSuccess(parseCategories(response));
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.e(TAG, "onErrorResponse:getCategoriesList " + error.getMessage());
-
-                    if (netCallback != null) {
-                        netCallback.onFail(error.getMessage());
-                    }
-                }
-            });
-        } else if (netCallback != null) {
-            netCallback.onSuccess(parseCategories(localCategories));
-        }
-
     }
 
     @Override

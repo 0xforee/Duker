@@ -64,11 +64,14 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private AccountHeader headerResult = null;
     private RefreshService.MyBinder mBinder;
     private RefreshService mStreamService;
     private ServiceConnection mServiceConnect = new MyServiceConnection();
+
     private Drawer result = null;
+    private AccountHeader headerResult = null;
+    BadgeStyle badgeStyle;
+
     private Fragment f;
     private Handler mHandler = new H();
 
@@ -76,6 +79,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     public static final int MSG_START_SYNC_FEEDS = 1;
     public static final int MSG_SYNC_COMPLETE = 2;
     public static final int MSG_UPDATE_PROFILE = 3;
+    public static final int MSG_UPDATE_CATEGORY = 4;
 
     private class H extends Handler{
         @Override
@@ -93,6 +97,10 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                     break;
                 case MSG_UPDATE_PROFILE:
                     updateProfile();
+                    break;
+                case MSG_UPDATE_CATEGORY:
+                    updateCategory();
+                    break;
 
             }
             super.handleMessage(msg);
@@ -181,20 +189,29 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                 .withOnDrawerItemClickListener(this)
                 .build();
 
+
+        badgeStyle = new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.red);
+
+        // Add Home
+        result.addItem(new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIdentifier(DRAW_ITEM_HOME)
+                .withBadgeStyle(badgeStyle).withTag(FeedlyApiUtils.getApiGlobalAllUrl()));
+
+        // Add Settings and OpenSource
+        result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_settings).withIdentifier(DRAW_ITEM_SETTINGS));
+        result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_open_source).withIdentifier(DRAW_ITEM_OPEN_SOURCE));
+
     }
 
     private void initSubscriptions(){
-
         updateProfile();
-        initCategories();
+        updateCategory();
     }
 
-    private void initCategories() {
+    private void updateCategory() {
         localApiHelper.getCategoriesList("", new NetCallback<List<RssCategory>>() {
             @Override
             public void onSuccess(final List<RssCategory> data) {
                 categoryList = data;
-                initFeeds();
             }
 
             @Override
@@ -270,12 +287,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
     private void addDrawItems() {
 
-        BadgeStyle badgeStyle = new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.red);
-
-        // Add Home
-        result.addItem(new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIdentifier(DRAW_ITEM_HOME)
-                .withBadgeStyle(badgeStyle).withTag(FeedlyApiUtils.getApiGlobalAllUrl()));
-
         // Add Category
         for (int cate_i = 0; cate_i < categoryList.size(); cate_i++) {
             ExpandableDrawerItem expandableDrawerItem = new ExpandableDrawerItem()
@@ -292,10 +303,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                 }
             }
         }
-
-        // Add Settings and OpenSource
-        result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_settings).withIdentifier(DRAW_ITEM_SETTINGS));
-        result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_open_source).withIdentifier(DRAW_ITEM_OPEN_SOURCE));
 
     }
 

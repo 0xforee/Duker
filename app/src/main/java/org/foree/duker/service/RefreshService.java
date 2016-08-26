@@ -21,6 +21,7 @@ import org.foree.duker.api.LocalApiHelper;
 import org.foree.duker.base.BaseApplication;
 import org.foree.duker.dao.RssDao;
 import org.foree.duker.net.NetCallback;
+import org.foree.duker.rssinfo.RssCategory;
 import org.foree.duker.rssinfo.RssItem;
 import org.foree.duker.rssinfo.RssProfile;
 import org.foree.duker.ui.activity.MainActivity;
@@ -85,6 +86,9 @@ public class RefreshService extends Service {
         // sync profile
         syncProfile();
 
+        // sync category
+        syncCategory();
+
         // sync subscriptions
         if (sp.getBoolean(SettingsActivity.KEY_REFRESH_ON_LAUNCH, true)) {
             syncSubscriptions();
@@ -119,6 +123,28 @@ public class RefreshService extends Service {
                     public void onSuccess(RssProfile data) {
                         rssDao.insertProfile(data);
                         sendToMainActivityEmptyMessage(MainActivity.MSG_UPDATE_PROFILE);
+                    }
+
+                    @Override
+                    public void onFail(String msg) {
+                        Log.e(TAG, "getProfileFail: " + msg);
+                    }
+                });
+            }
+        }.start();
+    }
+
+    // sync category
+    private void syncCategory(){
+        new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                feedlyApiHelper.getCategoriesList("", new NetCallback<List<RssCategory>>() {
+                    @Override
+                    public void onSuccess(List<RssCategory> data) {
+                        rssDao.insertCategory(data);
+                        sendToMainActivityEmptyMessage(MainActivity.MSG_UPDATE_CATEGORY);
                     }
 
                     @Override

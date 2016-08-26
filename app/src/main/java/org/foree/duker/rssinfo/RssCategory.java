@@ -39,6 +39,14 @@ public class RssCategory implements Serializable{
         this.description = description;
     }
 
+    public RssCategory(String categoryId, String label, String description) {
+        this.categoryId = categoryId;
+        this.label = label;
+        this.description = description;
+    }
+
+    public RssCategory(){}
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

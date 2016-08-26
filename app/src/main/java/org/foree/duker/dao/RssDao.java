@@ -87,7 +87,7 @@ public class RssDao {
         db.close();
     }
 
-    private void insertCategory(List<RssCategory> categoryList) {
+    public void insertCategory(List<RssCategory> categoryList) {
         SQLiteDatabase db = rssSQLiteOpenHelper.getWritableDatabase();
         db.beginTransaction();
         ContentValues contentValues = new ContentValues();
@@ -169,7 +169,7 @@ public class RssDao {
         SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
         db.beginTransaction();
         RssProfile rssProfile = null;
-        Cursor cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_PROFILE, new String[]{"user_id,locale,gender,given_name,family_name,full_name,picture,email"},
+        Cursor cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_PROFILE, null,
                 null, null, null, null, null);
         while (cursor.moveToNext()) {
             String userId = cursor.getString(cursor.getColumnIndex("user_id"));
@@ -189,6 +189,32 @@ public class RssDao {
         db.close();
 
         return rssProfile;
+    }
+
+    /**
+     * 读取分类数据表
+     */
+    public List<RssCategory> readCategory() {
+        SQLiteDatabase db = rssSQLiteOpenHelper.getWritableDatabase();
+        db.beginTransaction();
+        List<RssCategory> rssCategories = new ArrayList<>();
+        Cursor cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_CATEGORY, null,
+                null, null, null, null, null);
+        while (cursor.moveToNext()) {
+            String categoryId = cursor.getString(cursor.getColumnIndex("category_id"));
+            String label = cursor.getString(cursor.getColumnIndex("label"));
+            String description = cursor.getString(cursor.getColumnIndex("description"));
+
+            RssCategory rssCategory = new RssCategory(categoryId, label, description);
+            rssCategories.add(rssCategory);
+        }
+
+        cursor.close();
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();
+
+        return rssCategories;
     }
 
     /**
