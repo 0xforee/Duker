@@ -12,6 +12,8 @@ import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.google.gson.Gson;
+
 import org.foree.duker.api.AbsApiFactory;
 import org.foree.duker.api.AbsApiHelper;
 import org.foree.duker.api.ApiFactory;
@@ -22,11 +24,13 @@ import org.foree.duker.base.BaseApplication;
 import org.foree.duker.dao.RssDao;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssCategory;
+import org.foree.duker.rssinfo.RssFeed;
 import org.foree.duker.rssinfo.RssItem;
 import org.foree.duker.rssinfo.RssProfile;
 import org.foree.duker.ui.activity.MainActivity;
 import org.foree.duker.ui.activity.SettingsActivity;
 import org.foree.duker.utils.FeedlyApiUtils;
+import org.foree.duker.utils.FileUtils;
 
 import java.util.List;
 
@@ -34,6 +38,7 @@ public class RefreshService extends Service {
     private static final String TAG = RefreshService.class.getSimpleName();
     private final int MSG_FIRST_IMPORT = 0;
     private final int MSG_SYNC_NEW_DATA = 1;
+    private final int MSG_SYNC_SUBSCRIPTION = 2;
     AbsApiHelper localApiHelper, feedlyApiHelper;
     RssDao rssDao;
     Handler myHandler;
@@ -70,6 +75,9 @@ public class RefreshService extends Service {
                         firstImport();
                         break;
                     case MSG_SYNC_NEW_DATA:
+                        syncEntries();
+                        break;
+                    case MSG_SYNC_SUBSCRIPTION:
                         syncSubscriptions();
                         break;
 
@@ -91,7 +99,7 @@ public class RefreshService extends Service {
 
         // sync subscriptions
         if (sp.getBoolean(SettingsActivity.KEY_REFRESH_ON_LAUNCH, true)) {
-            syncSubscriptions();
+            syncEntries();
         }
 
         timeTrigger();
@@ -143,13 +151,37 @@ public class RefreshService extends Service {
                 feedlyApiHelper.getCategoriesList("", new NetCallback<List<RssCategory>>() {
                     @Override
                     public void onSuccess(List<RssCategory> data) {
-                        rssDao.insertCategory(data);
-                        sendToMainActivityEmptyMessage(MainActivity.MSG_UPDATE_CATEGORY);
+                        //rssDao.insertCategory(data);
+                        FileUtils.writeToDataDir("categories.json", new Gson().toJson(data));
+                        myHandler.sendEmptyMessage(MSG_SYNC_SUBSCRIPTION);
                     }
 
                     @Override
                     public void onFail(String msg) {
-                        Log.e(TAG, "getProfileFail: " + msg);
+                        Log.e(TAG, "getCategory Error: " + msg);
+                    }
+                });
+            }
+        }.start();
+    }
+
+    // sync feeds
+    private void syncSubscriptions(){
+        new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                feedlyApiHelper.getSubscriptions("", new NetCallback<List<RssFeed>>() {
+                    @Override
+                    public void onSuccess(List<RssFeed> data) {
+                        //rssDao.insertSubscription(data);
+                        FileUtils.writeToDataDir("subscriptions.json", new Gson().toJson(data));
+                        sendToMainActivityEmptyMessage(MSG_SYNC_SUBSCRIPTION);
+                    }
+
+                    @Override
+                    public void onFail(String msg) {
+                        Log.e(TAG, "getSubscription Error: " + msg);
                     }
                 });
             }
@@ -157,8 +189,8 @@ public class RefreshService extends Service {
     }
 
     // sync new data
-    public void syncSubscriptions() {
-        Log.d(TAG, "syncSubscriptions");
+    public void syncEntries() {
+        Log.d(TAG, "syncEntries");
 
         FeedlyApiArgs args = new FeedlyApiArgs();
         args.setCount(100);

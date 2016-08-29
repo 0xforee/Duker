@@ -76,10 +76,9 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     private Handler mHandler = new H();
 
     public static final int MSG_START_SYNC_UNREAD = 0;
-    public static final int MSG_START_SYNC_FEEDS = 1;
+    public static final int MSG_UPDATE_SUBSCRIPTIONS = 1;
     public static final int MSG_SYNC_COMPLETE = 2;
     public static final int MSG_UPDATE_PROFILE = 3;
-    public static final int MSG_UPDATE_CATEGORY = 4;
 
     private class H extends Handler{
         @Override
@@ -88,7 +87,8 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                 case MSG_START_SYNC_UNREAD:
                     startSyncUnreadCounts();
                     break;
-                case MSG_START_SYNC_FEEDS:
+                case MSG_UPDATE_SUBSCRIPTIONS:
+                    updateSubscriptions();
                     break;
                 case MSG_SYNC_COMPLETE:
                     Log.d(TAG, "sync done, update UI");
@@ -97,9 +97,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                     break;
                 case MSG_UPDATE_PROFILE:
                     updateProfile();
-                    break;
-                case MSG_UPDATE_CATEGORY:
-                    updateCategory();
                     break;
 
             }
@@ -167,7 +164,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
         // Create the AccountHeader
         headerResult = new AccountHeaderBuilder()
-                .withActivity(MainActivity.this)
+                .withActivity(this)
                 .withTranslucentStatusBar(true)
                 .withHeaderBackground(R.drawable.header)
                 .addProfiles(
@@ -204,14 +201,15 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
     private void initSubscriptions(){
         updateProfile();
-        updateCategory();
+        updateSubscriptions();
     }
 
-    private void updateCategory() {
+    private void updateSubscriptions() {
         localApiHelper.getCategoriesList("", new NetCallback<List<RssCategory>>() {
             @Override
             public void onSuccess(final List<RssCategory> data) {
                 categoryList = data;
+                updateFeeds();
             }
 
             @Override
@@ -222,13 +220,13 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         });
     }
 
-    private void initFeeds() {
+    private void updateFeeds() {
 
         localApiHelper.getSubscriptions("", new NetCallback<List<RssFeed>>() {
             @Override
             public void onSuccess(List<RssFeed> data) {
                 feedList = data;
-                addDrawItems();
+                updateCateAndFeedItems();
                 mHandler.sendEmptyMessage(MSG_START_SYNC_UNREAD);
             }
             @Override
@@ -285,9 +283,9 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         });
     }
 
-    private void addDrawItems() {
+    private void updateCateAndFeedItems() {
 
-        // Add Category
+        // Add Category and feeds
         for (int cate_i = 0; cate_i < categoryList.size(); cate_i++) {
             ExpandableDrawerItem expandableDrawerItem = new ExpandableDrawerItem()
                     .withName(categoryList.get(cate_i).getLabel()).withIdentifier(CATEGORY_IDENTIFIER +cate_i).withSelectable(false).withTag(categoryList.get(cate_i).getCategoryId());
@@ -330,7 +328,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     @Override
     public void onRefresh() {
         if ( mStreamService != null){
-            mStreamService.syncSubscriptions();
+            mStreamService.syncEntries();
         }
     }
     private class MyServiceConnection implements ServiceConnection {
