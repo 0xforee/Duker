@@ -105,7 +105,7 @@ public class RssDao {
         db.close();
     }
 
-    private void insertSubscription(List<RssFeed> rssFeedList) {
+    public void insertSubscription(List<RssFeed> rssFeedList) {
         SQLiteDatabase db = rssSQLiteOpenHelper.getWritableDatabase();
         db.beginTransaction();
         ContentValues contentValues = new ContentValues();
@@ -215,6 +215,31 @@ public class RssDao {
         db.close();
 
         return rssCategories;
+    }
+
+    /**
+     * 读取分类数据表
+     */
+    public List<RssFeed> readFeeds() {
+        SQLiteDatabase db = rssSQLiteOpenHelper.getWritableDatabase();
+        db.beginTransaction();
+        List<RssFeed> rssFeeds = new ArrayList<>();
+        Cursor cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_CATEGORY, null,
+                null, null, null, null, null);
+        while (cursor.moveToNext()) {
+            String feedId = cursor.getString(cursor.getColumnIndex("feed_id"));
+            String title = cursor.getString(cursor.getColumnIndex("title"));
+            String website = cursor.getString(cursor.getColumnIndex("website"));
+            RssFeed rssFeed = new RssFeed(feedId, title, website);
+            rssFeeds.add(rssFeed);
+        }
+
+        cursor.close();
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();
+
+        return rssFeeds;
     }
 
     /**
