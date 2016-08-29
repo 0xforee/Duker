@@ -16,11 +16,8 @@ public class LogUtils {
 
     public static void log(String logMsg){
         File logFile = new File(MyApplication.myApplicationDirPath + File.separator + MyApplication.myApplicationCacheName + File.separator + "logfile");
-        try {
-            FileUtils.appendFile(logFile, logMsg);
-            Log.d(TAG, "write log to " + logFile.toString());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        FileUtils.appendFile(logFile, logMsg);
+        Log.d(TAG, "write log to " + logFile.toString());
     }
 }

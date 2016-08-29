@@ -11,7 +11,6 @@ import org.foree.duker.rssinfo.RssProfile;
 import org.foree.duker.utils.FileUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -29,11 +28,7 @@ public class LocalApiHelper extends FeedlyApiHelper {
 
         final File category_json = new File(MyApplication.myApplicationDirPath + File.separator + MyApplication.myApplicationDataName + File.separator + "categories.json");
 
-        try {
-            localCategories = FileUtils.readFile(category_json);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        localCategories = FileUtils.readFile(category_json);
 
         if(netCallback != null){
             if( !localCategories.isEmpty())
@@ -65,11 +60,7 @@ public class LocalApiHelper extends FeedlyApiHelper {
 
         final File subscriptions_json = new File(MyApplication.myApplicationDirPath + File.separator + MyApplication.myApplicationDataName + File.separator + "subscriptions.json");
 
-        try {
-            localSubscriptions = FileUtils.readFile(subscriptions_json);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        localSubscriptions = FileUtils.readFile(subscriptions_json);
 
         if (netCallback != null){
             if( !localSubscriptions.isEmpty()){
