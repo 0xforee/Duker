@@ -54,27 +54,27 @@ import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends BaseActivity implements OnDrawerItemClickListener, SwipeRefreshLayout.OnRefreshListener {
+    private static final String TAG = MainActivity.class.getSimpleName();
+
+    // Drawer
+    private static final long DRAW_ITEM_HOME = 1;
+    private static final long DRAW_ITEM_SETTINGS = 2;
+    private static final long DRAW_ITEM_OPEN_SOURCE = 3;
     private static final long PROFILE_SETTING = 100000;
     private static final long CATEGORY_IDENTIFIER = 20000;
     private static final long FEED_IDENTIFIER = 30000;
     private static final long OTHER_IDENTIFIER = 40000;
-    private static final long DRAW_ITEM_HOME = 1;
-    private static final long DRAW_ITEM_SETTINGS = 2;
-    private static final long DRAW_ITEM_OPEN_SOURCE = 3;
-
-    private static final String TAG = MainActivity.class.getSimpleName();
-
-    private RefreshService.MyBinder mBinder;
-    private RefreshService mStreamService;
-    private ServiceConnection mServiceConnect = new MyServiceConnection();
-
     private Drawer result = null;
     private AccountHeader headerResult = null;
     BadgeStyle badgeStyle;
 
     private Fragment f;
-    private Handler mHandler = new H();
 
+    private RefreshService.MyBinder mBinder;
+    private RefreshService mStreamService;
+    private ServiceConnection mServiceConnect = new MyServiceConnection();
+
+    private Handler mHandler = new H();
     public static final int MSG_START_SYNC_UNREAD = 0;
     public static final int MSG_UPDATE_SUBSCRIPTIONS = 1;
     public static final int MSG_SYNC_COMPLETE = 2;
