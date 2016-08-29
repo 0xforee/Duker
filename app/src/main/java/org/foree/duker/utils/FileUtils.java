@@ -2,6 +2,8 @@ package org.foree.duker.utils;
 
 import android.util.Log;
 
+import org.foree.duker.base.MyApplication;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -46,12 +48,23 @@ public class FileUtils {
     }
 
     //写入文件
-    public static void writeFile(File file, String string) throws IOException {
-        FileWriter out = new FileWriter(file);
-        BufferedWriter bufferedWriter = new BufferedWriter(out);
-        bufferedWriter.write(string);
-        bufferedWriter.close();
-        out.close();
+    public static void writeFile(File file, String string){
+        FileWriter out;
+        try {
+            out = new FileWriter(file);
+            BufferedWriter bufferedWriter = new BufferedWriter(out);
+            bufferedWriter.write(string);
+            bufferedWriter.close();
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 写入指定文件到data目录
+    public static void writeToDataDir(String fileName, String content) {
+        File file =  new File(MyApplication.myApplicationDirPath + File.separator + MyApplication.myApplicationDataName + File.separator + fileName);
+        writeFile(file, content);
     }
 
     // 追加文件
