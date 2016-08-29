@@ -36,7 +36,7 @@ import java.util.List;
 
 public class RefreshService extends Service {
     private static final String TAG = RefreshService.class.getSimpleName();
-    private final int MSG_FIRST_IMPORT = 0;
+    private final int MSG_SYNC_ENTRIES_INTERNAL = 0;
     private final int MSG_SYNC_NEW_DATA = 1;
     private final int MSG_SYNC_SUBSCRIPTION = 2;
     AbsApiHelper localApiHelper, feedlyApiHelper;
@@ -44,6 +44,7 @@ public class RefreshService extends Service {
     Handler myHandler;
     Messenger mainActivityMessenger;
     Thread timeTriggerThread;
+    Thread syncEntriesThread;
     SharedPreferences sp;
     private MyBinder mBinder = new MyBinder();
 
@@ -71,8 +72,8 @@ public class RefreshService extends Service {
             @Override
             public void handleMessage(Message msg) {
                 switch (msg.what){
-                    case MSG_FIRST_IMPORT:
-                        firstImport();
+                    case MSG_SYNC_ENTRIES_INTERNAL:
+                        syncEntriesInternal();
                         break;
                     case MSG_SYNC_NEW_DATA:
                         syncEntries();
@@ -112,6 +113,7 @@ public class RefreshService extends Service {
         Log.d(TAG, "onDestroy");
         super.onDestroy();
         timeTriggerThread.stop();
+        syncEntriesThread.stop();
     }
 
     @Override
@@ -199,64 +201,50 @@ public class RefreshService extends Service {
             args.setNewerThan(sp.getLong("updated", 0));
         }
 
-        feedlyApiHelper.getStreamGlobalAll("", args, new NetCallback<List<RssItem>>() {
-            @Override
-            public void onSuccess(final List<RssItem> data) {
-                // success insertEntries to db
-                rssDao.insertEntries(data);
-
-                myHandler.sendEmptyMessage(MSG_FIRST_IMPORT);
-
-                sendToMainActivityEmptyMessage(MainActivity.MSG_SYNC_COMPLETE);
-
-            }
-
-            @Override
-            public void onFail(String msg) {
-            }
-        });
+        syncEntriesInternal(args);
 
     }
 
+    private void syncEntriesInternal(){
+        FeedlyApiArgs apiArgs = new FeedlyApiArgs();
+        apiArgs.setCount(100);
+        syncEntriesInternal(apiArgs);
+    }
+
     // first import data from server
-    private void firstImport() {
-        // 100 continuation
-        if (sp.getBoolean(SettingsActivity.KEY_FIRST_LAUNCH, true)) {
-            Log.d(TAG, "first import...");
-            // start sync old data
-            Thread syncThread = new Thread() {
-                @Override
-                public void run() {
-                    if (!sp.getString("continuation", "").isEmpty()) {
-                        Log.d(TAG, "get continuation");
-                        FeedlyApiArgs args = new FeedlyApiArgs();
-                        args.setCount(100);
-                        args.setContinuation(sp.getString("continuation", ""));
-                        feedlyApiHelper.getStreamGlobalAll("", args, new NetCallback<List<RssItem>>() {
-                            @Override
-                            public void onSuccess(List<RssItem> data) {
-                                // insertEntries to db
-                                rssDao.insertEntries(data);
+    private void syncEntriesInternal(final FeedlyApiArgs args) {
+        // start sync old data
+        syncEntriesThread = new Thread() {
+            @Override
+            public void run() {
+                if (!sp.getString("continuation", "").isEmpty()) {
+                    Log.d(TAG, "get continuation");
+                    FeedlyApiArgs localArgs = args;
+                    localArgs.setContinuation(sp.getString("continuation", ""));
+                    feedlyApiHelper.getStreamGlobalAll("", localArgs, new NetCallback<List<RssItem>>() {
+                        @Override
+                        public void onSuccess(List<RssItem> data) {
+                            // insertEntries to db
+                            rssDao.insertEntries(data);
 
-                                myHandler.sendEmptyMessage(MSG_FIRST_IMPORT);
+                            myHandler.sendEmptyMessage(MSG_SYNC_ENTRIES_INTERNAL);
 
-                                // updateUI
-                                sendToMainActivityEmptyMessage(MainActivity.MSG_SYNC_COMPLETE);
-                            }
+                            // updateUI
+                            sendToMainActivityEmptyMessage(MainActivity.MSG_SYNC_COMPLETE);
+                        }
 
-                            @Override
-                            public void onFail(String msg) {
+                        @Override
+                        public void onFail(String msg) {
 
-                            }
-                        });
-                    }else{
-                        sp.edit().putBoolean(SettingsActivity.KEY_FIRST_LAUNCH, false).apply();
-                    }
-
+                        }
+                    });
+                }else{
+                    sp.edit().putBoolean(SettingsActivity.KEY_FIRST_LAUNCH, false).apply();
                 }
-            };
-            syncThread.start();
-        }
+
+            }
+        };
+        syncEntriesThread.start();
     }
 
     // mark entries read
