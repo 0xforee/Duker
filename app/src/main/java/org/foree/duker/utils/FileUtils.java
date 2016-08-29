@@ -19,11 +19,11 @@ public class FileUtils {
     private static final String TAG = FileUtils.class.getSimpleName();
     //读取文件
     //TODO 优化文件的读写操作流程
-    public static String readFile(File file) throws IOException {
+    public static String readFile(File file){
         if( file.exists()) {
             Log.d(TAG, "readFile: " + file.toString());
-            FileReader in = null;
-            BufferedReader bufferedReader = null;
+            FileReader in;
+            BufferedReader bufferedReader;
             StringBuffer stringBuffer = new StringBuffer();
             String temp;
             try {
@@ -32,17 +32,16 @@ public class FileUtils {
                 while ((temp = bufferedReader.readLine()) != null) {
                     stringBuffer.append(temp).append("\r\n");
                 }
-            } catch (Exception e) {
+
+                bufferedReader.close();
+                in.close();
+            } catch (IOException e) {
                 e.printStackTrace();
-            } finally {
-                if (bufferedReader != null)
-                    bufferedReader.close();
-                if (in != null)
-                    in.close();
             }
+
             return stringBuffer.toString();
-        } else {
-            Log.e(TAG, "file not exists");
+        }else{
+            Log.e(TAG, file + "not exits");
             return "";
         }
     }
@@ -68,12 +67,18 @@ public class FileUtils {
     }
 
     // 追加文件
-    public static void appendFile(File file, String string) throws IOException {
-        FileWriter out = new FileWriter(file,true);
-        BufferedWriter bufferedWriter = new BufferedWriter(out);
-        bufferedWriter.write(string);
-        bufferedWriter.close();
-        out.close();
+    public static void appendFile(File file, String string){
+        FileWriter out;
+        try {
+            out = new FileWriter(file,true);
+            BufferedWriter bufferedWriter = new BufferedWriter(out);
+            bufferedWriter.write(string);
+            bufferedWriter.close();
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     // url encode
