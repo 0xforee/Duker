@@ -93,7 +93,7 @@ public class RefreshService extends Service {
         Log.d(TAG, "onStartCommand");
 
         // sync profile
-        syncProfile();
+        //syncProfile();
 
         // sync category
         syncCategory();
