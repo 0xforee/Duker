@@ -41,7 +41,7 @@ public class RefreshService extends Service {
     private final int MSG_SYNC_SUBSCRIPTION = 2;
     AbsApiHelper localApiHelper, feedlyApiHelper;
     RssDao rssDao;
-    Handler myHandler;
+    Handler mHandler;
     Messenger mainActivityMessenger;
     Thread timeTriggerThread;
     Thread syncEntriesThread;
@@ -68,7 +68,7 @@ public class RefreshService extends Service {
         rssDao = new RssDao(this);
         sp = PreferenceManager.getDefaultSharedPreferences(BaseApplication.getInstance());
 
-        myHandler = new Handler(){
+        mHandler = new Handler(){
             @Override
             public void handleMessage(Message msg) {
                 switch (msg.what){
@@ -155,7 +155,7 @@ public class RefreshService extends Service {
                     public void onSuccess(List<RssCategory> data) {
                         //rssDao.insertCategory(data);
                         FileUtils.writeToDataDir("categories.json", new Gson().toJson(data));
-                        myHandler.sendEmptyMessage(MSG_SYNC_SUBSCRIPTION);
+                        mHandler.sendEmptyMessage(MSG_SYNC_SUBSCRIPTION);
                     }
 
                     @Override
@@ -227,10 +227,7 @@ public class RefreshService extends Service {
                             // insertEntries to db
                             rssDao.insertEntries(data);
 
-                            myHandler.sendEmptyMessage(MSG_SYNC_ENTRIES_INTERNAL);
-
-                            // updateUI
-                            sendToMainActivityEmptyMessage(MainActivity.MSG_SYNC_COMPLETE);
+                            mHandler.sendEmptyMessage(MSG_SYNC_ENTRIES_INTERNAL);
                         }
 
                         @Override
@@ -283,7 +280,7 @@ public class RefreshService extends Service {
                     try {
                         synchronized (this) {
                             wait(1000 * 60 * 60);
-                            myHandler.sendEmptyMessage(MSG_SYNC_NEW_DATA);
+                            mHandler.sendEmptyMessage(MSG_SYNC_NEW_DATA);
                             timeTrigger();
                         }
                     } catch (InterruptedException e) {

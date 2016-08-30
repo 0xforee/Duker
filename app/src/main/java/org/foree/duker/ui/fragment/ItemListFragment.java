@@ -43,7 +43,7 @@ public class ItemListFragment extends Fragment implements SyncState {
 
     private RecyclerView mRecyclerView;
     private ItemListAdapter mAdapter;
-    private AbsApiHelper mApiHelper, localApiHelper;
+    private AbsApiHelper localApiHelper;
     private List<RssItem> itemList = new ArrayList<>();
     RssDao rssDao;
 
@@ -81,7 +81,6 @@ public class ItemListFragment extends Fragment implements SyncState {
         super.onCreate(savedInstanceState);
 
         AbsApiFactory absApiFactory = new ApiFactory();
-        mApiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
         localApiHelper = absApiFactory.createApiHelper(LocalApiHelper.class);
 
         Log.d(TAG, "onCreate");
