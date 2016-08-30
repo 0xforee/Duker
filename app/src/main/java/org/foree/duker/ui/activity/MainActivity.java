@@ -15,6 +15,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -26,6 +28,7 @@ import com.mikepenz.materialdrawer.Drawer.OnDrawerItemClickListener;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.holder.BadgeStyle;
 import com.mikepenz.materialdrawer.holder.StringHolder;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.ExpandableDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
@@ -59,8 +62,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
     // Drawer
     private static final long DRAW_ITEM_HOME = 1;
-    private static final long DRAW_ITEM_SETTINGS = 2;
-    private static final long DRAW_ITEM_OPEN_SOURCE = 3;
+    private static final long DRAW_ITEM_OPEN_SOURCE = 2;
     private static final long PROFILE_SETTING = 100000;
     private static final long CATEGORY_IDENTIFIER = 20000;
     private static final long FEED_IDENTIFIER = 30000;
@@ -194,10 +196,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         result.addItem(new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIdentifier(DRAW_ITEM_HOME)
                 .withBadgeStyle(badgeStyle).withTag(FeedlyApiUtils.getApiGlobalAllUrl()));
 
-        // Add Settings and OpenSource
-        result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_settings).withIdentifier(DRAW_ITEM_SETTINGS));
-        result.addStickyFooterItem(new SecondaryDrawerItem().withName(R.string.drawer_item_open_source).withIdentifier(DRAW_ITEM_OPEN_SOURCE));
-
     }
 
     private void initSubscriptions(){
@@ -303,6 +301,9 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
             }
         }
 
+        result.addItem(new DividerDrawerItem());
+        result.addItem(new PrimaryDrawerItem().withIdentifier(DRAW_ITEM_OPEN_SOURCE).withName(R.string.drawer_item_open_source));
+
     }
 
     @Override
@@ -316,9 +317,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
             } else if (drawerItem.getIdentifier() == DRAW_ITEM_HOME){
                 f = ItemListFragment.newInstance(FeedlyApiUtils.getApiGlobalAllUrl());
                 getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
-            } else if (drawerItem.getIdentifier() == DRAW_ITEM_SETTINGS) {
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(intent);
             } else if (drawerItem.getIdentifier() == DRAW_ITEM_OPEN_SOURCE) {
                 Uri uri = Uri.parse(getString(R.string.github_address));
                 Intent intent = new Intent(Intent.ACTION_VIEW, uri);
@@ -329,8 +327,31 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()){
+            case R.id.action_settings:
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.action_refresh:
+                onRefresh();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onRefresh() {
         if ( mStreamService != null){
+            if(!mSwipeRefreshLayout.isRefreshing())
+                mSwipeRefreshLayout.setRefreshing(true);
             mStreamService.syncEntries();
         }
     }

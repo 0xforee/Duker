@@ -16,4 +16,6 @@
     <string name="enable_offline">离线模式</string>
     <string name="enable_offline_summary">打开时，内容和图片将会自动下载</string>
     <string name="offline">离线模式</string>
+    <string name="action_refresh">刷新</string>
+    <string name="action_settings">设置</string>
 </resources>
