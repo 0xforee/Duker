@@ -19,6 +19,8 @@
     <string name="load_speak2" translatable="false">possible is by going</string>
     <string name="load_tv_app_name">DUKER</string>
     <string name="load_speak1" translatable="false">The only way of finding the limits of the</string>
+
+    <!-- settings -->
     <string name="general">General</string>
     <string name="theme_setting">Them</string>
     <string name="dark_theme">Dark</string>
@@ -35,4 +37,7 @@
     <string name="offline_caching">Offline caching: %s</string>
     <string name="offline_when_charging">Cache when charging only</string>
     <string name="offline_when_charging_summary">Cache articles only when a the device is charging.</string>
+
+    <!-- open source -->
+    <string name="github_address">https://github.com/lixiao123/Duker</string>
 </resources>

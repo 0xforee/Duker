@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -319,7 +320,9 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(intent);
             } else if (drawerItem.getIdentifier() == DRAW_ITEM_OPEN_SOURCE) {
-
+                Uri uri = Uri.parse(getString(R.string.github_address));
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(intent);
             }
         }
         return false;
