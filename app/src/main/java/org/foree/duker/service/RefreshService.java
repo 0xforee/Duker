@@ -236,7 +236,7 @@ public class RefreshService extends Service {
                         }
                     });
                 }else{
-                    sp.edit().putBoolean(SettingsActivity.KEY_FIRST_LAUNCH, false).apply();
+                    sendToMainActivityEmptyMessage(MainActivity.MSG_SYNC_COMPLETE);
                 }
 
             }

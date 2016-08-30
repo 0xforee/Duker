@@ -139,6 +139,9 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         initDraw(savedInstanceState);
         initSubscriptions();
 
+        // set refreshing
+        mSwipeRefreshLayout.setRefreshing(true);
+
         // get FloatActionButton
         testFloatingButton = (FloatingActionButton)findViewById(R.id.fab);
         testFloatingButton.setOnClickListener(new View.OnClickListener() {
