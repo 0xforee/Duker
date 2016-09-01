@@ -17,6 +17,7 @@ public class RssSQLiteOpenHelper extends SQLiteOpenHelper{
     public static final String DB_TABLE_PROFILE = "profile";
     public static final String DB_TABLE_CATEGORY = "category";
     public static final String DB_TABLE_FEED = "feed";
+    public static final String DB_TABLE_SUB_CATE = "feed_category";
 
     public RssSQLiteOpenHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -40,6 +41,7 @@ public class RssSQLiteOpenHelper extends SQLiteOpenHelper{
         switch (version) {
             case 1:
                 createProfileTable(db);
+                createSubCateTable(db);
                 createCategoryTable(db);
                 createSubscriptionTable(db);
                 createEntryTable(db);
@@ -47,6 +49,16 @@ public class RssSQLiteOpenHelper extends SQLiteOpenHelper{
             default:
                 throw new IllegalStateException("Don't known to upgrade to " + version);
         }
+    }
+
+    private void createSubCateTable(SQLiteDatabase db){
+        // _id, feed_id, cate_id
+        db.execSQL("create table feed_category( " +
+                "_id integer primary key autoincrement, " +
+                "feed_id varchar, " +
+                "category_id varchar " +
+                ")"
+        );
     }
 
     private void createSubscriptionTable(SQLiteDatabase db){

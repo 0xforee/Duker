@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.ArrayMap;
 import android.util.Log;
 
 import org.foree.duker.rssinfo.RssCategory;
@@ -13,7 +14,9 @@ import org.foree.duker.rssinfo.RssProfile;
 import org.foree.duker.utils.FeedlyApiUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by foree on 2016/8/6.
@@ -110,6 +113,7 @@ public class RssDao {
         db.beginTransaction();
         ContentValues contentValues = new ContentValues();
         for (RssFeed rssFeed : rssFeedList) {
+            // insert subscription table
             contentValues.put("feed_id", rssFeed.getFeedId());
             contentValues.put("title", rssFeed.getName());
             contentValues.put("website", rssFeed.getUrl());
@@ -117,6 +121,17 @@ public class RssDao {
             // 内容不重复
             if (db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_FEED, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1) {
                 Log.e(TAG, "Database insertFeed id: " + rssFeed.getFeedId() + " error");
+            }
+
+            // insert sub_cate table
+            for(RssCategory rssCategory: rssFeed.getCategories()) {
+                ContentValues cateValues = new ContentValues();
+                cateValues.put("feed_id", rssFeed.getFeedId());
+                cateValues.put("category_id", rssCategory.getCategoryId());
+
+                if( db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_SUB_CATE, null, cateValues, SQLiteDatabase.CONFLICT_REPLACE) == -1){
+                    Log.e(TAG, "Database insertFeed_Category id: " + rssCategory.getCategoryId() + " error");
+                }
             }
         }
         db.setTransactionSuccessful();
