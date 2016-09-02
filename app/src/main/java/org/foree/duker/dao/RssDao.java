@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.ArrayMap;
 import android.util.Log;
 
 import org.foree.duker.rssinfo.RssCategory;
@@ -119,7 +118,7 @@ public class RssDao {
             contentValues.put("website", rssFeed.getUrl());
             //contentValues.put("icon_url", rssFeed.get());
             // 内容不重复
-            if (db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_FEED, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1) {
+            if (db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_SUBSCRIPTION, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1) {
                 Log.e(TAG, "Database insertFeed id: " + rssFeed.getFeedId() + " error");
             }
 
@@ -266,7 +265,7 @@ public class RssDao {
             String feedId = cursor.getString(cursor.getColumnIndex("feed_id"));
 
             // get rssFeed from table feed
-            Cursor cursor_feed = db.query(RssSQLiteOpenHelper.DB_TABLE_FEED, null,
+            Cursor cursor_feed = db.query(RssSQLiteOpenHelper.DB_TABLE_SUBSCRIPTION, null,
                     "feed_id=?", new String[]{feedId}, null, null, null);
             while (cursor_feed.moveToNext()) {
                 String title = cursor_feed.getString(cursor.getColumnIndex("title"));

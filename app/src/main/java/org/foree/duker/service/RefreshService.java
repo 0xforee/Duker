@@ -153,7 +153,7 @@ public class RefreshService extends Service {
                 feedlyApiHelper.getCategoriesList("", new NetCallback<List<RssCategory>>() {
                     @Override
                     public void onSuccess(List<RssCategory> data) {
-                        //rssDao.insertCategory(data);
+                        rssDao.insertCategory(data);
                         FileUtils.writeToDataDir("categories.json", new Gson().toJson(data));
                         mHandler.sendEmptyMessage(MSG_SYNC_SUBSCRIPTION);
                     }
@@ -176,7 +176,7 @@ public class RefreshService extends Service {
                 feedlyApiHelper.getSubscriptions("", new NetCallback<List<RssFeed>>() {
                     @Override
                     public void onSuccess(List<RssFeed> data) {
-                        //rssDao.insertSubscription(data);
+                        rssDao.insertSubscription(data);
                         FileUtils.writeToDataDir("subscriptions.json", new Gson().toJson(data));
                         sendToMainActivityEmptyMessage(MSG_SYNC_SUBSCRIPTION);
                     }
