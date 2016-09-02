@@ -107,7 +107,11 @@ public class RssDao {
         db.close();
     }
 
-    public void insertSubscription(List<RssFeed> rssFeedList) {
+    /**
+     * 获取rssFeedList，插入feed与feed_category表
+     * @param rssFeedList
+     */
+    public void insertFeedAndSubCate(List<RssFeed> rssFeedList) {
         SQLiteDatabase db = rssSQLiteOpenHelper.getWritableDatabase();
         db.beginTransaction();
         ContentValues contentValues = new ContentValues();
@@ -118,7 +122,7 @@ public class RssDao {
             contentValues.put("website", rssFeed.getUrl());
             //contentValues.put("icon_url", rssFeed.get());
             // 内容不重复
-            if (db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_SUBSCRIPTION, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1) {
+            if (db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_FEED, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1) {
                 Log.e(TAG, "Database insertFeed id: " + rssFeed.getFeedId() + " error");
             }
 
@@ -142,7 +146,7 @@ public class RssDao {
      * 根据feedId, unread状态来查询文章
      * @return 符合要求的rssItemList
      */
-    public List<RssItem> findUnreadByFeedId(String feedId, boolean unread) {
+    public List<RssItem> findUnreadEntriesByFeedId(String feedId, boolean unread) {
         Log.d(TAG, "get feedId = " + feedId + " unread = " + unread + " rssItems from db");
         String selection;
         String[] selectionArgs;
@@ -207,22 +211,23 @@ public class RssDao {
 
     /**
      * 读取分类数据
-     * @return 用于构建DrawerLayout的侧边栏分类
+     * @return rssCategory与rssFeedList所构建的map
+     * 用于构建DrawerLayout的侧边栏分类
      */
-    public Map<RssCategory, List<RssFeed>> readSubCate(){
+    public Map<RssCategory, List<RssFeed>> readFeedCate(){
         SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
         db.beginTransaction();
 
-        Map<RssCategory, List<RssFeed>> subCateMap = new HashMap<>();
+        Map<RssCategory, List<RssFeed>> feedCateMap = new HashMap<>();
 
         List<RssCategory> rssCategories = readCategory();
         if ( rssCategories != null ){
             for(RssCategory rssCategory: rssCategories){
-                subCateMap.put(rssCategory, readFeedsByCategoryId(rssCategory.getCategoryId()));
+                feedCateMap.put(rssCategory, readFeedsByCategoryId(rssCategory.getCategoryId()));
             }
         }
 
-        return subCateMap;
+        return feedCateMap;
     }
 
     /**
@@ -265,7 +270,7 @@ public class RssDao {
             String feedId = cursor.getString(cursor.getColumnIndex("feed_id"));
 
             // get rssFeed from table feed
-            Cursor cursor_feed = db.query(RssSQLiteOpenHelper.DB_TABLE_SUBSCRIPTION, null,
+            Cursor cursor_feed = db.query(RssSQLiteOpenHelper.DB_TABLE_FEED, null,
                     "feed_id=?", new String[]{feedId}, null, null, null);
             while (cursor_feed.moveToNext()) {
                 String title = cursor_feed.getString(cursor.getColumnIndex("title"));

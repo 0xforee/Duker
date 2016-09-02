@@ -16,7 +16,7 @@ public class RssSQLiteOpenHelper extends SQLiteOpenHelper{
     public static final String DB_TABLE_ENTRY = "entry";
     public static final String DB_TABLE_PROFILE = "profile";
     public static final String DB_TABLE_CATEGORY = "category";
-    public static final String DB_TABLE_SUBSCRIPTION = "subscription";
+    public static final String DB_TABLE_FEED = "feed";
     public static final String DB_TABLE_SUB_CATE = "feed_category";
 
     public RssSQLiteOpenHelper(Context context) {
@@ -43,7 +43,7 @@ public class RssSQLiteOpenHelper extends SQLiteOpenHelper{
                 createProfileTable(db);
                 createSubCateTable(db);
                 createCategoryTable(db);
-                createSubscriptionTable(db);
+                createFeedTable(db);
                 createEntryTable(db);
                 break;
             default:
@@ -61,9 +61,9 @@ public class RssSQLiteOpenHelper extends SQLiteOpenHelper{
         );
     }
 
-    private void createSubscriptionTable(SQLiteDatabase db){
+    private void createFeedTable(SQLiteDatabase db){
         // feed_id title website icon_url
-        db.execSQL("create table subscription( " +
+        db.execSQL("create table feed( " +
                 "feed_id varchar primary key, " +
                 "title varchar, " +
                 "website varchar, " +

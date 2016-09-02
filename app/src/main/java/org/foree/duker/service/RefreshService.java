@@ -19,7 +19,6 @@ import org.foree.duker.api.AbsApiHelper;
 import org.foree.duker.api.ApiFactory;
 import org.foree.duker.api.FeedlyApiArgs;
 import org.foree.duker.api.FeedlyApiHelper;
-import org.foree.duker.api.LocalApiHelper;
 import org.foree.duker.base.BaseApplication;
 import org.foree.duker.dao.RssDao;
 import org.foree.duker.net.NetCallback;
@@ -39,7 +38,7 @@ public class RefreshService extends Service {
     private final int MSG_SYNC_ENTRIES_INTERNAL = 0;
     private final int MSG_SYNC_NEW_DATA = 1;
     private final int MSG_SYNC_SUBSCRIPTION = 2;
-    AbsApiHelper localApiHelper, feedlyApiHelper;
+    AbsApiHelper feedlyApiHelper;
     RssDao rssDao;
     Handler mHandler;
     Messenger mainActivityMessenger;
@@ -64,7 +63,6 @@ public class RefreshService extends Service {
 
         AbsApiFactory absApiFactory = new ApiFactory();
         feedlyApiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
-        localApiHelper = absApiFactory.createApiHelper(LocalApiHelper.class);
         rssDao = new RssDao(this);
         sp = PreferenceManager.getDefaultSharedPreferences(BaseApplication.getInstance());
 
@@ -79,7 +77,7 @@ public class RefreshService extends Service {
                         syncEntries();
                         break;
                     case MSG_SYNC_SUBSCRIPTION:
-                        syncSubscriptions();
+                        syncFeeds();
                         break;
 
                 }
@@ -168,7 +166,7 @@ public class RefreshService extends Service {
     }
 
     // sync feeds
-    private void syncSubscriptions(){
+    private void syncFeeds(){
         new Thread(){
             @Override
             public void run() {
@@ -176,7 +174,7 @@ public class RefreshService extends Service {
                 feedlyApiHelper.getSubscriptions("", new NetCallback<List<RssFeed>>() {
                     @Override
                     public void onSuccess(List<RssFeed> data) {
-                        rssDao.insertSubscription(data);
+                        rssDao.insertFeedAndSubCate(data);
                         FileUtils.writeToDataDir("subscriptions.json", new Gson().toJson(data));
                         sendToMainActivityEmptyMessage(MSG_SYNC_SUBSCRIPTION);
                     }
@@ -249,8 +247,8 @@ public class RefreshService extends Service {
         Thread markEntriesThread = new Thread(){
             @Override
             public void run() {
-                // findUnreadByFeedId unread=false items
-                final List<RssItem> rssItems = rssDao.findUnreadByFeedId(FeedlyApiUtils.getApiGlobalAllUrl(), false);
+                // findUnreadEntriesByFeedId unread=false items
+                final List<RssItem> rssItems = rssDao.findUnreadEntriesByFeedId(FeedlyApiUtils.getApiGlobalAllUrl(), false);
                 if (!rssItems.isEmpty()) {
                     feedlyApiHelper.markStream("", rssItems, new NetCallback<String>() {
                         @Override

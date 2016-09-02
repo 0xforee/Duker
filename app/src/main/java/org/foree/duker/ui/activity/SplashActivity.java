@@ -75,7 +75,7 @@ public class SplashActivity extends BaseActivity{
         tv_version.setText(MyApplication.myApplicationVersion);
         tv_version.setTypeface(tf_hobostd);
 
-        //findUnreadByFeedId app_name, and setTypeface
+        //findUnreadEntriesByFeedId app_name, and setTypeface
         tv_app_name = (TextView) findViewById(R.id.load_tv_app_name);
         tv_app_name.setTypeface(tf_hobostd);
     }
