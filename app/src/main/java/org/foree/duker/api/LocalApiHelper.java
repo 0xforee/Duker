@@ -12,6 +12,7 @@ import org.foree.duker.utils.FileUtils;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by foree on 16-7-25.
@@ -83,6 +84,21 @@ public class LocalApiHelper extends FeedlyApiHelper {
                 netCallback.onSuccess(rssItemList);
             } else {
                 netCallback.onFail("rssItemList null");
+            }
+        }
+    }
+
+    @Override
+    public void getFeedCate(String token, NetCallback<Map<RssCategory, List<RssFeed>>> netCallback) {
+        // only get data from db
+        final RssDao rssDao = new RssDao(BaseApplication.getInstance().getApplicationContext());
+        Map<RssCategory, List<RssFeed>> feedCateMap = rssDao.readFeedCate();
+
+        if( netCallback != null) {
+            if (!feedCateMap.isEmpty()) {
+                netCallback.onSuccess(feedCateMap);
+            } else {
+                netCallback.onFail("feedCate is empty!");
             }
         }
     }

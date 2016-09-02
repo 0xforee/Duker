@@ -260,7 +260,7 @@ public class RssDao {
      * 从feed_category表中根据category_id读取分类下的feedId，
      * 然后根据feedId查询feed库，返回rssFeed
      */
-    public List<RssFeed> readFeedsByCategoryId(String categoryId) {
+    private List<RssFeed> readFeedsByCategoryId(String categoryId) {
         SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
         db.beginTransaction();
         List<RssFeed> rssFeeds = new ArrayList<>();

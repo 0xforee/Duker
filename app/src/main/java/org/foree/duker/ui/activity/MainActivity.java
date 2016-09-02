@@ -91,7 +91,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                     startSyncUnreadCounts();
                     break;
                 case MSG_UPDATE_SUBSCRIPTIONS:
-                    updateSubscriptions();
+                    updateCategory();
                     break;
                 case MSG_SYNC_COMPLETE:
                     Log.d(TAG, "sync done, update UI");
@@ -200,10 +200,10 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
     private void initSubscriptions(){
         updateProfile();
-        updateSubscriptions();
+        updateCategory();
     }
 
-    private void updateSubscriptions() {
+    private void updateCategory() {
         localApiHelper.getCategoriesList("", new NetCallback<List<RssCategory>>() {
             @Override
             public void onSuccess(final List<RssCategory> data) {
@@ -217,6 +217,46 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                 Log.e(TAG,"getSubscription " + msg);
             }
         });
+    }
+
+    private void updateSubscriptions() {
+        localApiHelper.getFeedCate("", new NetCallback<Map<RssCategory, List<RssFeed>>>() {
+            @Override
+            public void onSuccess(final Map<RssCategory, List<RssFeed>> data) {
+                updateDrawItems(data);
+            }
+
+            @Override
+            public void onFail(String msg) {
+                Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_LONG).show();
+                Log.e(TAG,"getSubscription " + msg);
+            }
+        });
+    }
+
+    private void updateDrawItems(Map<RssCategory, List<RssFeed>> data) {
+        if (data != null) {
+            for (RssCategory rssCategory : data.keySet()) {
+                ExpandableDrawerItem expandableDrawerItem = new ExpandableDrawerItem()
+                        .withName(rssCategory.getLabel())
+                        .withSelectable(false)
+                        .withIdentifier(CATEGORY_IDENTIFIER)
+                        .withTag(rssCategory.getCategoryId());
+
+                result.addItem(expandableDrawerItem);
+
+                for (RssFeed rssFeed : data.get(rssCategory)) {
+                    expandableDrawerItem.withSubItems(new SecondaryDrawerItem().withName(rssFeed.getName())
+                            .withLevel(2)
+                            .withIdentifier(FEED_IDENTIFIER)
+                            .withBadgeStyle(badgeStyle)
+                            .withTag(rssFeed.getFeedId()));
+                }
+            }
+        }
+
+        result.addItem(new DividerDrawerItem());
+        result.addItem(new PrimaryDrawerItem().withIdentifier(DRAW_ITEM_OPEN_SOURCE).withName(R.string.drawer_item_open_source));
     }
 
     private void updateFeeds() {

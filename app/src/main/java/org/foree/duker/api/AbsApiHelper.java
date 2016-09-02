@@ -18,6 +18,7 @@ import java.util.Map;
 public abstract class AbsApiHelper {
     public abstract void getCategoriesList(String token, NetCallback<List<RssCategory>> netCallback);
     public abstract void getSubscriptions(String token, NetCallback<List<RssFeed>> netCallback);
+    public abstract void getFeedCate(String token, NetCallback<Map<RssCategory, List<RssFeed>>> netCallback);
     public abstract void getStream(String token, String streamId, FeedlyApiArgs args, NetCallback<List<RssItem>> netCallback);
     public abstract void getStreamGlobalAll(String token, FeedlyApiArgs args, NetCallback<List<RssItem>> netCallback);
     public abstract void getProfile(String token, NetCallback<RssProfile> netCallback);

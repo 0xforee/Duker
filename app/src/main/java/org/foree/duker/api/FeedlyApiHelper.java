@@ -85,6 +85,11 @@ public class FeedlyApiHelper extends AbsApiHelper {
         });
     }
 
+    @Override
+    public void getFeedCate(String token, NetCallback<Map<RssCategory, List<RssFeed>>> netCallback) {
+
+    }
+
     public void getStream(String token, String streamId, FeedlyApiArgs args, final NetCallback<List<RssItem>> netCallback){
         token = API_TOKEN_TEST;
 
