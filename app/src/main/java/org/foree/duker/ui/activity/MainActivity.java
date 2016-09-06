@@ -289,45 +289,21 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         });
     }
 
-    private void updateCateAndFeedItems() {
-
-        // Add Category and feeds
-        for (int cate_i = 0; cate_i < categoryList.size(); cate_i++) {
-            ExpandableDrawerItem expandableDrawerItem = new ExpandableDrawerItem()
-                    .withName(categoryList.get(cate_i).getLabel()).withIdentifier(CATEGORY_IDENTIFIER +cate_i).withSelectable(false).withTag(categoryList.get(cate_i).getCategoryId());
-            result.addItem(expandableDrawerItem);
-
-            for (int feed_i = 0; feed_i < feedList.size(); feed_i++) {
-                for (int feed_cate_id = 0; feed_cate_id < feedList.get(feed_i).getCategories().size(); feed_cate_id++) {
-
-                    if( feedList.get(feed_i).getCategories().get(feed_cate_id).equals(categoryList.get(cate_i))) {
-                        expandableDrawerItem.withSubItems(new SecondaryDrawerItem().withName(feedList.get(feed_i).getName())
-                                .withIdentifier(FEED_IDENTIFIER + feed_i).withLevel(2).withBadgeStyle(badgeStyle).withTag(feedList.get(feed_i).getFeedId()));
-                    }
-                }
-            }
-        }
-
-        result.addItem(new DividerDrawerItem());
-        result.addItem(new PrimaryDrawerItem().withIdentifier(DRAW_ITEM_OPEN_SOURCE).withName(R.string.drawer_item_open_source));
-
-    }
-
     @Override
     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
         if (drawerItem != null){
-
-            if( FEED_IDENTIFIER <= drawerItem.getIdentifier() && drawerItem.getIdentifier() < OTHER_IDENTIFIER){
-                Log.d(TAG, "feedId = " + feedList.get((int)(drawerItem.getIdentifier()- FEED_IDENTIFIER)).getFeedId());
-                f = ItemListFragment.newInstance(feedList.get((int)(drawerItem.getIdentifier()- FEED_IDENTIFIER)).getFeedId());
-                getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
-            } else if (drawerItem.getIdentifier() == DRAW_ITEM_HOME){
+            if (drawerItem.getIdentifier() == DRAW_ITEM_HOME){
                 f = ItemListFragment.newInstance(FeedlyApiUtils.getApiGlobalAllUrl());
                 getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
             } else if (drawerItem.getIdentifier() == DRAW_ITEM_OPEN_SOURCE) {
                 Uri uri = Uri.parse(getString(R.string.github_address));
                 Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                 startActivity(intent);
+            // feedItem and CategoryItem
+            } else {
+                Log.d(TAG, "feedId = " + drawerItem.getTag());
+                f = ItemListFragment.newInstance((String) drawerItem.getTag());
+                getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
             }
         }
         return false;
