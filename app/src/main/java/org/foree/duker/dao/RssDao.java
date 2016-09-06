@@ -132,8 +132,13 @@ public class RssDao {
                 cateValues.put("feed_id", rssFeed.getFeedId());
                 cateValues.put("category_id", rssCategory.getCategoryId());
 
-                if( db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_SUB_CATE, null, cateValues, SQLiteDatabase.CONFLICT_REPLACE) == -1){
-                    Log.e(TAG, "Database insertFeed_Category id: " + rssCategory.getCategoryId() + " error");
+                // 因为主键为自然增长，所以需要排除可能有多个同样的feed_id,cate_id重复出现的情况
+                Cursor cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_SUB_CATE, null,
+                        "feed_id=? AND category_id=?", new String[]{rssFeed.getFeedId(), rssCategory.getCategoryId()}, null, null, null);
+                if (cursor.getCount() == 0) {
+                    if (db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_SUB_CATE, null, cateValues, SQLiteDatabase.CONFLICT_REPLACE) == -1) {
+                        Log.e(TAG, "Database insertFeed_Category id: " + rssCategory.getCategoryId() + " error");
+                    }
                 }
             }
         }
