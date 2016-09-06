@@ -215,9 +215,6 @@ public class RssDao {
      * 用于构建DrawerLayout的侧边栏分类
      */
     public Map<RssCategory, List<RssFeed>> readFeedCate(){
-        SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
-        db.beginTransaction();
-
         Map<RssCategory, List<RssFeed>> feedCateMap = new HashMap<>();
 
         List<RssCategory> rssCategories = readCategory();
@@ -273,8 +270,8 @@ public class RssDao {
             Cursor cursor_feed = db.query(RssSQLiteOpenHelper.DB_TABLE_FEED, null,
                     "feed_id=?", new String[]{feedId}, null, null, null);
             while (cursor_feed.moveToNext()) {
-                String title = cursor_feed.getString(cursor.getColumnIndex("title"));
-                String website = cursor_feed.getString(cursor.getColumnIndex("website"));
+                String title = cursor_feed.getString(cursor_feed.getColumnIndex("title"));
+                String website = cursor_feed.getString(cursor_feed.getColumnIndex("website"));
                 RssFeed rssFeed = new RssFeed(feedId, title, website);
                 rssFeeds.add(rssFeed);
             }
