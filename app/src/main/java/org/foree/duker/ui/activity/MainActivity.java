@@ -91,6 +91,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                     startSyncUnreadCounts();
                     break;
                 case MSG_UPDATE_SUBSCRIPTIONS:
+                    updateSubscriptions();
                     break;
                 case MSG_SYNC_COMPLETE:
                     Log.d(TAG, "sync done, update UI");

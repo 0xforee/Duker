@@ -68,7 +68,9 @@ public class RefreshService extends Service {
             public void handleMessage(Message msg) {
                 switch (msg.what){
                     case MSG_SYNC_ENTRIES_INTERNAL:
-                        syncEntriesInternal();
+                        if (!sp.getString("continuation", "").isEmpty()) {
+                            syncEntriesInternal();
+                        }
                         break;
                     case MSG_SYNC_NEW_DATA:
                         syncEntries();
@@ -171,7 +173,7 @@ public class RefreshService extends Service {
                     @Override
                     public void onSuccess(List<RssFeed> data) {
                         rssDao.insertFeedAndSubCate(data);
-                        sendToMainActivityEmptyMessage(MSG_SYNC_SUBSCRIPTION);
+                        sendToMainActivityEmptyMessage(MainActivity.MSG_UPDATE_SUBSCRIPTIONS);
                     }
 
                     @Override
@@ -210,27 +212,25 @@ public class RefreshService extends Service {
         syncEntriesThread = new Thread() {
             @Override
             public void run() {
-                if (!sp.getString("continuation", "").isEmpty()) {
-                    Log.d(TAG, "get continuation");
-                    FeedlyApiArgs localArgs = args;
-                    localArgs.setContinuation(sp.getString("continuation", ""));
-                    feedlyApiHelper.getStreamGlobalAll("", localArgs, new NetCallback<List<RssItem>>() {
-                        @Override
-                        public void onSuccess(List<RssItem> data) {
-                            // insertEntries to db
-                            rssDao.insertEntries(data);
+                Log.d(TAG, "get continuation");
+                FeedlyApiArgs localArgs = args;
+                localArgs.setContinuation(sp.getString("continuation", ""));
+                feedlyApiHelper.getStreamGlobalAll("", localArgs, new NetCallback<List<RssItem>>() {
+                    @Override
+                    public void onSuccess(List<RssItem> data) {
+                        // insertEntries to db
+                        rssDao.insertEntries(data);
 
-                            mHandler.sendEmptyMessage(MSG_SYNC_ENTRIES_INTERNAL);
-                        }
+                        mHandler.sendEmptyMessage(MSG_SYNC_ENTRIES_INTERNAL);
 
-                        @Override
-                        public void onFail(String msg) {
+                        sendToMainActivityEmptyMessage(MainActivity.MSG_SYNC_COMPLETE);
+                    }
 
-                        }
-                    });
-                }else{
-                    sp.edit().putBoolean(SettingsActivity.KEY_FIRST_LAUNCH, false).apply();
-                }
+                    @Override
+                    public void onFail(String msg) {
+
+                    }
+                });
 
             }
         };
