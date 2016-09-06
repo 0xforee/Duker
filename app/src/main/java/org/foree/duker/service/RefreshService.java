@@ -12,8 +12,6 @@ import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.google.gson.Gson;
-
 import org.foree.duker.api.AbsApiFactory;
 import org.foree.duker.api.AbsApiHelper;
 import org.foree.duker.api.ApiFactory;
@@ -29,7 +27,6 @@ import org.foree.duker.rssinfo.RssProfile;
 import org.foree.duker.ui.activity.MainActivity;
 import org.foree.duker.ui.activity.SettingsActivity;
 import org.foree.duker.utils.FeedlyApiUtils;
-import org.foree.duker.utils.FileUtils;
 
 import java.util.List;
 
@@ -152,7 +149,6 @@ public class RefreshService extends Service {
                     @Override
                     public void onSuccess(List<RssCategory> data) {
                         rssDao.insertCategory(data);
-                        FileUtils.writeToDataDir("categories.json", new Gson().toJson(data));
                         mHandler.sendEmptyMessage(MSG_SYNC_SUBSCRIPTION);
                     }
 
@@ -175,7 +171,6 @@ public class RefreshService extends Service {
                     @Override
                     public void onSuccess(List<RssFeed> data) {
                         rssDao.insertFeedAndSubCate(data);
-                        FileUtils.writeToDataDir("subscriptions.json", new Gson().toJson(data));
                         sendToMainActivityEmptyMessage(MSG_SYNC_SUBSCRIPTION);
                     }
 
