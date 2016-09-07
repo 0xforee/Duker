@@ -32,16 +32,23 @@ import java.util.List;
 
 public class RefreshService extends Service {
     private static final String TAG = RefreshService.class.getSimpleName();
+
     private final int MSG_SYNC_ENTRIES_INTERNAL = 0;
-    private final int MSG_SYNC_NEW_DATA = 1;
+    private final int MSG_REFRESH_ENTRIES = 1;
     private final int MSG_SYNC_SUBSCRIPTION = 2;
+
     AbsApiHelper feedlyApiHelper;
+
     RssDao rssDao;
+
     Handler mHandler;
     Messenger mainActivityMessenger;
+
     Thread timeTriggerThread;
     Thread syncEntriesThread;
+
     SharedPreferences sp;
+
     private MyBinder mBinder = new MyBinder();
 
     public RefreshService() {
@@ -72,7 +79,7 @@ public class RefreshService extends Service {
                             syncEntriesInternal();
                         }
                         break;
-                    case MSG_SYNC_NEW_DATA:
+                    case MSG_REFRESH_ENTRIES:
                         syncEntries();
                         break;
                     case MSG_SYNC_SUBSCRIPTION:
@@ -273,7 +280,7 @@ public class RefreshService extends Service {
                     try {
                         synchronized (this) {
                             wait(1000 * 60 * 60);
-                            mHandler.sendEmptyMessage(MSG_SYNC_NEW_DATA);
+                            mHandler.sendEmptyMessage(MSG_REFRESH_ENTRIES);
                             timeTrigger();
                         }
                     } catch (InterruptedException e) {

@@ -82,10 +82,12 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     public static final int MSG_UPDATE_SUBSCRIPTIONS = 1;
     public static final int MSG_SYNC_COMPLETE = 2;
     public static final int MSG_UPDATE_PROFILE = 3;
+    public static final int MSG_SYNC_START = 4;
 
     private class H extends Handler{
         @Override
         public void handleMessage(Message msg) {
+            super.handleMessage(msg);
             switch (msg.what){
                 case MSG_START_SYNC_UNREAD:
                     startSyncUnreadCounts();
@@ -93,9 +95,14 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                 case MSG_UPDATE_SUBSCRIPTIONS:
                     updateSubscriptions();
                     break;
+                case MSG_SYNC_START:
+                    onRefresh();
+                    break;
                 case MSG_SYNC_COMPLETE:
-                    Log.d(TAG, "sync done, update UI");
-                    mSwipeRefreshLayout.setRefreshing(false);
+                    if(mSwipeRefreshLayout.isRefreshing()) {
+                        mSwipeRefreshLayout.setRefreshing(false);
+                    }
+                    Log.d(TAG, "sync done, update UI, mSwipeRefresh is " + mSwipeRefreshLayout.isRefreshing());
                     ((SyncState)f).updateUI();
                     break;
                 case MSG_UPDATE_PROFILE:
@@ -103,7 +110,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                     break;
 
             }
-            super.handleMessage(msg);
         }
     }
 
@@ -333,14 +339,16 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
     @Override
     public void onRefresh() {
+        if(!mSwipeRefreshLayout.isRefreshing()){
+            mSwipeRefreshLayout.setRefreshing(true);
+        }
         if ( mStreamService != null){
-            if(!mSwipeRefreshLayout.isRefreshing())
-                mSwipeRefreshLayout.setRefreshing(true);
             mStreamService.syncEntries();
         }
     }
+
     private class MyServiceConnection implements ServiceConnection {
-        private final String TAG = MyApplication.class.getSimpleName();
+        private final String TAG = MyServiceConnection.class.getSimpleName();
 
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {

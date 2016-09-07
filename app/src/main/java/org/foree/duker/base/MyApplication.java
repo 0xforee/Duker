@@ -21,6 +21,10 @@ public class MyApplication extends BaseApplication{
     private static final String TAG = MyApplication.class.getSimpleName();
     private Context mContext;
 
+    public MyApplication(){
+        mContext = BaseApplication.getInstance().getApplicationContext();
+    }
+
     /**
      * SD卡信息
      */
@@ -48,8 +52,6 @@ public class MyApplication extends BaseApplication{
 
     public void initApplicationDir() {
 
-        mContext = BaseApplication.getInstance().getApplicationContext();
-
         //如果当前Sdcard已经挂载，应用程序目录与缓存目录是否建立完成
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             //应用程序目录
@@ -58,7 +60,6 @@ public class MyApplication extends BaseApplication{
                 if (!myDateDir.mkdir()) {
                     Log.e(TAG, "创建应用程序目录失败");
                 }
-
 
             //缓存目录
             File myCacheDir = new File(myApplicationDirPath + File.separator + myApplicationDataName);
@@ -75,22 +76,22 @@ public class MyApplication extends BaseApplication{
         }
 
         //获取当前应用程序的版本号和版本名称
-        initApplicationVersionInfo(mContext);
+        initApplicationVersionInfo();
 
         // 初始化app默认设置项
-        initDefaultConfigs(mContext);
+        initDefaultConfigs();
 
     Log.v(TAG, "环境变量初始化成功");
 
     }
 
     //获取应用程序的版本信息
-    public void initApplicationVersionInfo(Context context) {
-        PackageManager packageManager = context.getPackageManager();
+    public void initApplicationVersionInfo() {
+        PackageManager packageManager = mContext.getPackageManager();
         PackageInfo packageInfo;
         try {
             //获取当前包的信息
-            packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
+            packageInfo = packageManager.getPackageInfo(mContext.getPackageName(), 0);
             //获取应用程序版本号
             myApplicationVersion = packageInfo.versionName;
             //获取版本序号
@@ -102,8 +103,8 @@ public class MyApplication extends BaseApplication{
         }
     }
 
-    public void initDefaultConfigs(Context context){
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+    public void initDefaultConfigs(){
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext);
 
         // 第一次启动时初始化设置项
         if (sp.getBoolean(SettingsActivity.KEY_FIRST_LAUNCH, true)) {
