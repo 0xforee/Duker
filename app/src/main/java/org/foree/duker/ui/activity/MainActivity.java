@@ -96,14 +96,14 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                     updateSubscriptions();
                     break;
                 case MSG_SYNC_START:
-                    onRefresh();
                     break;
                 case MSG_SYNC_COMPLETE:
                     if(mSwipeRefreshLayout.isRefreshing()) {
                         mSwipeRefreshLayout.setRefreshing(false);
                     }
                     Log.d(TAG, "sync done, update UI, mSwipeRefresh is " + mSwipeRefreshLayout.isRefreshing());
-                    ((SyncState)f).updateUI();
+                    if( f != null)
+                        ((SyncState)f).updateUI();
                     break;
                 case MSG_UPDATE_PROFILE:
                     updateProfile();
@@ -155,6 +155,9 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
             }
         });
+
+        // auto refresh
+        refresh();
 
     }
 
@@ -331,20 +334,37 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                 startActivity(intent);
                 break;
             case R.id.action_refresh:
-                onRefresh();
+                refresh();
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    private void refresh(){
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mSwipeRefreshLayout.setRefreshing(true);
+                onRefresh();
+            }
+        });
+
+    }
+
     @Override
     public void onRefresh() {
-        if(!mSwipeRefreshLayout.isRefreshing()){
-            mSwipeRefreshLayout.setRefreshing(true);
-        }
         if ( mStreamService != null){
             mStreamService.syncEntries();
         }
+
+        // refresh time out
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "post delay refresh time out");
+                mHandler.sendEmptyMessage(MSG_SYNC_COMPLETE);
+            }
+        },5000);
     }
 
     private class MyServiceConnection implements ServiceConnection {
