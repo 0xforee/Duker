@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
@@ -44,7 +46,7 @@ import org.foree.duker.api.ApiFactory;
 import org.foree.duker.api.FeedlyApiHelper;
 import org.foree.duker.api.LocalApiHelper;
 import org.foree.duker.base.BaseActivity;
-import org.foree.duker.base.MyApplication;
+import org.foree.duker.base.BaseApplication;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.net.SyncState;
 import org.foree.duker.rssinfo.RssCategory;
@@ -78,36 +80,40 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     private ServiceConnection mServiceConnect = new MyServiceConnection();
 
     private Handler mHandler = new H();
-    public static final int MSG_START_SYNC_UNREAD = 0;
+    public static final int MSG_UPDATE_UNREAD = 0;
     public static final int MSG_UPDATE_SUBSCRIPTIONS = 1;
-    public static final int MSG_SYNC_COMPLETE = 2;
-    public static final int MSG_UPDATE_PROFILE = 3;
-    public static final int MSG_SYNC_START = 4;
+    public static final int MSG_UPDATE_PROFILE = 2;
+    public static final int MSG_UPDATE_ENTRIES = 3;
+    public static final int MSG_SYNC_ENTRIES_COMPLETE = 4;
+    public static final int MSG_SYNC_ENTRIES_START = 5;
 
     private class H extends Handler{
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what){
-                case MSG_START_SYNC_UNREAD:
+                case MSG_UPDATE_UNREAD:
+                    // TODO:unread状态更新从本地数据库中获取
                     startSyncUnreadCounts();
                     break;
                 case MSG_UPDATE_SUBSCRIPTIONS:
                     updateSubscriptions();
                     break;
-                case MSG_SYNC_START:
-                    break;
-                case MSG_SYNC_COMPLETE:
-                    if(mSwipeRefreshLayout.isRefreshing()) {
-                        mSwipeRefreshLayout.setRefreshing(false);
-                    }
-                    Log.d(TAG, "sync done, update UI, mSwipeRefresh is " + mSwipeRefreshLayout.isRefreshing());
-                    if( f != null)
-                        ((SyncState)f).updateUI();
-                    break;
                 case MSG_UPDATE_PROFILE:
                     updateProfile();
                     break;
+                case MSG_UPDATE_ENTRIES:
+                    Log.d(TAG, "update UI");
+                    if( f != null)
+                        ((SyncState)f).updateUI();
+                    break;
+                case MSG_SYNC_ENTRIES_START:
+                    break;
+                case MSG_SYNC_ENTRIES_COMPLETE:
+                    Log.d(TAG, "refresh finished");
+                    mSwipeRefreshLayout.setRefreshing(false);
+                    break;
+
 
             }
         }
@@ -118,6 +124,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     Map<RssCategory, List<RssFeed>> feedCateMap;
     Toolbar toolbar;
     SwipeRefreshLayout mSwipeRefreshLayout;
+    SharedPreferences sp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,6 +136,8 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_ly);
         mSwipeRefreshLayout.setOnRefreshListener(this);
+
+        sp = PreferenceManager.getDefaultSharedPreferences(BaseApplication.getInstance());
 
         AbsApiFactory absApiFactory = new ApiFactory();
         feedlyApiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
@@ -155,9 +164,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
             }
         });
-
-        // auto refresh
-        refresh();
 
     }
 
@@ -344,8 +350,11 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                mSwipeRefreshLayout.setRefreshing(true);
-                onRefresh();
+                if(!mSwipeRefreshLayout.isRefreshing()) {
+                    Log.d(TAG, "onRefreshing");
+                    mSwipeRefreshLayout.setRefreshing(true);
+                    onRefresh();
+                }
             }
         });
 
@@ -356,15 +365,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         if ( mStreamService != null){
             mStreamService.syncEntries();
         }
-
-        // refresh time out
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "post delay refresh time out");
-                mHandler.sendEmptyMessage(MSG_SYNC_COMPLETE);
-            }
-        },5000);
     }
 
     private class MyServiceConnection implements ServiceConnection {
@@ -375,6 +375,11 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
             Log.d(TAG, "onServiceConnected");
             mBinder = (RefreshService.MyBinder) iBinder;
             mStreamService = mBinder.getService();
+
+            // start sync entry
+            if (sp.getBoolean(SettingsActivity.KEY_REFRESH_ON_LAUNCH, true)) {
+                refresh();
+            }
 
         }
 

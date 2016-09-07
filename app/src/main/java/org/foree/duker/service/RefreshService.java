@@ -77,6 +77,8 @@ public class RefreshService extends Service {
                     case MSG_SYNC_ENTRIES_INTERNAL:
                         if (!sp.getString("continuation", "").isEmpty()) {
                             syncEntriesInternal();
+                        }else{
+                            sendToMainActivityEmptyMessage(MainActivity.MSG_SYNC_ENTRIES_COMPLETE);
                         }
                         break;
                     case MSG_REFRESH_ENTRIES:
@@ -101,11 +103,6 @@ public class RefreshService extends Service {
 
         // sync category
         syncCategory();
-
-        // sync subscriptions
-        if (sp.getBoolean(SettingsActivity.KEY_REFRESH_ON_LAUNCH, true)) {
-            syncEntries();
-        }
 
         timeTrigger();
 
@@ -230,12 +227,12 @@ public class RefreshService extends Service {
 
                         mHandler.sendEmptyMessage(MSG_SYNC_ENTRIES_INTERNAL);
 
-                        sendToMainActivityEmptyMessage(MainActivity.MSG_SYNC_COMPLETE);
+                        sendToMainActivityEmptyMessage(MainActivity.MSG_UPDATE_ENTRIES);
                     }
 
                     @Override
                     public void onFail(String msg) {
-
+                        sendToMainActivityEmptyMessage(MainActivity.MSG_SYNC_ENTRIES_COMPLETE);
                     }
                 });
 
