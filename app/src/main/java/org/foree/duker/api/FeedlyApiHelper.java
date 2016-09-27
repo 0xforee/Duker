@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public class FeedlyApiHelper extends AbsApiHelper {
     protected static final String TAG = FeedlyApiHelper.class.getSimpleName();
-    protected static final String API_TOKEN_TEST = "AxFkyq6s7oql8gp5w04UzQrD-NEfWgkm4Ue2WDEVaYKNx8QJgxQCSmdqemDNNfJLL9JfCSlxPnSmsOg8r9xMxYMnM0ooXwwtpocMOYDHLGL8HR3dwnqJU1pdURuNx3vCJXtnhYX5I_AWlmiiBCgwrPFsKEkWBzDcKfI2f52y8qgKCLN2K-Thg1MfG5pVsutQuzgPpmGdBdkvI8SoSy46X-69YksE:feedlydev";
+    protected static final String API_TOKEN_TEST = "AwiWCrAqHUqKsSYtvb28QnZoEaveRUtdQbK5BHD9hA0Mk9x6CHrK2ky0z_i5oJ718jCNQ7gnPHDW0oLbRCgBb26y9VGRXiopk7zWiRhn17VdB97qpG9-Iil2NC4LtOOtg0C1zsYgybaN-SnVrsGBM-UDhOKF4n4iu_QPlNQPxMoXt7nC6Prlrutv9eyEUWE26Wyu96O-nwR8tUnX5yFF32qD7d9AUA:feedlydev";
 
     @Override
     public void getCategoriesList(String token, final NetCallback<List<RssCategory>> netCallback) {
