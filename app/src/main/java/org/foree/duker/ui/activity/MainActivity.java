@@ -58,7 +58,7 @@ import org.foree.duker.utils.FeedlyApiUtils;
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends BaseActivity implements OnDrawerItemClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class MainActivity extends BaseActivity implements OnDrawerItemClickListener, SwipeRefreshLayout.OnRefreshListener, Drawer.OnDrawerListener {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     // Drawer
@@ -85,6 +85,23 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     public static final int MSG_UPDATE_ENTRIES = 3;
     public static final int MSG_SYNC_ENTRIES_COMPLETE = 4;
     public static final int MSG_SYNC_ENTRIES_START = 5;
+
+    @Override
+    public void onDrawerOpened(View drawerView) {
+        // 打开侧边栏的时候同步更新未读数量
+        startSyncUnreadCounts();
+
+    }
+
+    @Override
+    public void onDrawerClosed(View drawerView) {
+
+    }
+
+    @Override
+    public void onDrawerSlide(View drawerView, float slideOffset) {
+
+    }
 
     private class H extends Handler{
         @Override
@@ -199,6 +216,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                 .withSavedInstance(savedInstanceState)
                 .withShowDrawerOnFirstLaunch(true)
                 .withOnDrawerItemClickListener(this)
+                .withOnDrawerListener(this)
                 .build();
 
 
