@@ -30,6 +30,10 @@ import org.foree.duker.utils.FeedlyApiUtils;
 
 import java.util.List;
 
+/**
+ * Service的职责是负责数据从网络到本地数据库的流向，以及通知activity更新UI
+ * 与此相关联的activity的职责是负责数据从本地数据库到View的流向
+ */
 public class RefreshService extends Service {
     private static final String TAG = RefreshService.class.getSimpleName();
 
@@ -67,7 +71,9 @@ public class RefreshService extends Service {
 
         AbsApiFactory absApiFactory = new ApiFactory();
         feedlyApiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
+
         rssDao = new RssDao(this);
+
         sp = PreferenceManager.getDefaultSharedPreferences(BaseApplication.getInstance());
 
         mHandler = new Handler(){

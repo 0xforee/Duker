@@ -103,4 +103,19 @@ public class LocalApiHelper extends FeedlyApiHelper {
         }
     }
 
+    @Override
+    public void getUnreadCounts(String token, final NetCallback<Map<String, Long>> netCallback) {
+        // only get data from db
+        final RssDao rssDao = new RssDao(BaseApplication.getInstance().getApplicationContext());
+        Map<String, Long> unReadCountsMap = rssDao.getUnreadCounts();
+
+        if( netCallback != null) {
+            if (!unReadCountsMap.isEmpty()) {
+                netCallback.onSuccess(unReadCountsMap);
+            } else {
+                netCallback.onFail("read counts map is empty!");
+            }
+        }
+    }
+
 }

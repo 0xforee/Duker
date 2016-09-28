@@ -292,6 +292,70 @@ public class RssDao {
         return rssFeeds;
     }
 
+    private List<String> getFeedIdList(){
+        List<String> feedIdList = new ArrayList<>();
+        SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
+        db.beginTransaction();
+
+        // get global all
+        feedIdList.add(FeedlyApiUtils.getApiGlobalAllUrl());
+
+        // get category feeds
+        Cursor cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_FEED,new String[]{ "feed_id"}, null, null, null, null, null);
+
+        while(cursor.moveToNext()){
+            String feed_id = cursor.getString(cursor.getColumnIndex("feed_id"));
+            feedIdList.add(feed_id);
+        }
+
+        cursor.close();
+
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        return feedIdList;
+    }
+
+    /**
+     * 获取本地各个分类未读的文章数量
+     * unreadCountsMap
+     * id - counts
+     */
+    public Map<String, Long> getUnreadCounts(){
+        Map<String, Long> unReadCountsMap = new HashMap<>();
+        SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
+        String selection;
+        String[] selectionArgs;
+        db.beginTransaction();
+
+        // do calculate unread counts
+        for(String feedId: getFeedIdList()) {
+
+            if (FeedlyApiUtils.isGlobalAllUrl(feedId)) {
+                selection = "unread=?";
+                selectionArgs = new String[]{"1"};
+            } else {
+                selection = "feed_id=? AND unread=?";
+                selectionArgs = new String[]{feedId, "1"};
+            }
+
+            // get all feeds
+            Cursor cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRY,null,selection, selectionArgs, null, null, null);
+
+            if( cursor != null ){
+                unReadCountsMap.put(feedId, (long)cursor.getCount());
+                cursor.close();
+            }
+
+            // get all counts
+            // get feed_id and unread is true counts
+        }
+
+        db.setTransactionSuccessful();
+        db.endTransaction();
+
+        return unReadCountsMap;
+    }
+
     /**
      * 清空表
      * @param table 表名称

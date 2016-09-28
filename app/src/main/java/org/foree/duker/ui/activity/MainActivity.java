@@ -43,7 +43,6 @@ import org.foree.duker.R;
 import org.foree.duker.api.AbsApiFactory;
 import org.foree.duker.api.AbsApiHelper;
 import org.foree.duker.api.ApiFactory;
-import org.foree.duker.api.FeedlyApiHelper;
 import org.foree.duker.api.LocalApiHelper;
 import org.foree.duker.base.BaseActivity;
 import org.foree.duker.base.BaseApplication;
@@ -119,7 +118,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         }
     }
 
-    AbsApiHelper localApiHelper, feedlyApiHelper;
+    AbsApiHelper localApiHelper;
     FloatingActionButton testFloatingButton;
     Map<RssCategory, List<RssFeed>> feedCateMap;
     Toolbar toolbar;
@@ -140,7 +139,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         sp = PreferenceManager.getDefaultSharedPreferences(BaseApplication.getInstance());
 
         AbsApiFactory absApiFactory = new ApiFactory();
-        feedlyApiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
         localApiHelper = absApiFactory.createApiHelper(LocalApiHelper.class);
 
         if (savedInstanceState == null) {
@@ -259,7 +257,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
     private void startSyncUnreadCounts() {
 
-        feedlyApiHelper.getUnreadCounts("", new NetCallback<Map<String, Long>>() {
+        localApiHelper.getUnreadCounts("", new NetCallback<Map<String, Long>>() {
             @Override
             public void onSuccess(Map<String, Long> unReadCountsMap) {
                 updateDrawUnreadCounts(unReadCountsMap);
