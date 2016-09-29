@@ -54,12 +54,16 @@ import org.foree.duker.rssinfo.RssFeed;
 import org.foree.duker.rssinfo.RssProfile;
 import org.foree.duker.service.RefreshService;
 import org.foree.duker.ui.fragment.ItemListFragment;
+import org.foree.duker.ui.presenter.IMainPresenter;
+import org.foree.duker.ui.presenter.MainPresenterCompl;
+import org.foree.duker.ui.view.IMainView;
 import org.foree.duker.utils.FeedlyApiUtils;
 
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends BaseActivity implements OnDrawerItemClickListener, SwipeRefreshLayout.OnRefreshListener, Drawer.OnDrawerListener {
+public class MainActivity extends BaseActivity implements OnDrawerItemClickListener,
+        SwipeRefreshLayout.OnRefreshListener, Drawer.OnDrawerListener, IMainView {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     // Drawer
@@ -117,7 +121,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                     updateSubscriptions();
                     break;
                 case MSG_UPDATE_PROFILE:
-                    updateProfile();
+                    mainPresenter.getProfile();
                     break;
                 case MSG_UPDATE_ENTRIES:
                     Log.d(TAG, "update UI");
@@ -146,6 +150,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     Toolbar toolbar;
     SwipeRefreshLayout mSwipeRefreshLayout;
     SharedPreferences sp;
+    IMainPresenter mainPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -173,6 +178,10 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         refreshService.putExtra("handler", new Messenger(mHandler));
         bindService(refreshService, mServiceConnect, BIND_AUTO_CREATE);
 
+        // MainPresenter init
+        mainPresenter = new MainPresenterCompl(this);
+
+
         initDraw(savedInstanceState);
         initSubscriptions();
 
@@ -185,6 +194,14 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
             }
         });
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mainPresenter.getProfile();
+        mainPresenter.getSubscriptions();
+        mainPresenter.getUnreadCounts();
     }
 
     @Override
@@ -230,11 +247,17 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     }
 
     private void initSubscriptions(){
-        updateProfile();
         updateSubscriptions();
     }
 
-    private void updateSubscriptions() {
+    @Override
+    public void updateProfile(RssProfile rssProfile) {
+        final IProfile profile2 = new ProfileDrawerItem().withName(rssProfile.getFullName()).withEmail(rssProfile.getEmail()).withIcon(rssProfile.getPicture()).withIdentifier(100);
+        headerResult.updateProfile(profile2);
+    }
+
+    @Override
+    public void updateSubscriptions() {
         localApiHelper.getFeedCate("", new NetCallback<Map<RssCategory, List<RssFeed>>>() {
             @Override
             public void onSuccess(final Map<RssCategory, List<RssFeed>> data) {
@@ -249,6 +272,11 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                 Log.e(TAG,"getSubscription " + msg);
             }
         });
+    }
+
+    @Override
+    public void updateUnreadCounts() {
+
     }
 
     /**
@@ -316,22 +344,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                 result.getAdapter().notifyAdapterSubItemsChanged(result.getPosition(CATEGORY_IDENTIFIER));
             }
         }
-    }
-
-    private void updateProfile() {
-
-        // getProfile from db
-        localApiHelper.getProfile("", new NetCallback<RssProfile>() {
-            @Override
-            public void onSuccess(RssProfile data) {
-                final IProfile profile2 = new ProfileDrawerItem().withName(data.getFullName()).withEmail(data.getEmail()).withIcon(data.getPicture()).withIdentifier(100);
-                headerResult.updateProfile(profile2);
-            }
-            @Override
-            public void onFail(String msg) {
-                Log.e(TAG, "updateProfile:" + msg);
-            }
-        });
     }
 
     @Override
