@@ -57,6 +57,11 @@ public class RefreshService extends Service {
     public RefreshService() {
     }
 
+    public void stopSync() {
+        if( syncEntriesThread.isAlive())
+            syncEntriesThread.stop();
+    }
+
     public class MyBinder extends Binder {
         public RefreshService getService(){
             return RefreshService.this;

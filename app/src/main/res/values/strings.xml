@@ -8,6 +8,7 @@
     <!-- menu -->
     <string name="action_settings">Settings</string>
     <string name="action_refresh">Refresh</string>
+    <string name="action_stop_refresh">Stop Refresh</string>
 
     <!-- Drawer string -->
     <string name="drawer_item_home" translatable="false">Home</string>

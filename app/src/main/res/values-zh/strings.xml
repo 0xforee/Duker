@@ -18,4 +18,5 @@
     <string name="offline">离线模式</string>
     <string name="action_refresh">刷新</string>
     <string name="action_settings">设置</string>
+    <string name="action_stop_refresh">停止刷新</string>
 </resources>

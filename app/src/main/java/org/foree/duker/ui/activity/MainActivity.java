@@ -361,6 +361,19 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        if( mSwipeRefreshLayout.isRefreshing() ) {
+            menu.findItem(R.id.action_stop_refresh).setVisible(true);
+            menu.findItem(R.id.action_refresh).setVisible(false);
+        } else{
+            menu.findItem(R.id.action_stop_refresh).setVisible(false);
+            menu.findItem(R.id.action_refresh).setVisible(true);
+        }
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()){
@@ -370,6 +383,9 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                 break;
             case R.id.action_refresh:
                 refresh();
+                break;
+            case R.id.action_stop_refresh:
+                resetRefresh();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -389,8 +405,11 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
     }
     private void resetRefresh(){
-        if( mSwipeRefreshLayout.isRefreshing())
+        if( mSwipeRefreshLayout.isRefreshing()) {
             mSwipeRefreshLayout.setRefreshing(false);
+            if( mStreamService != null)
+                mStreamService.stopSync();
+        }
     }
 
     @Override
