@@ -21,7 +21,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.mikepenz.fastadapter.IExpandable;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -41,13 +40,8 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
 import org.foree.duker.R;
-import org.foree.duker.api.AbsApiFactory;
-import org.foree.duker.api.AbsApiHelper;
-import org.foree.duker.api.ApiFactory;
-import org.foree.duker.api.LocalApiHelper;
 import org.foree.duker.base.BaseActivity;
 import org.foree.duker.base.BaseApplication;
-import org.foree.duker.net.NetCallback;
 import org.foree.duker.net.SyncState;
 import org.foree.duker.rssinfo.RssCategory;
 import org.foree.duker.rssinfo.RssFeed;
@@ -95,7 +89,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     @Override
     public void onDrawerOpened(View drawerView) {
         // 打开侧边栏的时候同步更新未读数量
-        startSyncUnreadCounts();
+        mainPresenter.getUnreadCounts();
 
     }
 
@@ -115,10 +109,10 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
             super.handleMessage(msg);
             switch (msg.what){
                 case MSG_UPDATE_UNREAD:
-                    startSyncUnreadCounts();
+                    mainPresenter.getUnreadCounts();
                     break;
                 case MSG_UPDATE_SUBSCRIPTIONS:
-                    updateSubscriptions();
+                    mainPresenter.getSubscriptions();
                     break;
                 case MSG_UPDATE_PROFILE:
                     mainPresenter.getProfile();
@@ -144,7 +138,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         }
     }
 
-    AbsApiHelper localApiHelper;
     FloatingActionButton testFloatingButton;
     Map<RssCategory, List<RssFeed>> feedCateMap;
     Toolbar toolbar;
@@ -165,9 +158,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
         sp = PreferenceManager.getDefaultSharedPreferences(BaseApplication.getInstance());
 
-        AbsApiFactory absApiFactory = new ApiFactory();
-        localApiHelper = absApiFactory.createApiHelper(LocalApiHelper.class);
-
         if (savedInstanceState == null) {
             f = ItemListFragment.newInstance(FeedlyApiUtils.getApiGlobalAllUrl());
             getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
@@ -183,7 +173,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
 
         initDraw(savedInstanceState);
-        initSubscriptions();
+        initUserData();
 
         // get FloatActionButton
         testFloatingButton = (FloatingActionButton)findViewById(R.id.fab);
@@ -194,14 +184,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
             }
         });
 
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mainPresenter.getProfile();
-        mainPresenter.getSubscriptions();
-        mainPresenter.getUnreadCounts();
     }
 
     @Override
@@ -246,8 +228,10 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
     }
 
-    private void initSubscriptions(){
-        updateSubscriptions();
+    private void initUserData(){
+        mainPresenter.getProfile();
+        mainPresenter.getSubscriptions();
+        mainPresenter.getUnreadCounts();
     }
 
     @Override
@@ -257,26 +241,28 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     }
 
     @Override
-    public void updateSubscriptions() {
-        localApiHelper.getFeedCate("", new NetCallback<Map<RssCategory, List<RssFeed>>>() {
-            @Override
-            public void onSuccess(final Map<RssCategory, List<RssFeed>> data) {
-                feedCateMap = data;
-                updateDrawItems();
-                startSyncUnreadCounts();
-            }
-
-            @Override
-            public void onFail(String msg) {
-                Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_LONG).show();
-                Log.e(TAG,"getSubscription " + msg);
-            }
-        });
+    public void updateSubscriptions(Map<RssCategory, List<RssFeed>> data) {
+        feedCateMap = data;
+        updateDrawItems();
     }
 
     @Override
-    public void updateUnreadCounts() {
+    public void updateUnreadCounts(Map<String, Long> unReadCountsMap) {
 
+        // update All unreadCounts
+        ((PrimaryDrawerItem)result.getDrawerItem(DRAW_ITEM_HOME)).withBadge(new StringHolder(unReadCountsMap.get(result.getDrawerItem(DRAW_ITEM_HOME).getTag() + "") + ""));
+        result.getAdapter().notifyAdapterItemChanged(result.getPosition(DRAW_ITEM_HOME));
+
+        // update feed unreadCounts
+        if( feedCateMap != null) {
+            for (RssCategory rss : feedCateMap.keySet()) {
+                List<SecondaryDrawerItem> secondaryDrawerItems = ((IExpandable) result.getDrawerItem(rss.getCategoryId())).getSubItems();
+                for (SecondaryDrawerItem secondaryDrawerItem : secondaryDrawerItems) {
+                    secondaryDrawerItem.withBadge(new StringHolder(unReadCountsMap.get(secondaryDrawerItem.getTag() + "") + ""));
+                }
+                result.getAdapter().notifyAdapterSubItemsChanged(result.getPosition(CATEGORY_IDENTIFIER));
+            }
+        }
     }
 
     /**
@@ -312,38 +298,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         // Add openSource
         result.addItem(new DividerDrawerItem());
         result.addItem(new PrimaryDrawerItem().withIdentifier(DRAW_ITEM_OPEN_SOURCE).withName(R.string.drawer_item_open_source));
-    }
-
-    private void startSyncUnreadCounts() {
-
-        localApiHelper.getUnreadCounts("", new NetCallback<Map<String, Long>>() {
-            @Override
-            public void onSuccess(Map<String, Long> unReadCountsMap) {
-                updateDrawUnreadCounts(unReadCountsMap);
-            }
-            @Override
-            public void onFail(String msg) {
-                Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_LONG).show();
-                Log.e(TAG,"getUnreadCounts " + msg);
-            }
-        });
-    }
-
-    private void updateDrawUnreadCounts(Map<String, Long> unReadCountsMap) {
-        // update All unreadCounts
-        ((PrimaryDrawerItem)result.getDrawerItem(DRAW_ITEM_HOME)).withBadge(new StringHolder(unReadCountsMap.get(result.getDrawerItem(DRAW_ITEM_HOME).getTag() + "") + ""));
-        result.getAdapter().notifyAdapterItemChanged(result.getPosition(DRAW_ITEM_HOME));
-
-        // update feed unreadCounts
-        if( feedCateMap != null) {
-            for (RssCategory rss : feedCateMap.keySet()) {
-                List<SecondaryDrawerItem> secondaryDrawerItems = ((IExpandable) result.getDrawerItem(rss.getCategoryId())).getSubItems();
-                for (SecondaryDrawerItem secondaryDrawerItem : secondaryDrawerItems) {
-                    secondaryDrawerItem.withBadge(new StringHolder(unReadCountsMap.get(secondaryDrawerItem.getTag() + "") + ""));
-                }
-                result.getAdapter().notifyAdapterSubItemsChanged(result.getPosition(CATEGORY_IDENTIFIER));
-            }
-        }
     }
 
     @Override
