@@ -85,24 +85,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     public static final int MSG_SYNC_ENTRIES_START = 4;
     public static final int MSG_SYNC_ENTRIES_SUCCESS = 5;
     public static final int MSG_SYNC_ENTRIES_FAIL = 6;
-
-    @Override
-    public void onDrawerOpened(View drawerView) {
-        // 打开侧边栏的时候同步更新未读数量
-        mainPresenter.getUnreadCounts();
-
-    }
-
-    @Override
-    public void onDrawerClosed(View drawerView) {
-
-    }
-
-    @Override
-    public void onDrawerSlide(View drawerView, float slideOffset) {
-
-    }
-
+    
     private class H extends Handler{
         @Override
         public void handleMessage(Message msg) {
@@ -318,6 +301,23 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
             }
         }
         return false;
+    }
+
+    @Override
+    public void onDrawerOpened(View drawerView) {
+        // 打开侧边栏的时候同步更新未读数量
+        mainPresenter.getUnreadCounts();
+
+    }
+
+    @Override
+    public void onDrawerClosed(View drawerView) {
+
+    }
+
+    @Override
+    public void onDrawerSlide(View drawerView, float slideOffset) {
+
     }
 
     @Override
