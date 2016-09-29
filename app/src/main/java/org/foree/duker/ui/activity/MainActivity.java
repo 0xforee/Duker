@@ -221,11 +221,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
 
         badgeStyle = new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.red);
-
-        // Add Home
-        result.addItem(new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIdentifier(DRAW_ITEM_HOME)
-                .withBadgeStyle(badgeStyle).withTag(FeedlyApiUtils.getApiGlobalAllUrl()));
-
+        
     }
 
     private void initSubscriptions(){
@@ -250,7 +246,18 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         });
     }
 
+    /**
+     * remove all Item first, and add again
+     */
     private void updateDrawItems() {
+        // Remove all Items
+        result.removeAllItems();
+
+        // Add Home
+        result.addItem(new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIdentifier(DRAW_ITEM_HOME)
+                .withBadgeStyle(badgeStyle).withTag(FeedlyApiUtils.getApiGlobalAllUrl()));
+
+        // Add feeds
         if (feedCateMap != null) {
             for (RssCategory rssCategory : feedCateMap.keySet()) {
                 ExpandableDrawerItem expandableDrawerItem = new ExpandableDrawerItem()
@@ -269,6 +276,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
             }
         }
 
+        // Add openSource
         result.addItem(new DividerDrawerItem());
         result.addItem(new PrimaryDrawerItem().withIdentifier(DRAW_ITEM_OPEN_SOURCE).withName(R.string.drawer_item_open_source));
     }
