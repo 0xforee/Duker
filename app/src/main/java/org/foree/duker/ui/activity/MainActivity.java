@@ -344,8 +344,8 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                 Uri uri = Uri.parse(getString(R.string.github_address));
                 Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                 startActivity(intent);
-            // feedItem and CategoryItem
-            } else {
+                // feedItem filter
+            } else if (drawerItem.getTag().toString().contains("feed")) {
                 Log.d(TAG, "feedId = " + drawerItem.getTag());
                 f = ItemListFragment.newInstance((String) drawerItem.getTag());
                 getFragmentManager().beginTransaction().replace(R.id.content_main, f).commit();
@@ -404,6 +404,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         });
 
     }
+
     private void resetRefresh(){
         if( mSwipeRefreshLayout.isRefreshing()) {
             mSwipeRefreshLayout.setRefreshing(false);
