@@ -14,6 +14,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -83,8 +84,9 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     public static final int MSG_UPDATE_SUBSCRIPTIONS = 1;
     public static final int MSG_UPDATE_PROFILE = 2;
     public static final int MSG_UPDATE_ENTRIES = 3;
-    public static final int MSG_SYNC_ENTRIES_COMPLETE = 4;
-    public static final int MSG_SYNC_ENTRIES_START = 5;
+    public static final int MSG_SYNC_ENTRIES_START = 4;
+    public static final int MSG_SYNC_ENTRIES_SUCCESS = 5;
+    public static final int MSG_SYNC_ENTRIES_FAIL = 6;
 
     @Override
     public void onDrawerOpened(View drawerView) {
@@ -109,7 +111,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
             super.handleMessage(msg);
             switch (msg.what){
                 case MSG_UPDATE_UNREAD:
-                    // TODO:unread状态更新从本地数据库中获取
                     startSyncUnreadCounts();
                     break;
                 case MSG_UPDATE_SUBSCRIPTIONS:
@@ -125,11 +126,15 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                     break;
                 case MSG_SYNC_ENTRIES_START:
                     break;
-                case MSG_SYNC_ENTRIES_COMPLETE:
-                    Log.d(TAG, "refresh finished");
-                    mSwipeRefreshLayout.setRefreshing(false);
+                case MSG_SYNC_ENTRIES_SUCCESS:
+                    Log.d(TAG, "sync entries success");
+                    resetRefresh();
                     break;
-
+                case MSG_SYNC_ENTRIES_FAIL:
+                    Log.d(TAG, "sync entries fail");
+                    resetRefresh();
+                    Snackbar.make(mSwipeRefreshLayout,(String)msg.obj, Snackbar.LENGTH_SHORT).show();
+                    break;
 
             }
         }
@@ -221,7 +226,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
 
 
         badgeStyle = new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.red);
-        
+
     }
 
     private void initSubscriptions(){
@@ -382,6 +387,10 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
             }
         });
 
+    }
+    private void resetRefresh(){
+        if( mSwipeRefreshLayout.isRefreshing())
+            mSwipeRefreshLayout.setRefreshing(false);
     }
 
     @Override

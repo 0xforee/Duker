@@ -25,7 +25,6 @@ import org.foree.duker.rssinfo.RssFeed;
 import org.foree.duker.rssinfo.RssItem;
 import org.foree.duker.rssinfo.RssProfile;
 import org.foree.duker.ui.activity.MainActivity;
-import org.foree.duker.ui.activity.SettingsActivity;
 import org.foree.duker.utils.FeedlyApiUtils;
 
 import java.util.List;
@@ -84,7 +83,7 @@ public class RefreshService extends Service {
                         if (!sp.getString("continuation", "").isEmpty()) {
                             syncEntriesInternal();
                         }else{
-                            sendToMainActivityEmptyMessage(MainActivity.MSG_SYNC_ENTRIES_COMPLETE);
+                            sendMainActivityEmptyMessage(MainActivity.MSG_SYNC_ENTRIES_SUCCESS);
                         }
                         break;
                     case MSG_REFRESH_ENTRIES:
@@ -139,7 +138,7 @@ public class RefreshService extends Service {
                     @Override
                     public void onSuccess(RssProfile data) {
                         rssDao.insertProfile(data);
-                        sendToMainActivityEmptyMessage(MainActivity.MSG_UPDATE_PROFILE);
+                        sendMainActivityEmptyMessage(MainActivity.MSG_UPDATE_PROFILE);
                     }
 
                     @Override
@@ -183,7 +182,7 @@ public class RefreshService extends Service {
                     @Override
                     public void onSuccess(List<RssFeed> data) {
                         rssDao.insertFeedAndSubCate(data);
-                        sendToMainActivityEmptyMessage(MainActivity.MSG_UPDATE_SUBSCRIPTIONS);
+                        sendMainActivityEmptyMessage(MainActivity.MSG_UPDATE_SUBSCRIPTIONS);
                     }
 
                     @Override
@@ -233,12 +232,12 @@ public class RefreshService extends Service {
 
                         mHandler.sendEmptyMessage(MSG_SYNC_ENTRIES_INTERNAL);
 
-                        sendToMainActivityEmptyMessage(MainActivity.MSG_UPDATE_ENTRIES);
+                        sendMainActivityEmptyMessage(MainActivity.MSG_UPDATE_ENTRIES);
                     }
 
                     @Override
                     public void onFail(String msg) {
-                        sendToMainActivityEmptyMessage(MainActivity.MSG_SYNC_ENTRIES_COMPLETE);
+                        sendMainActivityMessage(MainActivity.MSG_SYNC_ENTRIES_FAIL, msg);
                     }
                 });
 
@@ -297,10 +296,15 @@ public class RefreshService extends Service {
             timeTriggerThread.start();
     }
 
-    // sendToMainActivityEmptyMessage
-    private void sendToMainActivityEmptyMessage(int what){
+    // sendMainActivityEmptyMessage
+    private void sendMainActivityEmptyMessage(int what){
+        sendMainActivityMessage(what, null);
+    }
+
+    private void sendMainActivityMessage(int what, Object object){
         Message msg = new Message();
         msg.what = what;
+        msg.obj = object;
         if( mainActivityMessenger != null) {
             try {
                 mainActivityMessenger.send(msg);
