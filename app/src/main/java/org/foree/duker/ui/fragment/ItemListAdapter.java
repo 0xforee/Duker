@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import org.foree.duker.R;
 import org.foree.duker.rssinfo.RssItem;
+import org.foree.imageloader.core.MainImageLoader;
 
 import java.util.Date;
 import java.util.List;
@@ -52,6 +53,7 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.MyView
         holder.tvPublished.setText(new Date(mItemList.get(position).getPublished()).toString());
         if(mItemList.get(position).getVisual()!= null && !mItemList.get(position).getVisual().isEmpty()) {
             holder.imageView.setVisibility(View.VISIBLE);
+            MainImageLoader.getInstance().displayImage(holder.imageView, mItemList.get(position).getVisual());
         }
         // 如果设置了回调，则设置点击事件
         if (mOnItemClickListener != null)

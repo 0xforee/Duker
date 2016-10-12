@@ -52,6 +52,8 @@ import org.foree.duker.ui.presenter.IMainPresenter;
 import org.foree.duker.ui.presenter.MainPresenterCompl;
 import org.foree.duker.ui.view.IMainView;
 import org.foree.duker.utils.FeedlyApiUtils;
+import org.foree.imageloader.config.ImageLoaderConfig;
+import org.foree.imageloader.core.MainImageLoader;
 
 import java.util.List;
 import java.util.Map;
@@ -154,6 +156,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         // MainPresenter init
         mainPresenter = new MainPresenterCompl(this);
 
+        initImageLoader();
 
         initDraw(savedInstanceState);
         initUserData();
@@ -167,6 +170,16 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
             }
         });
 
+    }
+
+    private void initImageLoader() {
+        ImageLoaderConfig config = new ImageLoaderConfig();
+        config.setContext(this)
+                .setThreadCount(4)
+                .setFailResId(R.drawable.error)
+                .setLoadingResId(R.drawable.placeholder);
+
+        MainImageLoader.getInstance().init(config);
     }
 
     @Override
