@@ -44,7 +44,7 @@ public class AppInfo extends Application {
         initEnv();
     }
 
-    public void initEnv() {
+    private void initEnv() {
 
         String cacheFile;
 

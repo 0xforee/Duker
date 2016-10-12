@@ -26,7 +26,7 @@ public class ImageLoaderConfig {
     /**
      * 图片缓存策略
      */
-    public BitmapCache bitmapCache = DoubleCache.getInstance();
+    public BitmapCache bitmapCache;
 
     /**
      * 图片Loading与加载失败的配置对象

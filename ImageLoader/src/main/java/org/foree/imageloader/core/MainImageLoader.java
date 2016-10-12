@@ -3,6 +3,7 @@ package org.foree.imageloader.core;
 import android.widget.ImageView;
 
 import org.foree.imageloader.base.AppInfo;
+import org.foree.imageloader.cache.DoubleCache;
 import org.foree.imageloader.config.ImageLoaderConfig;
 import org.foree.imageloader.request.BitMapRequest;
 
@@ -43,9 +44,9 @@ public class MainImageLoader {
     public void init(ImageLoaderConfig config){
         imageLoaderConfig = config;
 
-        checkConfig();
-
         new AppInfo(imageLoaderConfig.mContext);
+
+        checkConfig();
 
         mRequestQueue = new RequestQueue(imageLoaderConfig.getThreadCount());
         mRequestQueue.start();
@@ -58,6 +59,9 @@ public class MainImageLoader {
         }else{
             if( imageLoaderConfig.mContext == null){
                 throw new RuntimeException("The context of MainImageLoader is Null, please call the setContext(context) to initialize");
+            }
+            if (imageLoaderConfig.bitmapCache == null){
+                imageLoaderConfig.bitmapCache = DoubleCache.getInstance();
             }
         }
     }
