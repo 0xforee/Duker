@@ -20,6 +20,7 @@ public class BitMapRequest implements Comparable{
         mImageView = imageView;
         mUri = uri;
         mConfig = MainImageLoader.getInstance().getConfig();
+        mImageView.setTag(mUri);
     }
 
     public ImageView getImageView() {

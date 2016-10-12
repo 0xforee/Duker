@@ -28,10 +28,8 @@ public abstract class AbsLoader implements ILoader{
     }
 
     public void loadImage(BitMapRequest request){
-        final ImageView imageView = request.getImageView();
-
         // showLoadingImage
-        showImage(imageView, BitmapFactory.decodeResource(
+        showImage(request, BitmapFactory.decodeResource(
                 mConfig.mContext.getResources(),
                 mConfig.displayConfig.getLoadingResId())
         );
@@ -39,8 +37,6 @@ public abstract class AbsLoader implements ILoader{
         // check memoryCache
         Bitmap bitmap = mBitmapCache.get(request.getImageUri());
         if( bitmap == null){
-
-
 
             // getImage
             bitmap = getBitmap(request);
@@ -52,11 +48,12 @@ public abstract class AbsLoader implements ILoader{
 
         Log.d(TAG, "url = " + request.getImageUri());
 
-        showImage(imageView, bitmap);
+        showImage(request, bitmap);
     }
 
 
-    private void showImage(final ImageView imageView, final Bitmap bitmap){
+    private void showImage(final BitMapRequest request, final Bitmap bitmap){
+        final ImageView imageView = request.getImageView();
         // 分情况，
         // 1. 正在加载
         // 2. 已经加载成功
@@ -69,7 +66,8 @@ public abstract class AbsLoader implements ILoader{
                     imageView.setImageResource(mConfig.displayConfig.getFailResId());
                 }else {
                     // get Bitmap success
-                    imageView.setImageBitmap(bitmap);
+                    if(imageView.getTag().equals(request.getImageUri()))
+                        imageView.setImageBitmap(bitmap);
                 }
             }
         });
