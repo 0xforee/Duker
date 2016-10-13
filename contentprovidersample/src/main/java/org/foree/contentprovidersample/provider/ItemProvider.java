@@ -51,14 +51,14 @@ public class ItemProvider extends ContentProvider {
 
     @Nullable
     @Override
-    public Uri insert(Uri uri, ContentValues contentValues) {
+    public Uri insert(Uri uri, ContentValues values) {
         Uri resultUri = null;
 
         int code = uriMatcher.match(uri);
         switch (code){
             case CODE_ENTRY:
                 SQLiteDatabase db = rssSQLiteOpenHelper.getWritableDatabase();
-                long id = db.insert(RssSQLiteOpenHelper.DB_TABLE_ENTRY, null, contentValues);
+                long id = db.insert(RssSQLiteOpenHelper.DB_TABLE_ENTRY, null, values);
                 resultUri = ContentUris.withAppendedId(uri, id);
                 break;
 
@@ -67,12 +67,12 @@ public class ItemProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(Uri uri, String s, String[] strings) {
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
         return 0;
     }
 
     @Override
-    public int update(Uri uri, ContentValues contentValues, String s, String[] strings) {
+    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         return 0;
     }
 }

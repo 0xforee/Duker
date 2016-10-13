@@ -2,8 +2,11 @@ package org.foree.contentprovidersample;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.database.ContentObserver;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +16,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
 
     // 切换浏览模式
@@ -20,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
     ImageAdapter imageAdapter;
     Button bt_item;
     ContentResolver contentResolver;
+    Uri entryUri = Uri.parse("content://org.foree.contentprovidersample/entry");
+    List<String> itemTitles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,13 +50,13 @@ public class MainActivity extends AppCompatActivity {
 
         contentResolver = getContentResolver();
 
+        itemTitles = new ArrayList<>();
     }
 
     private void insert() {
-        Uri uri = Uri.parse("content://org.foree.contentprovidersample/entry");
         ContentValues values = new ContentValues();
         values.put("title", "hahahahah");
-        contentResolver.insert(uri, values);
+        contentResolver.insert(entryUri, values);
     }
 
     class ImageAdapter extends RecyclerView.Adapter<ImageHolder> {
@@ -60,12 +68,13 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(ImageHolder holder, int position) {
-            // setText
+            //set Text
+            holder.textView.setText(itemTitles.get(position));
         }
 
         @Override
         public int getItemCount() {
-            return 0;
+            return itemTitles.size();
         }
 
     }
