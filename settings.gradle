@@ -1,2 +1,2 @@
-include ':app', ':ImageLoader'
+include ':app', ':ImageLoader', ':contentprovidersample'
 include ':libraries:Volley'
