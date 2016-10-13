@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">ContentProviderSample</string>
+    <string name="title">啊啊啊啊，你高大上的大门夹到我的手指了</string>
+    <string name="feed_name">知乎每日精选</string>
+    <string name="published">Fri Sep 30 13:48:23 GMT+ 08:00 2016</string>
+    <string name="action_change_card">切换卡片</string>
+    <string name="action_change_list">切换列表</string>
+    <string name="bn_insert">插入数据</string>
 </resources>
