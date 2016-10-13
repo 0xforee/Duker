@@ -1,5 +1,8 @@
 package org.foree.contentprovidersample;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     ImageAdapter imageAdapter;
     Button bt_item;
+    ContentResolver contentResolver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,8 +36,19 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // insert data
+                insert();
             }
         });
+
+        contentResolver = getContentResolver();
+
+    }
+
+    private void insert() {
+        Uri uri = Uri.parse("content://org.foree.contentprovidersample/entry");
+        ContentValues values = new ContentValues();
+        values.put("title", "hahahahah");
+        contentResolver.insert(uri, values);
     }
 
     class ImageAdapter extends RecyclerView.Adapter<ImageHolder> {
