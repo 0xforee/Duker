@@ -34,14 +34,22 @@ public class ItemProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         rssSQLiteOpenHelper = new RssSQLiteOpenHelper(getContext());
+
         return true;
     }
 
     @Nullable
     @Override
-    public Cursor query(Uri uri, String[] strings, String s, String[] strings1, String s1) {
-        return null;
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        Cursor cur = null;
+        SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
+        switch (uriMatcher.match(uri)){
+            case CODE_ENTRY:
+                 cur = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRY, null,null,null,null,null,null,null);
+        }
+        return cur;
     }
+
 
     @Nullable
     @Override
@@ -63,6 +71,7 @@ public class ItemProvider extends ContentProvider {
                 break;
 
         }
+        getContext().getContentResolver().notifyChange(uri,null);
         return resultUri;
     }
 

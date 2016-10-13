@@ -51,7 +51,24 @@ public class MainActivity extends AppCompatActivity {
         contentResolver = getContentResolver();
 
         itemTitles = new ArrayList<>();
+
+        contentResolver.registerContentObserver(entryUri, true, new ContentObserver(mHandler) {
+            @Override
+            public void onChange(boolean selfChange) {
+                queryAll();
+                imageAdapter.notifyDataSetChanged();
+            }
+        });
     }
+
+    private android.os.Handler mHandler = new android.os.Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+
+            }
+        }
+    };
 
     private void insert() {
         ContentValues values = new ContentValues();
@@ -59,6 +76,15 @@ public class MainActivity extends AppCompatActivity {
         contentResolver.insert(entryUri, values);
     }
 
+    private void queryAll(){
+        Cursor cursor = contentResolver.query(entryUri,null,null,null,null,null);
+        if ( cursor != null){
+            itemTitles.clear();
+            while(cursor.moveToNext()){
+                itemTitles.add(cursor.getString(cursor.getColumnIndex("title")));
+            }
+        }
+    }
     class ImageAdapter extends RecyclerView.Adapter<ImageHolder> {
 
         @Override
