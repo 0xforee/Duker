@@ -11,6 +11,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <provider
+            android:authorities="org.foree.contentprovidersample"
+            android:name=".provider.ItemProvider"/>
     </application>
 
 </manifest>
