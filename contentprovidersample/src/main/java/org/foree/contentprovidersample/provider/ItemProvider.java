@@ -8,14 +8,18 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import org.foree.contentprovidersample.dao.RssSQLiteOpenHelper;
+
+import java.util.Arrays;
 
 /**
  * Created by foree on 16-10-13.
  */
 
 public class ItemProvider extends ContentProvider {
+    private static final String TAG = ItemProvider.class.getSimpleName();
 
     private static final String AUTHORITY = "org.foree.contentprovidersample";
     private static final String PATH_ENTRY = RssSQLiteOpenHelper.DB_TABLE_ENTRY;
@@ -36,6 +40,7 @@ public class ItemProvider extends ContentProvider {
 
     public ItemProvider(){
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+
         // add table uri
         uriMatcher.addURI(AUTHORITY, PATH_ENTRY, CODE_ENTRY);
         uriMatcher.addURI(AUTHORITY, PATH_CATEGORY, CODE_CATEGORY);
@@ -78,19 +83,53 @@ public class ItemProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        Uri resultUri = null;
+        Uri resultUri;
+        SQLiteDatabase db = rssSQLiteOpenHelper.getWritableDatabase();
+        long id = 0;
 
         int code = uriMatcher.match(uri);
         switch (code){
             case CODE_ENTRY:
-                SQLiteDatabase db = rssSQLiteOpenHelper.getWritableDatabase();
-                long id = db.insert(RssSQLiteOpenHelper.DB_TABLE_ENTRY, null, values);
-                resultUri = ContentUris.withAppendedId(uri, id);
+                id = db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_ENTRY, null, values,SQLiteDatabase.CONFLICT_REPLACE);
                 break;
-
+            case CODE_PROFILE:
+                id = db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_PROFILE, null, values,SQLiteDatabase.CONFLICT_REPLACE);
+                break;
+            case CODE_CATEGORY:
+                id = db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_CATEGORY, null, values,SQLiteDatabase.CONFLICT_REPLACE);
+                break;
+            case CODE_FEED:
+                id = db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_FEED, null, values,SQLiteDatabase.CONFLICT_REPLACE);
+                break;
+            case CODE_SUB_CATE:
+                Cursor cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_SUB_CATE, null,
+                        "feed_id=? AND category_id=?", new String[]{values.getAsString("feed_id"), values.getAsString("category_id")}, null, null, null);
+                if (cursor.getCount() == 0) {
+                    id = db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_SUB_CATE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+                }
+                cursor.close();
+                break;
         }
+
         getContext().getContentResolver().notifyChange(uri,null);
+        resultUri = ContentUris.withAppendedId(uri, id);
+
         return resultUri;
+    }
+
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+        int result = values.length;
+
+        switch (uriMatcher.match(uri)){
+            case CODE_ENTRY:
+            case CODE_CATEGORY:
+                insertItems(uri, values);
+                break;
+        }
+
+        getContext().getContentResolver().notifyChange(uri, null);
+        return result;
     }
 
     @Override
@@ -101,5 +140,33 @@ public class ItemProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         return 0;
+    }
+
+    // 使用事务加快大量数据插入速度
+    private void insertItems(Uri uri, ContentValues[] contentValues){
+        synchronized (this) {
+            int tmp = 1;
+            Log.d(TAG, "insert uri = " + uri.toString() + " " + contentValues.length + " items to db");
+            // 拆分itemList，dataBase 一次事务只能插入1000条数据
+            while(contentValues.length>(1000*tmp)){
+                insertItemsInternal(uri, Arrays.copyOfRange(contentValues,1000*(tmp-1),1000*tmp));
+                tmp++;
+            }
+            insertItemsInternal(uri, Arrays.copyOfRange(contentValues,1000*(tmp-1),contentValues.length));
+        }
+    }
+
+    private void insertItemsInternal(Uri uri, ContentValues[] contentValues) {
+        SQLiteDatabase db = rssSQLiteOpenHelper.getWritableDatabase();
+        db.beginTransaction();
+        for (ContentValues item : contentValues) {
+            // 内容不重复
+            if( ContentUris.parseId(insert(uri, item)) == -1 ){
+                Log.e(TAG, "Database insert error");
+            }
+        }
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();
     }
 }
