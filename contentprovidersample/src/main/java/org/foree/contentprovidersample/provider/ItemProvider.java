@@ -18,17 +18,32 @@ import org.foree.contentprovidersample.dao.RssSQLiteOpenHelper;
 public class ItemProvider extends ContentProvider {
 
     private static final String AUTHORITY = "org.foree.contentprovidersample";
-    private static final String PATH_ENTRY = "entry";
+    private static final String PATH_ENTRY = RssSQLiteOpenHelper.DB_TABLE_ENTRY;
+    private static final String PATH_CATEGORY = RssSQLiteOpenHelper.DB_TABLE_CATEGORY;
+    private static final String PATH_FEED = RssSQLiteOpenHelper.DB_TABLE_FEED;
+    private static final String PATH_PROFILE = RssSQLiteOpenHelper.DB_TABLE_PROFILE;
+    private static final String PATH_SUB_CATE = RssSQLiteOpenHelper.DB_TABLE_SUB_CATE;
 
     RssSQLiteOpenHelper rssSQLiteOpenHelper;
     UriMatcher uriMatcher;
 
     // 匹配码
     private static final int CODE_ENTRY = 0;
+    private static final int CODE_CATEGORY = 1;
+    private static final int CODE_FEED = 2;
+    private static final int CODE_PROFILE = 3;
+    private static final int CODE_SUB_CATE = 4;
 
     public ItemProvider(){
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+        // add table uri
         uriMatcher.addURI(AUTHORITY, PATH_ENTRY, CODE_ENTRY);
+        uriMatcher.addURI(AUTHORITY, PATH_CATEGORY, CODE_CATEGORY);
+        uriMatcher.addURI(AUTHORITY, PATH_FEED, CODE_FEED);
+        uriMatcher.addURI(AUTHORITY, PATH_PROFILE, CODE_PROFILE);
+        uriMatcher.addURI(AUTHORITY, PATH_SUB_CATE, CODE_SUB_CATE);
+
+        // add id uri
     }
 
     @Override
@@ -45,7 +60,10 @@ public class ItemProvider extends ContentProvider {
         SQLiteDatabase db = rssSQLiteOpenHelper.getReadableDatabase();
         switch (uriMatcher.match(uri)){
             case CODE_ENTRY:
-                 cur = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRY, null,null,null,null,null,null,null);
+                cur = db.query(RssSQLiteOpenHelper.DB_TABLE_ENTRY, null, null, null, null,null, null, null);
+                break;
+            case CODE_PROFILE:
+                cur = db.query(RssSQLiteOpenHelper.DB_TABLE_PROFILE, null, null, null, null, null, null);
         }
         return cur;
     }

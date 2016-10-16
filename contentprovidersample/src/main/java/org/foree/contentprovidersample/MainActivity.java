@@ -6,6 +6,7 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     ContentResolver contentResolver;
     Uri entryUri = Uri.parse("content://org.foree.contentprovidersample/entry");
     List<String> itemTitles;
+    RssObserver rssObserver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,13 +54,14 @@ public class MainActivity extends AppCompatActivity {
 
         itemTitles = new ArrayList<>();
 
-        contentResolver.registerContentObserver(entryUri, true, new ContentObserver(mHandler) {
-            @Override
-            public void onChange(boolean selfChange) {
-                queryAll();
-                imageAdapter.notifyDataSetChanged();
-            }
-        });
+        rssObserver = new RssObserver(mHandler);
+
+        contentResolver.registerContentObserver(entryUri, true, rssObserver);
+    }
+
+    @Override
+    protected void onDestroy() {
+        contentResolver.unregisterContentObserver(rssObserver);
     }
 
     private android.os.Handler mHandler = new android.os.Handler(){
@@ -70,21 +73,38 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    class RssObserver extends ContentObserver{
+
+        public RssObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            queryAll();
+            imageAdapter.notifyDataSetChanged();
+        }
+
+        private void queryAll(){
+            Cursor cursor = contentResolver.query(entryUri,null,null,null,null,null);
+            if ( cursor != null){
+                itemTitles.clear();
+                while(cursor.moveToNext()){
+                    itemTitles.add(cursor.getString(cursor.getColumnIndex("title")));
+                }
+
+                cursor.close();
+            }
+        }
+    }
+
     private void insert() {
         ContentValues values = new ContentValues();
         values.put("title", "hahahahah");
         contentResolver.insert(entryUri, values);
     }
 
-    private void queryAll(){
-        Cursor cursor = contentResolver.query(entryUri,null,null,null,null,null);
-        if ( cursor != null){
-            itemTitles.clear();
-            while(cursor.moveToNext()){
-                itemTitles.add(cursor.getString(cursor.getColumnIndex("title")));
-            }
-        }
-    }
+
     class ImageAdapter extends RecyclerView.Adapter<ImageHolder> {
 
         @Override
