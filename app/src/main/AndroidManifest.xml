@@ -38,7 +38,11 @@
         <service
             android:name=".service.RefreshService"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false"/>
+
+        <provider
+            android:authorities="org.foree.duker"
+            android:name=".provider.RssInfoProvider"/>
     </application>
 
 </manifest>

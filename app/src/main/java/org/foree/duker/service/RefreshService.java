@@ -1,8 +1,12 @@
 package org.foree.duker.service;
 
 import android.app.Service;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -19,7 +23,9 @@ import org.foree.duker.api.FeedlyApiArgs;
 import org.foree.duker.api.FeedlyApiHelper;
 import org.foree.duker.base.BaseApplication;
 import org.foree.duker.dao.RssDao;
+import org.foree.duker.dao.RssSQLiteOpenHelper;
 import org.foree.duker.net.NetCallback;
+import org.foree.duker.provider.RssInfoProvider;
 import org.foree.duker.rssinfo.RssCategory;
 import org.foree.duker.rssinfo.RssFeed;
 import org.foree.duker.rssinfo.RssItem;
@@ -52,6 +58,8 @@ public class RefreshService extends Service {
 
     SharedPreferences sp;
 
+    private ContentResolver contentResolver;
+
     private MyBinder mBinder = new MyBinder();
 
     public RefreshService() {
@@ -77,6 +85,8 @@ public class RefreshService extends Service {
         feedlyApiHelper = absApiFactory.createApiHelper(FeedlyApiHelper.class);
 
         rssDao = new RssDao(this);
+
+        contentResolver = getContentResolver();
 
         sp = PreferenceManager.getDefaultSharedPreferences(BaseApplication.getInstance());
 
@@ -233,7 +243,8 @@ public class RefreshService extends Service {
                     @Override
                     public void onSuccess(List<RssItem> data) {
                         // insertEntries to db
-                        rssDao.insertEntries(data);
+                        //rssDao.insertEntries(data);
+                        insertEntryData(data);
 
                         mHandler.sendEmptyMessage(MSG_SYNC_ENTRIES_INTERNAL);
 
@@ -256,13 +267,13 @@ public class RefreshService extends Service {
         Thread markEntriesThread = new Thread(){
             @Override
             public void run() {
-                // findUnreadEntriesByFeedId unread=false items
+                // findUnreadEntriesByFeedId unread=false itemList.get(i)s
                 final List<RssItem> rssItems = rssDao.findUnreadEntriesByFeedId(FeedlyApiUtils.getApiGlobalAllUrl(), false);
                 if (!rssItems.isEmpty()) {
                     feedlyApiHelper.markStream("", rssItems, new NetCallback<String>() {
                         @Override
                         public void onSuccess(String data) {
-                            // delete all items
+                            // delete all itemList.get(i)s
                             rssDao.deleteEntries(rssItems);
                         }
 
@@ -317,5 +328,26 @@ public class RefreshService extends Service {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void insertEntryData(List<RssItem> itemList){
+        ContentValues[] contentValuesArray = new ContentValues[itemList.size()];
+        for (int i=0; i < itemList.size(); i++) {
+            ContentValues contentValues = new ContentValues();
+
+            contentValues.put("entry_id", itemList.get(i).getEntryId());
+            contentValues.put("feed_id", itemList.get(i).getFeedId());
+            contentValues.put("feed_name", itemList.get(i).getFeedName());
+            contentValues.put("unread", itemList.get(i).isUnread());
+            contentValues.put("visual", itemList.get(i).getVisual());
+            contentValues.put("content", itemList.get(i).getContent());
+            contentValues.put("url", itemList.get(i).getUrl());
+            contentValues.put("published", itemList.get(i).getPublished());
+            contentValues.put("title", itemList.get(i).getTitle());
+
+            contentValuesArray[i] = contentValues;
+        }
+
+        contentResolver.bulkInsert(Uri.parse("content://org.foree.duker/entry"), contentValuesArray);
     }
 }

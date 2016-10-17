@@ -1,4 +1,4 @@
-package org.foree.contentprovidersample.provider;
+package org.foree.duker.provider;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -10,7 +10,7 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import org.foree.contentprovidersample.dao.RssSQLiteOpenHelper;
+import org.foree.duker.dao.RssSQLiteOpenHelper;
 
 import java.util.Arrays;
 
@@ -18,10 +18,10 @@ import java.util.Arrays;
  * Created by foree on 16-10-13.
  */
 
-public class ItemProvider extends ContentProvider {
-    private static final String TAG = ItemProvider.class.getSimpleName();
+public class RssInfoProvider extends ContentProvider {
+    private static final String TAG = RssInfoProvider.class.getSimpleName();
 
-    private static final String AUTHORITY = "org.foree.contentprovidersample";
+    private static final String AUTHORITY = "org.foree.duker";
     private static final String PATH_ENTRY = RssSQLiteOpenHelper.DB_TABLE_ENTRY + "/*";
     private static final String PATH_CATEGORY = RssSQLiteOpenHelper.DB_TABLE_CATEGORY;
     private static final String PATH_FEED = RssSQLiteOpenHelper.DB_TABLE_FEED;
@@ -38,7 +38,7 @@ public class ItemProvider extends ContentProvider {
     private static final int CODE_PROFILE = 3;
     private static final int CODE_SUB_CATE = 4;
 
-    public ItemProvider(){
+    public RssInfoProvider(){
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
         // add table uri
