@@ -1,12 +1,8 @@
 package org.foree.duker.ui.fragment;
 
-import android.app.Activity;
 import android.app.Fragment;
-import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -29,7 +25,7 @@ import org.foree.duker.api.FeedlyApiArgs;
 import org.foree.duker.api.LocalApiHelper;
 import org.foree.duker.dao.RssDaoHelper;
 import org.foree.duker.net.NetCallback;
-import org.foree.duker.net.SyncState;
+import org.foree.duker.provider.ItemListObserver;
 import org.foree.duker.provider.RssObserver;
 import org.foree.duker.rssinfo.RssItem;
 import org.foree.duker.ui.activity.ArticleActivity;
@@ -41,16 +37,19 @@ import java.util.List;
 /**
  * Created by foree on 16-7-20.
  */
-public class ItemListFragment extends Fragment implements SyncState {
-    private static final String KEY_FEEDID = "feedId";
+public class ItemListFragment extends Fragment {
     private static final String TAG = ItemListFragment.class.getSimpleName();
+
+    private static final String KEY_FEEDID = "feedId";
 
     private RecyclerView mRecyclerView;
     private ItemListAdapter mAdapter;
     private AbsApiHelper localApiHelper;
-    private Context mContext;
+
     private List<RssItem> itemList = new ArrayList<>();
+
     RssDaoHelper rssDaoHelper;
+
     private ContentObserver mContentObserver;
 
     private Handler mHandler = new Handler(){
@@ -89,35 +88,15 @@ public class ItemListFragment extends Fragment implements SyncState {
         AbsApiFactory absApiFactory = new ApiFactory();
         localApiHelper = absApiFactory.createApiHelper(LocalApiHelper.class);
 
-        mContentObserver = new RssObserver(mHandler);
+        mContentObserver = new ItemListObserver(mHandler);
 
         Log.d(TAG, "onCreate");
     }
 
     @Override
-    public void onAttach(Context context) {
-        Log.d(TAG, "onAttach");
-        mContext = context;
-        context.getContentResolver().registerContentObserver(Uri.parse("content://org.foree.duker/entry"), true, mContentObserver);
-        super.onAttach(context);
-
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            Log.d(TAG, "onAttach");
-            mContext = activity;
-        }
-    }
-
-    @Override
     public void onDetach() {
         Log.d(TAG, "onDetach");
-        if( mContext != null){
-            mContext.getContentResolver().unregisterContentObserver(mContentObserver);
-        }
+        getActivity().getContentResolver().unregisterContentObserver(mContentObserver);
         super.onDetach();
     }
 
@@ -135,11 +114,12 @@ public class ItemListFragment extends Fragment implements SyncState {
 
         rssDaoHelper = new RssDaoHelper(getActivity());
 
+        getActivity().getContentResolver().registerContentObserver(RssObserver.URI_ENTRY, true, mContentObserver);
+
         initAdapter();
 
         syncDate();
 
-        getActivity().getContentResolver().registerContentObserver(Uri.parse("content://org.foree.duker/entry"), true, mContentObserver);
 
 
         return linearLayout;
@@ -182,7 +162,6 @@ public class ItemListFragment extends Fragment implements SyncState {
         String feedId = getArguments().getString(KEY_FEEDID);
         FeedlyApiArgs args = new FeedlyApiArgs();
         // getItemList
-        // TODO:总是使用feedlyapi获取网络数据，等summary缓存处理完毕之后，修正
         localApiHelper.getStream("", feedId, args, new NetCallback<List<RssItem>>() {
             @Override
             public void onSuccess(List<RssItem> data) {
@@ -198,8 +177,4 @@ public class ItemListFragment extends Fragment implements SyncState {
         });
     }
 
-    @Override
-    public void updateUI() {
-        mHandler.sendEmptyMessage(MSG_SYNC_START);
-    }
 }
