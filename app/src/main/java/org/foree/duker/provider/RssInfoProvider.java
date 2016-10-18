@@ -114,12 +114,7 @@ public class RssInfoProvider extends ContentProvider {
                 id = db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_FEED, null, values,SQLiteDatabase.CONFLICT_REPLACE);
                 break;
             case CODE_SUB_CATE:
-                Cursor cursor = db.query(RssSQLiteOpenHelper.DB_TABLE_SUB_CATE, null,
-                        "feed_id=? AND category_id=?", new String[]{values.getAsString("feed_id"), values.getAsString("category_id")}, null, null, null);
-                if (cursor.getCount() == 0) {
-                    id = db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_SUB_CATE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-                }
-                cursor.close();
+                id = db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_SUB_CATE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
                 break;
         }
 

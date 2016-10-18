@@ -13,7 +13,12 @@ import org.foree.duker.ui.fragment.ItemListFragment;
 
 public class RssObserver extends ContentObserver{
     private static final String TAG = RssObserver.class.getSimpleName();
-    public static final Uri PATH_ENTRY = Uri.parse("content://org.foree.duker/entry");
+    private static final String URI_AUTHOR = "content://org.foree.duker";
+    public static final Uri URI_ENTRY = Uri.parse(URI_AUTHOR + "/entry");
+    public static final Uri URI_PROFILE = Uri.parse(URI_AUTHOR + "/profile");
+    public static final Uri URI_CATEGORY = Uri.parse(URI_AUTHOR + "/category");
+    public static final Uri URI_FEED = Uri.parse(URI_AUTHOR + "/feed");
+    public static final Uri URI_SUB_CATE = Uri.parse(URI_AUTHOR + "/feed_category");
 
     private Handler mHandler;
 

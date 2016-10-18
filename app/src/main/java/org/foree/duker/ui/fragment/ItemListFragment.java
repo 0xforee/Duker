@@ -2,7 +2,6 @@ package org.foree.duker.ui.fragment;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
@@ -28,7 +27,7 @@ import org.foree.duker.api.AbsApiHelper;
 import org.foree.duker.api.ApiFactory;
 import org.foree.duker.api.FeedlyApiArgs;
 import org.foree.duker.api.LocalApiHelper;
-import org.foree.duker.dao.RssDao;
+import org.foree.duker.dao.RssDaoHelper;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.net.SyncState;
 import org.foree.duker.provider.RssObserver;
@@ -51,7 +50,7 @@ public class ItemListFragment extends Fragment implements SyncState {
     private AbsApiHelper localApiHelper;
     private Context mContext;
     private List<RssItem> itemList = new ArrayList<>();
-    RssDao rssDao;
+    RssDaoHelper rssDaoHelper;
     private ContentObserver mContentObserver;
 
     private Handler mHandler = new Handler(){
@@ -134,7 +133,7 @@ public class ItemListFragment extends Fragment implements SyncState {
         mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
                 DividerItemDecoration.VERTICAL_LIST));
 
-        rssDao = new RssDao(getActivity());
+        rssDaoHelper = new RssDaoHelper(getActivity());
 
         initAdapter();
 
@@ -167,7 +166,7 @@ public class ItemListFragment extends Fragment implements SyncState {
                 Toast.makeText(getActivity(), position + "", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getActivity(), ArticleActivity.class);
                 intent.putExtra("entry", itemList.get(position));
-                rssDao.updateUnreadByEntryId(itemList.get(position).getEntryId(), false);
+                rssDaoHelper.updateUnreadByEntryId(itemList.get(position).getEntryId(), false);
                 startActivity(intent);
             }
 

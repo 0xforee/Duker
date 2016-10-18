@@ -2,7 +2,7 @@ package org.foree.duker.api;
 
 import org.foree.duker.base.BaseApplication;
 import org.foree.duker.base.MyApplication;
-import org.foree.duker.dao.RssDao;
+import org.foree.duker.dao.RssDaoHelper;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.rssinfo.RssCategory;
 import org.foree.duker.rssinfo.RssFeed;
@@ -42,8 +42,8 @@ public class LocalApiHelper extends FeedlyApiHelper {
     @Override
     public void getProfile(String token, final NetCallback<RssProfile> netCallback) {
 
-        RssDao rssDao = new RssDao(BaseApplication.getInstance().getApplicationContext());
-        RssProfile rssProfile = rssDao.readProfile();
+        RssDaoHelper rssDaoHelper = new RssDaoHelper(BaseApplication.getInstance().getApplicationContext());
+        RssProfile rssProfile = rssDaoHelper.readProfile();
 
         if(netCallback != null){
             if( rssProfile != null)
@@ -76,8 +76,8 @@ public class LocalApiHelper extends FeedlyApiHelper {
     public void getStream(String token, String streamId, FeedlyApiArgs args, final NetCallback<List<RssItem>> netCallback) {
 
         // only get data from db
-        final RssDao rssDao = new RssDao(BaseApplication.getInstance().getApplicationContext());
-        List<RssItem> rssItemList = rssDao.findUnreadEntriesByFeedId(streamId, true);
+        final RssDaoHelper rssDaoHelper = new RssDaoHelper(BaseApplication.getInstance().getApplicationContext());
+        List<RssItem> rssItemList = rssDaoHelper.findUnreadEntriesByFeedId(streamId, true);
 
         if( netCallback != null) {
             if (!rssItemList.isEmpty()) {
@@ -91,8 +91,8 @@ public class LocalApiHelper extends FeedlyApiHelper {
     @Override
     public void getFeedCate(String token, NetCallback<Map<RssCategory, List<RssFeed>>> netCallback) {
         // only get data from db
-        final RssDao rssDao = new RssDao(BaseApplication.getInstance().getApplicationContext());
-        Map<RssCategory, List<RssFeed>> feedCateMap = rssDao.readFeedCate();
+        final RssDaoHelper rssDaoHelper = new RssDaoHelper(BaseApplication.getInstance().getApplicationContext());
+        Map<RssCategory, List<RssFeed>> feedCateMap = rssDaoHelper.readFeedCate();
 
         if( netCallback != null) {
             if (!feedCateMap.isEmpty()) {
@@ -106,8 +106,8 @@ public class LocalApiHelper extends FeedlyApiHelper {
     @Override
     public void getUnreadCounts(String token, final NetCallback<Map<String, Long>> netCallback) {
         // only get data from db
-        final RssDao rssDao = new RssDao(BaseApplication.getInstance().getApplicationContext());
-        Map<String, Long> unReadCountsMap = rssDao.getUnreadCounts();
+        final RssDaoHelper rssDaoHelper = new RssDaoHelper(BaseApplication.getInstance().getApplicationContext());
+        Map<String, Long> unReadCountsMap = rssDaoHelper.getUnreadCounts();
 
         if( netCallback != null) {
             if (!unReadCountsMap.isEmpty()) {
