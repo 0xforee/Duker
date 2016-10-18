@@ -42,7 +42,6 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import org.foree.duker.R;
 import org.foree.duker.base.BaseActivity;
 import org.foree.duker.base.BaseApplication;
-import org.foree.duker.net.SyncState;
 import org.foree.duker.rssinfo.RssCategory;
 import org.foree.duker.rssinfo.RssFeed;
 import org.foree.duker.rssinfo.RssProfile;
@@ -104,8 +103,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                     break;
                 case MSG_UPDATE_ENTRIES:
                     Log.d(TAG, "update UI");
-                    if( f != null)
-                        ((SyncState)f).updateUI();
+
                     break;
                 case MSG_SYNC_ENTRIES_START:
                     break;
@@ -245,18 +243,20 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     @Override
     public void updateUnreadCounts(Map<String, Long> unReadCountsMap) {
 
-        // update All unreadCounts
-        ((PrimaryDrawerItem)result.getDrawerItem(DRAW_ITEM_HOME)).withBadge(new StringHolder(unReadCountsMap.get(result.getDrawerItem(DRAW_ITEM_HOME).getTag() + "") + ""));
-        result.getAdapter().notifyAdapterItemChanged(result.getPosition(DRAW_ITEM_HOME));
+        if( result.getDrawerItem(DRAW_ITEM_HOME) != null) {
+            // update All unreadCounts
+            ((PrimaryDrawerItem) result.getDrawerItem(DRAW_ITEM_HOME)).withBadge(new StringHolder(unReadCountsMap.get(result.getDrawerItem(DRAW_ITEM_HOME).getTag() + "") + ""));
+            result.getAdapter().notifyAdapterItemChanged(result.getPosition(DRAW_ITEM_HOME));
 
-        // update feed unreadCounts
-        if( feedCateMap != null) {
-            for (RssCategory rss : feedCateMap.keySet()) {
-                List<SecondaryDrawerItem> secondaryDrawerItems = ((IExpandable) result.getDrawerItem(rss.getCategoryId())).getSubItems();
-                for (SecondaryDrawerItem secondaryDrawerItem : secondaryDrawerItems) {
-                    secondaryDrawerItem.withBadge(new StringHolder(unReadCountsMap.get(secondaryDrawerItem.getTag() + "") + ""));
+            // update feed unreadCounts
+            if (feedCateMap != null) {
+                for (RssCategory rss : feedCateMap.keySet()) {
+                    List<SecondaryDrawerItem> secondaryDrawerItems = ((IExpandable) result.getDrawerItem(rss.getCategoryId())).getSubItems();
+                    for (SecondaryDrawerItem secondaryDrawerItem : secondaryDrawerItems) {
+                        secondaryDrawerItem.withBadge(new StringHolder(unReadCountsMap.get(secondaryDrawerItem.getTag() + "") + ""));
+                    }
+                    result.getAdapter().notifyAdapterSubItemsChanged(result.getPosition(CATEGORY_IDENTIFIER));
                 }
-                result.getAdapter().notifyAdapterSubItemsChanged(result.getPosition(CATEGORY_IDENTIFIER));
             }
         }
     }

@@ -22,7 +22,7 @@ public class RssInfoProvider extends ContentProvider {
     private static final String TAG = RssInfoProvider.class.getSimpleName();
 
     private static final String AUTHORITY = "org.foree.duker";
-    private static final String PATH_ENTRY = RssSQLiteOpenHelper.DB_TABLE_ENTRY + "/*";
+    private static final String PATH_ENTRY = RssSQLiteOpenHelper.DB_TABLE_ENTRY;
     private static final String PATH_CATEGORY = RssSQLiteOpenHelper.DB_TABLE_CATEGORY;
     private static final String PATH_FEED = RssSQLiteOpenHelper.DB_TABLE_FEED;
     private static final String PATH_PROFILE = RssSQLiteOpenHelper.DB_TABLE_PROFILE;

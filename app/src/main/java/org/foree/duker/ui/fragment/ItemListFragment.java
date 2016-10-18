@@ -1,8 +1,13 @@
 package org.foree.duker.ui.fragment;
 
+import android.app.Activity;
 import android.app.Fragment;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.ContentObserver;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -26,6 +31,7 @@ import org.foree.duker.api.LocalApiHelper;
 import org.foree.duker.dao.RssDao;
 import org.foree.duker.net.NetCallback;
 import org.foree.duker.net.SyncState;
+import org.foree.duker.provider.RssObserver;
 import org.foree.duker.rssinfo.RssItem;
 import org.foree.duker.ui.activity.ArticleActivity;
 import org.foree.duker.ui.fragment.ItemListAdapter.OnItemClickListener;
@@ -43,8 +49,10 @@ public class ItemListFragment extends Fragment implements SyncState {
     private RecyclerView mRecyclerView;
     private ItemListAdapter mAdapter;
     private AbsApiHelper localApiHelper;
+    private Context mContext;
     private List<RssItem> itemList = new ArrayList<>();
     RssDao rssDao;
+    private ContentObserver mContentObserver;
 
     private Handler mHandler = new Handler(){
         @Override
@@ -58,7 +66,7 @@ public class ItemListFragment extends Fragment implements SyncState {
             }
         }
     };
-    private static final int MSG_SYNC_START = 0;
+    public static final int MSG_SYNC_START = 0;
 
     public ItemListFragment() {
         // Required empty public constructor
@@ -82,12 +90,36 @@ public class ItemListFragment extends Fragment implements SyncState {
         AbsApiFactory absApiFactory = new ApiFactory();
         localApiHelper = absApiFactory.createApiHelper(LocalApiHelper.class);
 
+        mContentObserver = new RssObserver(mHandler);
+
         Log.d(TAG, "onCreate");
     }
 
     @Override
     public void onAttach(Context context) {
+        Log.d(TAG, "onAttach");
+        mContext = context;
+        context.getContentResolver().registerContentObserver(Uri.parse("content://org.foree.duker/entry"), true, mContentObserver);
         super.onAttach(context);
+
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            Log.d(TAG, "onAttach");
+            mContext = activity;
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        Log.d(TAG, "onDetach");
+        if( mContext != null){
+            mContext.getContentResolver().unregisterContentObserver(mContentObserver);
+        }
+        super.onDetach();
     }
 
     @Nullable
@@ -107,6 +139,9 @@ public class ItemListFragment extends Fragment implements SyncState {
         initAdapter();
 
         syncDate();
+
+        getActivity().getContentResolver().registerContentObserver(Uri.parse("content://org.foree.duker/entry"), true, mContentObserver);
+
 
         return linearLayout;
     }
