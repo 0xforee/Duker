@@ -143,7 +143,6 @@ public class RefreshService extends Service {
                     @Override
                     public void onSuccess(RssProfile data) {
                         rssDaoHelper.insertProfile(data);
-                        sendMainActivityEmptyMessage(MainActivity.MSG_UPDATE_PROFILE);
                     }
 
                     @Override
@@ -165,7 +164,6 @@ public class RefreshService extends Service {
                     @Override
                     public void onSuccess(List<RssCategory> data) {
                         rssDaoHelper.insertCategory(data);
-                        mHandler.sendEmptyMessage(MSG_SYNC_SUBSCRIPTION);
                     }
 
                     @Override
@@ -187,7 +185,6 @@ public class RefreshService extends Service {
                     @Override
                     public void onSuccess(List<RssFeed> data) {
                         rssDaoHelper.insertFeedAndSubCate(data);
-                        sendMainActivityEmptyMessage(MainActivity.MSG_UPDATE_SUBSCRIPTIONS);
                     }
 
                     @Override
@@ -238,7 +235,6 @@ public class RefreshService extends Service {
 
                         mHandler.sendEmptyMessage(MSG_SYNC_ENTRIES_INTERNAL);
 
-                        sendMainActivityEmptyMessage(MainActivity.MSG_UPDATE_ENTRIES);
                     }
 
                     @Override

@@ -31,7 +31,6 @@ public class RssObserver extends ContentObserver{
 
     @Override
     public void onChange(boolean selfChange, Uri uri) {
-        super.onChange(selfChange, uri);
         Log.d(TAG, "uri = " + uri.toString() + " changed was observed");
     }
 }

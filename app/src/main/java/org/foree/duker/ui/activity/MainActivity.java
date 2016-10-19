@@ -2,6 +2,7 @@ package org.foree.duker.ui.activity;
 
 import android.app.Fragment;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -42,6 +43,8 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import org.foree.duker.R;
 import org.foree.duker.base.BaseActivity;
 import org.foree.duker.base.BaseApplication;
+import org.foree.duker.provider.MainObserver;
+import org.foree.duker.provider.RssObserver;
 import org.foree.duker.rssinfo.RssCategory;
 import org.foree.duker.rssinfo.RssFeed;
 import org.foree.duker.rssinfo.RssProfile;
@@ -82,7 +85,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     public static final int MSG_UPDATE_UNREAD = 0;
     public static final int MSG_UPDATE_SUBSCRIPTIONS = 1;
     public static final int MSG_UPDATE_PROFILE = 2;
-    public static final int MSG_UPDATE_ENTRIES = 3;
     public static final int MSG_SYNC_ENTRIES_START = 4;
     public static final int MSG_SYNC_ENTRIES_SUCCESS = 5;
     public static final int MSG_SYNC_ENTRIES_FAIL = 6;
@@ -100,10 +102,6 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
                     break;
                 case MSG_UPDATE_PROFILE:
                     mainPresenter.getProfile();
-                    break;
-                case MSG_UPDATE_ENTRIES:
-                    Log.d(TAG, "update UI");
-
                     break;
                 case MSG_SYNC_ENTRIES_START:
                     break;
@@ -127,6 +125,9 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
     SwipeRefreshLayout mSwipeRefreshLayout;
     SharedPreferences sp;
     IMainPresenter mainPresenter;
+    ContentResolver mContentResolver;
+    RssObserver mObserver;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,6 +169,13 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
             }
         });
 
+        mObserver = new MainObserver(mHandler);
+        getContentResolver().registerContentObserver(RssObserver.URI_ENTRY, true, mObserver);
+        getContentResolver().registerContentObserver(RssObserver.URI_PROFILE, true, mObserver);
+        getContentResolver().registerContentObserver(RssObserver.URI_CATEGORY, true, mObserver);
+        getContentResolver().registerContentObserver(RssObserver.URI_FEED, true, mObserver);
+        getContentResolver().registerContentObserver(RssObserver.URI_SUB_CATE, true, mObserver);
+
     }
 
     private void initImageLoader() {
@@ -186,6 +194,7 @@ public class MainActivity extends BaseActivity implements OnDrawerItemClickListe
         Log.d(TAG, "onDestroy");
         mStreamService.markEntriesAsRead();
         unbindService(mServiceConnect);
+        getContentResolver().unregisterContentObserver(mObserver);
     }
 
     private void initDraw(Bundle savedInstanceState){
