@@ -158,23 +158,30 @@ public class ItemListFragment extends Fragment {
     }
 
     private void syncDate(){
-
-        String feedId = getArguments().getString(KEY_FEEDID);
-        FeedlyApiArgs args = new FeedlyApiArgs();
-        // getItemList
-        localApiHelper.getStream("", feedId, args, new NetCallback<List<RssItem>>() {
+        Runnable syncData = new Runnable() {
             @Override
-            public void onSuccess(List<RssItem> data) {
-                itemList.clear();
-                itemList.addAll(data);
-                mAdapter.notifyDataSetChanged();
-            }
+            public void run() {
+                String feedId = getArguments().getString(KEY_FEEDID);
+                FeedlyApiArgs args = new FeedlyApiArgs();
+                // getItemList
+                localApiHelper.getStream("", feedId, args, new NetCallback<List<RssItem>>() {
+                    @Override
+                    public void onSuccess(List<RssItem> data) {
+                        itemList.clear();
+                        itemList.addAll(data);
+                        mAdapter.notifyDataSetChanged();
+                    }
 
-            @Override
-            public void onFail(String msg) {
+                    @Override
+                    public void onFail(String msg) {
 
+                    }
+                });
             }
-        });
+        };
+
+        mHandler.post(syncData);
+
     }
 
 }
