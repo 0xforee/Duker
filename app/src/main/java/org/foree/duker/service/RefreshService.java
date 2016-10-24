@@ -28,6 +28,9 @@ import org.foree.duker.ui.activity.MainActivity;
 import org.foree.duker.utils.FeedlyApiUtils;
 
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Service的职责是负责数据从网络到本地数据库的流向，以及通知activity更新UI
@@ -47,10 +50,12 @@ public class RefreshService extends Service {
     Handler mHandler;
     Messenger mainActivityMessenger;
 
-    Thread timeTriggerThread;
-    Thread syncEntriesThread;
-
     SharedPreferences sp;
+
+    ScheduledExecutorService scheduleExecutor = Executors.newScheduledThreadPool(4);
+    int scheduleTime;
+
+    Runnable entryRunnable;
 
     private MyBinder mBinder = new MyBinder();
 
@@ -58,8 +63,8 @@ public class RefreshService extends Service {
     }
 
     public void stopSync() {
-        if( syncEntriesThread.isAlive())
-            syncEntriesThread.stop();
+        if(!scheduleExecutor.isShutdown())
+            scheduleExecutor.shutdown();
     }
 
     public class MyBinder extends Binder {
@@ -102,19 +107,40 @@ public class RefreshService extends Service {
                 super.handleMessage(msg);
             }
         };
+
+
+    }
+
+    private void resetTimeTrigger() {
+        // add entry sync time trigger
+        if(entryRunnable == null) {
+            entryRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    mHandler.sendEmptyMessage(MSG_REFRESH_ENTRIES);
+
+                }
+            };
+
+            scheduleExecutor.scheduleAtFixedRate(entryRunnable, 1, scheduleTime, TimeUnit.SECONDS);
+
+        }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
 
+        // getScheduleTime from settings
+        scheduleTime = 5;
+
+        resetTimeTrigger();
+
         // sync profile
         //syncProfile();
 
         // sync category
         syncCategory();
-
-        timeTrigger();
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -123,8 +149,6 @@ public class RefreshService extends Service {
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
         super.onDestroy();
-        timeTriggerThread.stop();
-        syncEntriesThread.stop();
     }
 
     @Override
@@ -135,10 +159,9 @@ public class RefreshService extends Service {
 
     // sync profile
     private void syncProfile(){
-        new Thread(){
+        scheduleExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                super.run();
                 feedlyApiHelper.getProfile("", new NetCallback<RssProfile>() {
                     @Override
                     public void onSuccess(RssProfile data) {
@@ -151,15 +174,15 @@ public class RefreshService extends Service {
                     }
                 });
             }
-        }.start();
+        });
+
     }
 
     // sync category
     private void syncCategory(){
-        new Thread(){
+        scheduleExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                super.run();
                 feedlyApiHelper.getCategoriesList("", new NetCallback<List<RssCategory>>() {
                     @Override
                     public void onSuccess(List<RssCategory> data) {
@@ -172,15 +195,15 @@ public class RefreshService extends Service {
                     }
                 });
             }
-        }.start();
+        });
+
     }
 
     // sync feeds
     private void syncFeeds(){
-        new Thread(){
+        scheduleExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                super.run();
                 feedlyApiHelper.getSubscriptions("", new NetCallback<List<RssFeed>>() {
                     @Override
                     public void onSuccess(List<RssFeed> data) {
@@ -193,7 +216,8 @@ public class RefreshService extends Service {
                     }
                 });
             }
-        }.start();
+        });
+
     }
 
     // sync new data
@@ -220,7 +244,7 @@ public class RefreshService extends Service {
     // first import data from server
     private void syncEntriesInternal(final FeedlyApiArgs args) {
         // start sync old data
-        syncEntriesThread = new Thread() {
+        scheduleExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 Log.d(TAG, "get continuation");
@@ -242,15 +266,14 @@ public class RefreshService extends Service {
                         sendMainActivityMessage(MainActivity.MSG_SYNC_ENTRIES_FAIL, msg);
                     }
                 });
-
             }
-        };
-        syncEntriesThread.start();
+        });
+
     }
 
     // mark entries read
     public void markEntriesAsRead(){
-        Thread markEntriesThread = new Thread(){
+        scheduleExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 // findUnreadEntriesByFeedId unread=false itemList.get(i)s
@@ -267,35 +290,10 @@ public class RefreshService extends Service {
                         public void onFail(String msg) {
                         }
                     });
-                    super.run();
                 }
             }
-        };
-        markEntriesThread.start();
-    }
+        });
 
-    // time
-    private void timeTrigger(){
-        if(timeTriggerThread == null) {
-            Log.d(TAG, "create timeTrigger Thread");
-            timeTriggerThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        synchronized (this) {
-                            wait(1000 * 60 * 60);
-                            mHandler.sendEmptyMessage(MSG_REFRESH_ENTRIES);
-                            timeTrigger();
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-        }
-
-        if( timeTriggerThread.getState().equals(Thread.State.TERMINATED))
-            timeTriggerThread.start();
     }
 
     // sendMainActivityEmptyMessage
