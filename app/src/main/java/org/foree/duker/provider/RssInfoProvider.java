@@ -106,19 +106,21 @@ public class RssInfoProvider extends ContentProvider {
                 break;
             case CODE_PROFILE:
                 id = db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_PROFILE, null, values,SQLiteDatabase.CONFLICT_REPLACE);
+                getContext().getContentResolver().notifyChange(uri,null);
                 break;
             case CODE_CATEGORY:
                 id = db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_CATEGORY, null, values,SQLiteDatabase.CONFLICT_REPLACE);
                 break;
             case CODE_FEED:
                 id = db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_FEED, null, values,SQLiteDatabase.CONFLICT_REPLACE);
+                getContext().getContentResolver().notifyChange(uri,null);
                 break;
             case CODE_SUB_CATE:
                 id = db.insertWithOnConflict(RssSQLiteOpenHelper.DB_TABLE_SUB_CATE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+                getContext().getContentResolver().notifyChange(uri,null);
                 break;
         }
 
-        getContext().getContentResolver().notifyChange(uri,null);
         resultUri = ContentUris.withAppendedId(uri, id);
 
         return resultUri;
